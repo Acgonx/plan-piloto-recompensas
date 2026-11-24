@@ -1,0 +1,2077 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Modo Piloto" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <title>Plan de Acción · Modo Piloto</title>
+  <style>
+    :root {
+      --bg: #f3f6f9;
+      --surface: #ffffff;
+      --surface-soft: #f8fafc;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+
+      --primary: #2563eb;
+      --primary-soft: #eff6ff;
+      --pc-color: #0284c7;
+      --pc-soft: #e0f2fe;
+      --mobile-color: #7c3aed;
+      --mobile-soft: #f3e8ff;
+
+      --success: #16a34a;
+      --success-soft: #dcfce7;
+      --warning: #d97706;
+      --warning-soft: #fef3c7;
+      --danger: #dc2626;
+      --danger-soft: #fee2e2;
+
+      --radius: 16px;
+      --shadow: 0 4px 20px rgba(15, 23, 42, 0.06);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.45;
+      padding-bottom: 56px;
+    }
+
+    .container {
+      max-width: 1060px;
+      margin: 0 auto;
+      padding: 14px;
+    }
+
+    /* Mode Selector Screen */
+    .mode-screen {
+      min-height: 88vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .mode-wrapper {
+      max-width: 680px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .mode-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin-top: 22px;
+    }
+
+    .mode-card {
+      background: var(--surface);
+      border: 2px solid var(--border);
+      border-radius: 20px;
+      padding: 28px 20px;
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      transition: transform 0.15s ease, border-color 0.15s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      text-align: center;
+    }
+
+    .mode-card:hover { transform: translateY(-2px); }
+    .mode-card.pilot:hover { border-color: var(--primary); }
+    .mode-card.supervisor:hover { border-color: #334155; }
+
+    .mode-icon { font-size: 2.8rem; }
+    .mode-title { font-size: 1.25rem; font-weight: 800; }
+    .mode-desc { font-size: 0.88rem; color: var(--text-muted); }
+
+    /* Header */
+    .topbar {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 16px 18px;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 16px;
+      border: 1px solid var(--border);
+    }
+
+    .brand h1 { font-size: 1.25rem; font-weight: 700; }
+
+    .brand .subtitle {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin-top: 4px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+
+    .badge-info { background: var(--primary-soft); color: var(--primary); }
+    .badge-success { background: var(--success-soft); color: var(--success); }
+    .badge-warning { background: var(--warning-soft); color: var(--warning); }
+    .badge-pc { background: var(--pc-soft); color: var(--pc-color); }
+    .badge-mobile { background: var(--mobile-soft); color: var(--mobile-color); }
+    .badge-bonus { background: #fef9c3; color: #a16207; }
+
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    /* Buttons */
+    button {
+      font-family: inherit;
+      cursor: pointer;
+      border: none;
+      border-radius: 11px;
+      font-weight: 600;
+      font-size: 0.92rem;
+      min-height: 42px;
+      padding: 10px 15px;
+      transition: transform 0.1s ease, opacity 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    button:active { transform: scale(0.97); }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-pc { background: var(--pc-color); color: #fff; }
+    .btn-mobile { background: var(--mobile-color); color: #fff; }
+    .btn-success { background: var(--success); color: #fff; }
+    .btn-warning { background: var(--warning); color: #fff; }
+    .btn-dark { background: #1e293b; color: #fff; }
+    .btn-outline {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-sm { min-height: 36px; padding: 6px 11px; font-size: 0.82rem; border-radius: 9px; }
+
+    /* Cards & Grids */
+    .card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 18px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      margin-bottom: 16px;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .card-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .step-pill {
+      background: var(--text);
+      color: #fff;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      padding: 3px 8px;
+      border-radius: 6px;
+    }
+
+    .connection-box {
+      background: linear-gradient(135deg, #eff6ff 0%, #f0fdf4 100%);
+      border: 1px solid #dbeafe;
+    }
+
+    .connection-text {
+      color: #334155;
+      font-size: 0.94rem;
+      margin-bottom: 10px;
+    }
+
+    .daily-cap-bar {
+      background: rgba(255, 255, 255, 0.88);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 12px;
+      background: #e2e8f0;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--primary);
+      border-radius: 999px;
+      transition: width 0.3s ease, background-color 0.3s ease;
+    }
+
+    .wallets-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .wallet-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 18px;
+      box-shadow: var(--shadow);
+      border: 2px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .wallet-card.active-pc { border-color: var(--pc-color); background: #f8fdff; }
+    .wallet-card.active-mobile { border-color: var(--mobile-color); background: #fcfaff; }
+
+    .wallet-time {
+      font-size: 2.3rem;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+    }
+
+    .wallet-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.84rem;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border);
+      padding-top: 10px;
+    }
+
+    .active-timer-card {
+      border: 2px solid var(--success);
+      background: var(--surface);
+    }
+
+    .active-timer-card.warning-state {
+      border-color: var(--warning);
+      background: #fffbeb;
+    }
+
+    .timer-display-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+
+    .big-countdown {
+      font-size: 2.7rem;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .recalc-summary {
+      background: var(--surface-soft);
+      border: 1px dashed #cbd5e1;
+      border-radius: 10px;
+      padding: 9px 12px;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+
+    .task-list { display: flex; flex-direction: column; gap: 10px; }
+
+    .task-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--surface-soft);
+    }
+
+    .task-item.completed {
+      background: var(--success-soft);
+      border-color: #bbf7d0;
+    }
+
+    .task-info {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .task-title { font-weight: 600; font-size: 0.94rem; }
+    .task-sub { font-size: 0.8rem; color: var(--text-muted); }
+    .task-item.completed .task-title { text-decoration: line-through; color: #166534; }
+
+    .task-tags { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+    .task-actions { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+
+    .break-box {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+
+    /* Clickable Weekly Card */
+    .weekly-clickable {
+      cursor: pointer;
+      transition: border-color 0.15s ease, transform 0.1s ease;
+    }
+
+    .weekly-clickable:hover {
+      border-color: var(--primary);
+      transform: translateY(-1px);
+    }
+
+    .week-days {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      margin: 12px 0;
+    }
+
+    .day-chip {
+      text-align: center;
+      padding: 10px 4px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--surface-soft);
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    .day-chip.done { background: var(--success-soft); border-color: var(--success); color: #166534; }
+    .day-chip.today { outline: 2px solid var(--primary); }
+
+    /* Supervisor Banner & Panel */
+    .adult-banner {
+      background: #1e293b;
+      color: #fff;
+      padding: 12px 16px;
+      border-radius: 12px;
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .field input, .field select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      font-size: 0.92rem;
+      font-family: inherit;
+      background: #fff;
+    }
+
+    .divider { height: 1px; background: var(--border); margin: 16px 0; }
+
+    /* Modals */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.55);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 1000;
+    }
+
+    .modal-backdrop.open { display: flex; }
+
+    .modal {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 22px;
+      max-width: 440px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+    }
+
+    .modal.modal-lg { max-width: 680px; }
+
+    .pin-input {
+      font-size: 1.6rem;
+      text-align: center;
+      letter-spacing: 0.4em;
+      padding: 12px;
+      width: 100%;
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      margin: 14px 0;
+    }
+
+    /* Weekly Summary Modal */
+    .summary-kpis {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin: 14px 0;
+    }
+
+    .kpi-box {
+      background: var(--surface-soft);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      text-align: center;
+    }
+
+    .kpi-val { font-size: 1.35rem; font-weight: 800; }
+    .kpi-lbl { font-size: 0.78rem; color: var(--text-muted); }
+
+    .weekly-rows { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+
+    .weekly-day-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--surface-soft);
+      font-size: 0.86rem;
+    }
+
+    .weekly-day-row.is-today { border-color: var(--primary); background: var(--primary-soft); }
+
+    .history-list { max-height: 210px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+    .history-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 12px;
+      background: var(--surface-soft);
+      border-radius: 8px;
+      font-size: 0.84rem;
+      border: 1px solid var(--border);
+    }
+
+    .muted { color: var(--text-muted); font-size: 0.85rem; }
+    .hidden { display: none !important; }
+
+    @media (max-width: 820px) {
+      .mode-grid, .wallets-grid, .main-grid, .summary-kpis { grid-template-columns: 1fr; }
+      .task-item { flex-direction: column; align-items: stretch; }
+      .task-actions { justify-content: flex-start; }
+      .big-countdown { font-size: 2.2rem; }
+      .wallet-time { font-size: 2rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ===================================================================== -->
+<!-- PANTALLA INICIAL: SELECCIÓN DE MODO                                   -->
+<!-- ===================================================================== -->
+<div id="modeSelectorScreen" class="mode-screen">
+  <div class="mode-wrapper">
+    <div style="font-size:2.4rem; margin-bottom:6px;">🏁</div>
+    <h1 style="font-size:1.65rem; font-weight:800;">Plan de Acción y Recompensas</h1>
+    <p class="muted" style="margin-top:6px;">Elige cómo quieres entrar hoy</p>
+
+    <div id="runningTimerNotice" class="badge badge-warning hidden" style="margin-top:12px; padding:8px 14px;">
+      ⏱️ Hay un temporizador en marcha ahora mismo
+    </div>
+
+    <div class="mode-grid">
+      <div class="mode-card pilot" onclick="enterPilotMode()">
+        <div class="mode-icon">🏎️</div>
+        <div class="mode-title">Modo Piloto</div>
+        <div class="mode-desc">
+          Entra aquí para ver tus metas diarias, hacer pausas activas y usar tus minutos ganados.
+        </div>
+        <button class="btn-primary" style="margin-top:8px; width:100%;">Entrar como Piloto</button>
+      </div>
+
+      <div class="mode-card supervisor" onclick="openPinModal()">
+        <div class="mode-icon">🛠️</div>
+        <div class="mode-title">Modo Supervisión</div>
+        <div class="mode-desc">
+          Acceso adulto (PIN) para añadir o quitar tareas, sumar minutos extra y ajustar reglas.
+        </div>
+        <button class="btn-dark" style="margin-top:8px; width:100%;">🔒 Entrar con PIN</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================================================================== -->
+<!-- APLICACIÓN PRINCIPAL                                                  -->
+<!-- ===================================================================== -->
+<div id="appMainScreen" class="container hidden">
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="brand">
+      <h1 id="headerModeTitle">🏎️ Modo Piloto · Pablo</h1>
+      <div class="subtitle">
+        <span id="todayLabel">Hoy</span>
+        <span id="dayTypeBadge" class="badge badge-info">Día escolar</span>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <button class="btn-outline btn-sm" onclick="openWeeklyModal()">📊 Resumen semanal</button>
+      <button class="btn-outline btn-sm" id="soundToggleBtn" onclick="toggleMute()">🔊 Sonido: ON</button>
+      <button class="btn-primary btn-sm" onclick="returnToModeSelector()">🔄 Cambiar modo</button>
+    </div>
+  </header>
+
+  <!-- SUPERVISOR BANNER -->
+  <div id="adultBanner" class="adult-banner hidden">
+    <div>
+      <strong>🛠️ Modo Supervisión activo</strong>
+      <span style="font-size:0.84rem; opacity:0.85; margin-left:6px;">Al añadir o quitar tareas, el tiempo diario se recalcula automáticamente.</span>
+    </div>
+    <button class="btn-outline btn-sm" style="background:#334155; color:#fff; border-color:#475569;" onclick="enterPilotMode()">Pasar a Modo Piloto</button>
+  </div>
+
+  <!-- ACTIVE TIMER SPOTLIGHT -->
+  <section id="activeTimerCard" class="card active-timer-card hidden">
+    <div class="card-header">
+      <div class="card-title">⏱️ Tiempo en marcha: <span id="activeWalletName">Ordenador y iPad</span></div>
+      <span id="timerStateBadge" class="badge badge-success">Disfrutando recompensa</span>
+    </div>
+    <div class="timer-display-row">
+      <div>
+        <div id="bigCountdown" class="big-countdown">00:00</div>
+        <div id="timerWarningText" class="muted">Cuando falten 5 minutos recibirás un aviso suave.</div>
+      </div>
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <button class="btn-warning" onclick="pauseConsumptionTimer()">⏸️ Pausar</button>
+        <button class="btn-outline" id="wakeLockBtn" onclick="toggleWakeLock()">📱 Pantalla fija: OFF</button>
+        <button class="btn-outline" onclick="launchIphoneClockShortcut()" title="Requiere crear el atajo 'Alarma Pablo' en iPhone">⏰ Reloj iPhone</button>
+      </div>
+    </div>
+    <div class="progress-track" style="margin-top:12px;">
+      <div id="timerProgressFill" class="progress-fill" style="width:100%; background:var(--success);"></div>
+    </div>
+  </section>
+
+  <!-- STEP 1: CONEXIÓN -->
+  <section class="card connection-box">
+    <div class="card-header" style="margin-bottom:8px;">
+      <div class="card-title">
+        <span class="step-pill">Paso 1 · Conexión</span>
+        Acuerdo diario y calma
+      </div>
+    </div>
+    <p class="connection-text">
+      Empezamos con calma y paso a paso. <strong>Lo ganado no se resta por errores</strong>; los minutos del día no se acumulan para mañana. Recuerda los 30 min obligatorios de lectura antes de dormir.
+    </p>
+    <div class="daily-cap-bar">
+      <div style="display:flex; justify-content:space-between; font-size:0.88rem; font-weight:600; flex-wrap:wrap; gap:6px;">
+        <span>Progreso ganado hoy: <strong id="dailyEarnedSummary">0 / 90 min</strong></span>
+        <span id="weekendPcCapInfo" class="muted hidden">Tope Ordenador/iPad fin de semana: <strong id="pcWeekendEarned">0 / 120 min</strong></span>
+      </div>
+      <div class="progress-track">
+        <div id="dailyCapFill" class="progress-fill" style="width:0%;"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WALLETS -->
+  <section class="wallets-grid">
+    <article id="cardPcIpad" class="wallet-card">
+      <div>
+        <div class="card-header" style="margin-bottom:8px;">
+          <div class="card-title">💻📱 Ordenador y iPad</div>
+          <span class="badge badge-pc" id="pcIpadLimitHint">iPad / PC</span>
+        </div>
+        <div class="wallet-time" id="pcIpadRemaining">00:00</div>
+        <div class="muted">Minutos disponibles hoy</div>
+      </div>
+      <button class="btn-pc" id="startPcBtn" onclick="startConsumptionTimer('pc_ipad')">▶️ Usar tiempo</button>
+      <div class="wallet-meta">
+        <span>Ganado hoy: <strong id="pcIpadEarned">0 min</strong></span>
+        <span>Usado hoy: <strong id="pcIpadConsumed">0 min</strong></span>
+      </div>
+    </article>
+
+    <article id="cardMobile" class="wallet-card">
+      <div>
+        <div class="card-header" style="margin-bottom:8px;">
+          <div class="card-title">📱 Móvil (YouTube / Juegos)</div>
+          <span class="badge badge-mobile">Móvil</span>
+        </div>
+        <div class="wallet-time" id="mobileRemaining">00:00</div>
+        <div class="muted">Minutos disponibles hoy</div>
+      </div>
+      <button class="btn-mobile" id="startMobileBtn" onclick="startConsumptionTimer('mobile')">▶️ Usar tiempo</button>
+      <div class="wallet-meta">
+        <span>Ganado hoy: <strong id="mobileEarned">0 min</strong></span>
+        <span>Usado hoy: <strong id="mobileConsumed">0 min</strong></span>
+      </div>
+    </article>
+  </section>
+
+  <!-- MAIN GRID -->
+  <div class="main-grid">
+    <!-- STEP 2: REVISIÓN -->
+    <section class="card">
+      <div class="card-header">
+        <div class="card-title">
+          <span class="step-pill">Paso 2 · Revisión</span>
+          Tareas diarias de Pablo
+        </div>
+        <span class="muted" id="tasksDoneCounter">0 de 0 completadas</span>
+      </div>
+
+      <!-- Descanso Activo -->
+      <div class="break-box">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+          <div>
+            <strong>🧘 Descanso Activo (4 min)</strong>
+            <div class="muted" id="breakTipText">Pausa breve entre tareas para moverte. No gasta minutos.</div>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span id="breakCountdown" style="font-weight:800; font-size:1.15rem; font-variant-numeric:tabular-nums;" class="hidden">04:00</span>
+            <button id="breakBtn" class="btn-success btn-sm" onclick="toggleActiveBreak()">Iniciar pausa</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="recalcSummary" class="recalc-summary"></div>
+      <div id="taskList" class="task-list"></div>
+    </section>
+
+    <!-- STEP 3: CELEBRACIÓN & SUPERVISOR PANEL -->
+    <div>
+      <!-- Clickable Weekly Summary Card -->
+      <section class="card weekly-clickable" onclick="openWeeklyModal()" title="Haz clic para ver el resumen completo de la semana">
+        <div class="card-header">
+          <div class="card-title">
+            <span class="step-pill">Paso 3 · Celebración</span>
+            Constancia · Simulador F1
+          </div>
+          <span class="badge badge-info">Ver detalle 📊</span>
+        </div>
+        <p class="muted" id="celebrationMessage">
+          Cada pequeño avance cuenta. Valoramos el esfuerzo por encima de la perfección.
+        </p>
+        <div class="week-days" id="weekDaysGrid"></div>
+        <div id="f1RewardBanner" class="badge badge-info" style="width:100%; justify-content:center; padding:10px; font-size:0.84rem; text-align:center;">
+          🏎️ Completa al menos 3 días entre semana para el Simulador F1
+        </div>
+      </section>
+
+      <!-- SUPERVISOR PANEL -->
+      <section id="adultPanel" class="card hidden">
+        <div class="card-header">
+          <div class="card-title">⚙️ Panel de Supervisión</div>
+        </div>
+
+        <!-- Add Task -->
+        <div>
+          <strong style="font-size:0.92rem;">Agregar nueva tarea (recalcula el tiempo automático)</strong>
+          <div class="form-grid" style="margin-top:8px;">
+            <div class="field" style="grid-column: 1 / -1;">
+              <label>Descripción de la tarea</label>
+              <input type="text" id="newTaskTitle" placeholder="Ej. Repasar tablas de multiplicar" />
+            </div>
+            <div class="field">
+              <label>Tipo de tarea</label>
+              <select id="newTaskType" onchange="toggleNewBonusField()">
+                <option value="regular">Tarea diaria (reparte tope)</option>
+                <option value="bonus">Bonus fijo (ej. +5 min)</option>
+              </select>
+            </div>
+            <div class="field hidden" id="newBonusMinutesWrap">
+              <label>Minutos de bonus</label>
+              <input type="number" id="newTaskBonusMinutes" value="5" min="1" max="30" />
+            </div>
+            <div class="field">
+              <label>Monedero</label>
+              <select id="newTaskWallet">
+                <option value="pc_ipad">Ordenador y iPad</option>
+                <option value="mobile">Móvil</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn-primary btn-sm" onclick="addTask()">➕ Añadir y recalcular</button>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Extra minutes -->
+        <div>
+          <strong style="font-size:0.92rem;">Sumar minutos extra manuales</strong>
+          <div class="form-grid" style="margin-top:8px;">
+            <div class="field">
+              <label>Monedero</label>
+              <select id="bonusWallet">
+                <option value="pc_ipad">Ordenador y iPad</option>
+                <option value="mobile">Móvil</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Minutos a sumar</label>
+              <input type="number" id="bonusMinutes" value="5" min="1" max="120" />
+            </div>
+          </div>
+          <button class="btn-success btn-sm" onclick="grantBonusMinutes()">➕ Sumar minutos</button>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Settings -->
+        <div>
+          <strong style="font-size:0.92rem;">Límites y control</strong>
+          <div class="form-grid" style="margin-top:8px;">
+            <div class="field">
+              <label>Tope L-V (min/día)</label>
+              <input type="number" id="cfgWeekdayCap" min="15" max="300" />
+            </div>
+            <div class="field">
+              <label>Tope Fin de semana (min/día)</label>
+              <input type="number" id="cfgWeekendCap" min="30" max="360" />
+            </div>
+            <div class="field">
+              <label>Máx. Ordenador/iPad Fin de semana</label>
+              <input type="number" id="cfgWeekendPcCap" min="30" max="240" />
+            </div>
+            <div class="field">
+              <label>Quién marca tareas</label>
+              <select id="cfgRequirePinForTasks">
+                <option value="false">Ambos pueden marcar tareas</option>
+                <option value="true">Solo Supervisión marca tareas</option>
+              </select>
+            </div>
+          </div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button class="btn-primary btn-sm" onclick="saveSettings()">💾 Guardar reglas</button>
+            <button class="btn-outline btn-sm" onclick="testAlarmSound(false)">🔔 Probar aviso 5 min</button>
+            <button class="btn-outline btn-sm" onclick="testAlarmSound(true)">⏰ Probar alarma final</button>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- iPhone Clock Shortcut tip -->
+        <div style="background:var(--surface-soft); padding:12px; border-radius:10px; border:1px solid var(--border); font-size:0.82rem;">
+          <strong>⏰ Alarma en Reloj de iPhone (Atajo opcional):</strong>
+          <p class="muted" style="margin-top:4px; font-size:0.8rem;">
+            Por seguridad, iOS no deja que una web programe el Reloj sola. Si creas en tu iPhone un atajo llamado <strong>Alarma Pablo</strong> (<em>1. Recibir entrada de texto → 2. Iniciar temporizador con Entrada del atajo</em>), el botón «⏰ Reloj iPhone» lo activará directamente.
+          </p>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Backup & Reset -->
+        <div>
+          <strong style="font-size:0.92rem;">Copias de seguridad y restauración</strong>
+          <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;">
+            <button class="btn-outline btn-sm" onclick="exportBackup()">⬇️ Exportar copia (JSON)</button>
+            <label class="btn-outline btn-sm" style="cursor:pointer; display:inline-flex; align-items:center; gap:6px; padding:6px 12px; border-radius:9px; border:1px solid var(--border); font-size:0.82rem; font-weight:600; min-height:36px;">
+              ⬆️ Importar copia
+              <input type="file" accept=".json" style="display:none;" onchange="importBackup(event)" />
+            </label>
+            <button class="btn-outline btn-sm" onclick="restoreDefaultTasks()">♻️ Restaurar 9 tareas</button>
+            <button class="btn-outline btn-sm" onclick="resetTodayOnly()">🔄 Reiniciar hoy</button>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<!-- PIN MODAL -->
+<div id="pinModal" class="modal-backdrop">
+  <div class="modal">
+    <h2 style="font-size:1.2rem; margin-bottom:6px;">🔐 Acceso Modo Supervisión</h2>
+    <p class="muted">Introduce el PIN de adulto (2486).</p>
+    <input type="password" inputmode="numeric" maxlength="4" id="pinInput" class="pin-input" placeholder="••••" onkeydown="if(event.key==='Enter') verifyPin()" />
+    <div id="pinError" class="muted hidden" style="color:var(--danger); margin-bottom:10px;">PIN incorrecto. Inténtalo de nuevo.</div>
+    <div style="display:flex; gap:10px; justify-content:flex-end;">
+      <button class="btn-outline" onclick="closePinModal()">Cancelar</button>
+      <button class="btn-primary" onclick="verifyPin()">Entrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- WEEKLY SUMMARY MODAL -->
+<div id="weeklyModal" class="modal-backdrop">
+  <div class="modal modal-lg">
+    <div class="card-header" style="margin-bottom:8px;">
+      <h2 style="font-size:1.22rem;">📊 Resumen Semanal</h2>
+      <div style="display:flex; gap:6px;">
+        <button class="btn-outline btn-sm" id="btnPrevWeek" onclick="changeSummaryWeek(-1)">◀️ Semana anterior</button>
+        <button class="btn-outline btn-sm" id="btnCurrWeek" onclick="changeSummaryWeek(0)">Esta semana</button>
+      </div>
+    </div>
+    <p class="muted" id="weeklyRangeLabel">Lunes a Domingo</p>
+
+    <div class="summary-kpis">
+      <div class="kpi-box">
+        <div class="kpi-val" id="wkTotalEarned">0 min</div>
+        <div class="kpi-lbl">Ganado semana</div>
+      </div>
+      <div class="kpi-box">
+        <div class="kpi-val" id="wkTotalConsumed">0 min</div>
+        <div class="kpi-lbl">Disfrutado semana</div>
+      </div>
+      <div class="kpi-box">
+        <div class="kpi-val" id="wkDaysCount">0 / 5</div>
+        <div class="kpi-lbl">Días L-V hacia F1</div>
+      </div>
+    </div>
+
+    <div id="weeklyRowsContainer" class="weekly-rows"></div>
+
+    <div style="display:flex; justify-content:flex-end; margin-top:16px;">
+      <button class="btn-primary" onclick="closeWeeklyModal()">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ALARM FINISHED MODAL -->
+<div id="alarmModal" class="modal-backdrop">
+  <div class="modal" style="text-align:center;">
+    <div style="font-size:2.5rem; margin-bottom:8px;">⏰</div>
+    <h2 style="font-size:1.3rem; margin-bottom:8px;">¡Tiempo completado!</h2>
+    <p id="alarmModalText" class="muted" style="margin-bottom:18px;">
+      Se ha terminado tu tiempo en este monedero. ¡Buena sesión, Pablo!
+    </p>
+    <button class="btn-primary" style="width:100%;" onclick="closeAlarmModal()">Entendido</button>
+  </div>
+</div>
+
+<script>
+/**
+ * ============================================================================
+ * CAPA DE DATOS (DataService) - Lista para futura sincronización remota
+ * ============================================================================
+ */
+let storageAvailable = true;
+let memoryFallback = null;
+
+class LocalStorageAdapter {
+  constructor(storageKey) {
+    this.storageKey = storageKey;
+    try {
+      const testKey = '__test_ls__';
+      localStorage.setItem(testKey, '1');
+      localStorage.removeItem(testKey);
+    } catch {
+      storageAvailable = false;
+    }
+  }
+
+  async load() {
+    if (!storageAvailable) return memoryFallback;
+    const raw = localStorage.getItem(this.storageKey);
+    return raw ? JSON.parse(raw) : null;
+  }
+
+  async save(state) {
+    const payload = {
+      ...state,
+      schemaVersion: 3,
+      updatedAt: new Date().toISOString()
+    };
+    if (!storageAvailable) {
+      memoryFallback = payload;
+      return payload;
+    }
+    localStorage.setItem(this.storageKey, JSON.stringify(payload));
+    return payload;
+  }
+}
+
+class DataService {
+  constructor(adapter) { this.adapter = adapter; }
+  async loadState() { return await this.adapter.load(); }
+  async saveState(state) { return await this.adapter.save(state); }
+}
+
+const dataService = new DataService(new LocalStorageAdapter('pablo_plan_recompensas_v3'));
+
+/**
+ * ============================================================================
+ * CONFIGURACIÓN Y TAREAS
+ * ============================================================================
+ */
+const ADULT_PIN = '2486';
+
+const BREAK_SUGGESTIONS = [
+  'Estira brazos arriba y respira profundo 3 veces.',
+  'Bebe un vaso de agua tranquilo.',
+  'Camina por la habitación o haz 10 saltos suaves.',
+  'Relaja los hombros y sacude manos y piernas 20 segundos.',
+  'Mira por la ventana un minuto para descansar la vista.'
+];
+
+function getDefaultTasks() {
+  return [
+    {
+      id: 't1',
+      title: 'Hacer la cama y recoger el desayuno limpiando el mantel',
+      note: '',
+      isBonus: false,
+      fixedMinutes: 0,
+      minutes: 0,
+      wallet: 'mobile',
+      completed: false
+    },
+    {
+      id: 't2',
+      title: 'Contar qué se ha hecho en clase, anotar tareas en la agenda y traer material de estudio',
+      note: '',
+      isBonus: false,
+      fixedMinutes: 0,
+      minutes: 0,
+      wallet: 'pc_ipad',
+      completed: false
+    },
+    {
+      id: 't3',
+      title: 'Tener anotaciones positivas',
+      note: 'Bonus fijo por actitud positiva',
+      isBonus: true,
+      fixedMinutes: 5,
+      minutes: 5,
+      wallet: 'mobile',
+      completed: false
+    },
+    {
+      id: 't4',
+      title: 'Tener notas de notable para arriba',
+      note: 'Bonus fijo por esfuerzo académico',
+      isBonus: true,
+      fixedMinutes: 5,
+      minutes: 5,
+      wallet: 'pc_ipad',
+      completed: false
+    },
+    {
+      id: 't5',
+      title: 'No tener anotaciones negativas',
+      note: '',
+      isBonus: false,
+      fixedMinutes: 0,
+      minutes: 0,
+      wallet: 'mobile',
+      completed: false
+    },
+    {
+      id: 't6',
+      title: 'Hacer bien las tareas sin faltas de ortografía y con buena letra',
+      note: '',
+      isBonus: false,
+      fixedMinutes: 0,
+      minutes: 0,
+      wallet: 'pc_ipad',
+      completed: false
+    },
+    {
+      id: 't7',
+      title: 'Ayudar a hacer tareas diarias del hogar',
+      note: '',
+      isBonus: false,
+      fixedMinutes: 0,
+      minutes: 0,
+      wallet: 'mobile',
+      completed: false
+    },
+    {
+      id: 't8',
+      title: 'Leer 10 minutos extra durante el día',
+      note: 'Extra durante el día (aparte de los 30 min obligatorios antes de dormir)',
+      isBonus: false,
+      fixedMinutes: 0,
+      minutes: 0,
+      wallet: 'pc_ipad',
+      completed: false
+    },
+    {
+      id: 't9',
+      title: 'Ordenar el cuarto si está desordenado',
+      note: 'Mantenimiento: si ya está ordenado, se marca directamente como cumplida',
+      isBonus: false,
+      fixedMinutes: 0,
+      minutes: 0,
+      wallet: 'pc_ipad',
+      completed: false
+    }
+  ];
+}
+
+function getLocalDateKey(date = new Date()) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
+function isWeekendDate(date = new Date()) {
+  const day = date.getDay();
+  return day === 0 || day === 6;
+}
+
+function createInitialState() {
+  return {
+    schemaVersion: 3,
+    currentDate: getLocalDateKey(),
+    muted: false,
+    settings: {
+      weekdayCap: 90,
+      weekendCap: 180,
+      weekendPcIpadCap: 120,
+      requirePinForTasks: false
+    },
+    wallets: {
+      pc_ipad: { earnedSeconds: 0, consumedSeconds: 0 },
+      mobile: { earnedSeconds: 0, consumedSeconds: 0 }
+    },
+    tasks: getDefaultTasks(),
+    runningTimer: null,
+    activeBreak: null,
+    history: []
+  };
+}
+
+let appState = createInitialState();
+let currentMode = null; // null | 'pilot' | 'supervisor'
+let weeklyModalOffset = 0; // 0 = semana actual, -1 = semana pasada
+let audioCtx = null;
+let tickInterval = null;
+let wakeLockObj = null;
+
+/**
+ * ============================================================================
+ * SELECCIÓN DE MODO (PILOTO VS SUPERVISIÓN)
+ * ============================================================================
+ */
+function enterPilotMode() {
+  currentMode = 'pilot';
+  renderModeVisibility();
+  renderAll();
+}
+
+function enterSupervisorMode() {
+  currentMode = 'supervisor';
+  renderModeVisibility();
+  renderAll();
+}
+
+function returnToModeSelector() {
+  currentMode = null;
+  renderModeVisibility();
+}
+
+function renderModeVisibility() {
+  const selector = document.getElementById('modeSelectorScreen');
+  const main = document.getElementById('appMainScreen');
+
+  if (!currentMode) {
+    selector.classList.remove('hidden');
+    main.classList.add('hidden');
+    document.getElementById('runningTimerNotice').classList.toggle('hidden', !appState.runningTimer);
+  } else {
+    selector.classList.add('hidden');
+    main.classList.remove('hidden');
+  }
+}
+
+function openPinModal() {
+  document.getElementById('pinInput').value = '';
+  document.getElementById('pinError').classList.add('hidden');
+  document.getElementById('pinModal').classList.add('open');
+  setTimeout(() => document.getElementById('pinInput').focus(), 50);
+}
+
+function closePinModal() {
+  document.getElementById('pinModal').classList.remove('open');
+}
+
+function verifyPin() {
+  const entered = document.getElementById('pinInput').value.trim();
+  if (entered === ADULT_PIN) {
+    closePinModal();
+    enterSupervisorMode();
+  } else {
+    document.getElementById('pinError').classList.remove('hidden');
+  }
+}
+
+/**
+ * ============================================================================
+ * RECÁLCULO AUTOMÁTICO (OPCIÓN B: TECHO ESTRICTO 90 / 180 MIN)
+ * ============================================================================
+ */
+function getTodayCaps() {
+  const weekend = isWeekendDate();
+  return {
+    isWeekend: weekend,
+    dailyTotalCapMin: weekend ? Number(appState.settings.weekendCap) : Number(appState.settings.weekdayCap),
+    pcIpadWeekendCapMin: Number(appState.settings.weekendPcIpadCap)
+  };
+}
+
+function recalculateTaskMinutes() {
+  const { dailyTotalCapMin } = getTodayCaps();
+  const bonusTasks = appState.tasks.filter(t => t.isBonus);
+  const regularTasks = appState.tasks.filter(t => !t.isBonus);
+
+  let totalBonusMin = 0;
+  bonusTasks.forEach(t => {
+    const val = Math.max(1, Number(t.fixedMinutes || t.minutes || 5));
+    t.minutes = val;
+    totalBonusMin += val;
+  });
+
+  const regularPoolMin = Math.max(0, dailyTotalCapMin - totalBonusMin);
+  if (regularTasks.length > 0) {
+    const baseEach = Math.floor(regularPoolMin / regularTasks.length);
+    const remainder = regularPoolMin % regularTasks.length;
+    regularTasks.forEach((t, idx) => {
+      t.minutes = baseEach + (idx < remainder ? 1 : 0);
+    });
+  }
+}
+
+/**
+ * ============================================================================
+ * AUDIO OFFLINE Y WAKE LOCK / ATAJO IPHONE
+ * ============================================================================
+ */
+function ensureAudioContext() {
+  if (!audioCtx) {
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (AudioContextClass) audioCtx = new AudioContextClass();
+  }
+  if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+}
+
+function playTone(freq, duration, delay = 0, volume = 0.2, type = 'sine') {
+  if (appState.muted) return;
+  ensureAudioContext();
+  if (!audioCtx) return;
+
+  const startTime = audioCtx.currentTime + delay;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+
+  osc.type = type;
+  osc.frequency.setValueAtTime(freq, startTime);
+  gain.gain.setValueAtTime(0.001, startTime);
+  gain.gain.exponentialRampToValueAtTime(volume, startTime + 0.03);
+  gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  osc.start(startTime);
+  osc.stop(startTime + duration + 0.05);
+}
+
+function testAlarmSound(isFinal) {
+  if (isFinal) {
+    [0, 0.5, 1.0].forEach(offset => {
+      playTone(523.25, 0.22, offset, 0.25, 'triangle');
+      playTone(659.25, 0.25, offset + 0.15, 0.25, 'triangle');
+    });
+  } else {
+    playTone(440, 0.25, 0, 0.15, 'sine');
+    playTone(554.37, 0.35, 0.2, 0.15, 'sine');
+  }
+}
+
+async function toggleWakeLock() {
+  const btn = document.getElementById('wakeLockBtn');
+  if (!('wakeLock' in navigator)) {
+    alert('Tu navegador no soporta mantener la pantalla fija automáticamente. Puedes ajustar el bloqueo automático en Ajustes del dispositivo.');
+    return;
+  }
+  try {
+    if (wakeLockObj) {
+      await wakeLockObj.release();
+      wakeLockObj = null;
+      btn.textContent = '📱 Pantalla fija: OFF';
+    } else {
+      wakeLockObj = await navigator.wakeLock.request('screen');
+      wakeLockObj.addEventListener('release', () => {
+        wakeLockObj = null;
+        btn.textContent = '📱 Pantalla fija: OFF';
+      });
+      btn.textContent = '📱 Pantalla fija: ON';
+    }
+  } catch {
+    alert('No se pudo activar pantalla fija en este dispositivo.');
+  }
+}
+
+function launchIphoneClockShortcut() {
+  if (!appState.runningTimer) return;
+  const remSeconds = getWalletRemainingSeconds(appState.runningTimer.wallet);
+  const mins = Math.max(1, Math.ceil(remSeconds / 60));
+  window.location.href = `shortcuts://run-shortcut?name=${encodeURIComponent('Alarma Pablo')}&input=text&text=${mins}`;
+}
+
+/**
+ * ============================================================================
+ * INICIALIZACIÓN Y CAMBIO DE DÍA
+ * ============================================================================
+ */
+async function initApp() {
+  const saved = await dataService.loadState();
+  if (saved) {
+    appState = {
+      ...createInitialState(),
+      ...saved,
+      settings: { ...createInitialState().settings, ...(saved.settings || {}) },
+      wallets: {
+        pc_ipad: { earnedSeconds: 0, consumedSeconds: 0, ...(saved.wallets?.pc_ipad || {}) },
+        mobile: { earnedSeconds: 0, consumedSeconds: 0, ...(saved.wallets?.mobile || {}) }
+      }
+    };
+  }
+
+  checkAndRolloverDay();
+  recalculateTaskMinutes();
+  await persistState();
+  renderModeVisibility();
+  renderAll();
+
+  if (tickInterval) clearInterval(tickInterval);
+  tickInterval = setInterval(onTimerTick, 500);
+}
+
+function checkAndRolloverDay() {
+  const today = getLocalDateKey();
+  if (appState.currentDate !== today) {
+    appState.runningTimer = null;
+    appState.activeBreak = null;
+
+    const pcEarnedMin = Math.round(appState.wallets.pc_ipad.earnedSeconds / 60);
+    const pcConsumedMin = Math.round(appState.wallets.pc_ipad.consumedSeconds / 60);
+    const mobEarnedMin = Math.round(appState.wallets.mobile.earnedSeconds / 60);
+    const mobConsumedMin = Math.round(appState.wallets.mobile.consumedSeconds / 60);
+    const earnedMin = pcEarnedMin + mobEarnedMin;
+    const consumedMin = pcConsumedMin + mobConsumedMin;
+    const completedCount = appState.tasks.filter(t => t.completed).length;
+
+    if (earnedMin > 0 || completedCount > 0) {
+      appState.history.unshift({
+        date: appState.currentDate,
+        earnedMin,
+        consumedMin,
+        pcEarnedMin,
+        pcConsumedMin,
+        mobEarnedMin,
+        mobConsumedMin,
+        tasksCompleted: completedCount,
+        totalTasks: appState.tasks.length
+      });
+      appState.history = appState.history.slice(0, 90);
+    }
+
+    appState.currentDate = today;
+    appState.wallets = {
+      pc_ipad: { earnedSeconds: 0, consumedSeconds: 0 },
+      mobile: { earnedSeconds: 0, consumedSeconds: 0 }
+    };
+    appState.tasks = appState.tasks.map(t => ({ ...t, completed: false }));
+    recalculateTaskMinutes();
+  }
+}
+
+async function persistState() {
+  await dataService.saveState(appState);
+}
+
+/**
+ * ============================================================================
+ * MONEDEROS Y TEMPORIZADORES
+ * ============================================================================
+ */
+function getTotalEarnedSecondsToday() {
+  return appState.wallets.pc_ipad.earnedSeconds + appState.wallets.mobile.earnedSeconds;
+}
+
+function getWalletRemainingSeconds(walletKey, now = Date.now()) {
+  const w = appState.wallets[walletKey];
+  let consumed = w.consumedSeconds;
+  if (appState.runningTimer && appState.runningTimer.wallet === walletKey) {
+    const elapsed = Math.max(0, Math.floor((now - appState.runningTimer.startedAt) / 1000));
+    consumed = Math.min(w.earnedSeconds, appState.runningTimer.baseConsumed + elapsed);
+  }
+  return Math.max(0, w.earnedSeconds - consumed);
+}
+
+function getWalletConsumedSeconds(walletKey, now = Date.now()) {
+  const w = appState.wallets[walletKey];
+  if (appState.runningTimer && appState.runningTimer.wallet === walletKey) {
+    const elapsed = Math.max(0, Math.floor((now - appState.runningTimer.startedAt) / 1000));
+    return Math.min(w.earnedSeconds, appState.runningTimer.baseConsumed + elapsed);
+  }
+  return w.consumedSeconds;
+}
+
+function addMinutesToWallet(walletKey, minutes) {
+  const { isWeekend, dailyTotalCapMin, pcIpadWeekendCapMin } = getTodayCaps();
+  const totalEarnedMin = Math.floor(getTotalEarnedSecondsToday() / 60);
+  const remainingDailyRoom = Math.max(0, dailyTotalCapMin - totalEarnedMin);
+  const toGrant = Math.min(minutes, remainingDailyRoom);
+
+  if (toGrant <= 0) {
+    alert('Ya se ha alcanzado el límite diario máximo de hoy.');
+    return 0;
+  }
+
+  if (isWeekend && walletKey === 'pc_ipad') {
+    const currentPcMin = Math.floor(appState.wallets.pc_ipad.earnedSeconds / 60);
+    const remainingPcRoom = Math.max(0, pcIpadWeekendCapMin - currentPcMin);
+    const pcPart = Math.min(toGrant, remainingPcRoom);
+    const overflowToMobile = toGrant - pcPart;
+
+    appState.wallets.pc_ipad.earnedSeconds += pcPart * 60;
+    if (overflowToMobile > 0) {
+      appState.wallets.mobile.earnedSeconds += overflowToMobile * 60;
+    }
+    return toGrant;
+  }
+
+  appState.wallets[walletKey].earnedSeconds += toGrant * 60;
+  return toGrant;
+}
+
+function startConsumptionTimer(walletKey) {
+  ensureAudioContext();
+  checkAndRolloverDay();
+
+  if (appState.runningTimer) {
+    if (appState.runningTimer.wallet === walletKey) return;
+    pauseConsumptionTimer();
+  }
+
+  const remaining = getWalletRemainingSeconds(walletKey);
+  if (remaining <= 0) {
+    alert('No quedan minutos disponibles en este monedero. ¡Completa una tarea para ganar tiempo!');
+    return;
+  }
+
+  appState.runningTimer = {
+    wallet: walletKey,
+    startedAt: Date.now(),
+    baseConsumed: appState.wallets[walletKey].consumedSeconds,
+    fiveMinWarned: remaining <= 300
+  };
+
+  persistState();
+  renderAll();
+}
+
+function pauseConsumptionTimer() {
+  if (!appState.runningTimer) return;
+  const walletKey = appState.runningTimer.wallet;
+  appState.wallets[walletKey].consumedSeconds = getWalletConsumedSeconds(walletKey);
+  appState.runningTimer = null;
+  persistState();
+  renderAll();
+}
+
+function onTimerTick() {
+  checkAndRolloverDay();
+  if (!currentMode) {
+    document.getElementById('runningTimerNotice').classList.toggle('hidden', !appState.runningTimer);
+    return;
+  }
+
+  const now = Date.now();
+
+  if (appState.runningTimer) {
+    const walletKey = appState.runningTimer.wallet;
+    const w = appState.wallets[walletKey];
+    const consumed = getWalletConsumedSeconds(walletKey, now);
+    const remaining = Math.max(0, w.earnedSeconds - consumed);
+
+    if (remaining <= 300 && remaining > 0 && !appState.runningTimer.fiveMinWarned) {
+      appState.runningTimer.fiveMinWarned = true;
+      testAlarmSound(false);
+      persistState();
+    }
+
+    if (remaining <= 0) {
+      w.consumedSeconds = w.earnedSeconds;
+      appState.runningTimer = null;
+      persistState();
+      testAlarmSound(true);
+      showAlarmModal(walletKey);
+      renderAll();
+      return;
+    }
+
+    renderTimerUIOnly(now);
+  }
+
+  if (appState.activeBreak) {
+    const breakRemaining = Math.max(0, Math.ceil((appState.activeBreak.endTimestamp - now) / 1000));
+    if (breakRemaining <= 0) {
+      appState.activeBreak = null;
+      testAlarmSound(false);
+      persistState();
+      renderAll();
+    } else {
+      document.getElementById('breakCountdown').textContent = formatMMSS(breakRemaining);
+    }
+  }
+}
+
+function toggleActiveBreak() {
+  ensureAudioContext();
+  if (appState.activeBreak) {
+    appState.activeBreak = null;
+  } else {
+    const randomTip = BREAK_SUGGESTIONS[Math.floor(Math.random() * BREAK_SUGGESTIONS.length)];
+    document.getElementById('breakTipText').textContent = '💡 Sugerencia: ' + randomTip;
+    appState.activeBreak = { endTimestamp: Date.now() + 4 * 60 * 1000 };
+  }
+  persistState();
+  renderAll();
+}
+
+/**
+ * ============================================================================
+ * TAREAS Y CONFIGURACIÓN
+ * ============================================================================
+ */
+function isSupervisor() {
+  return currentMode === 'supervisor';
+}
+
+function toggleTask(taskId) {
+  checkAndRolloverDay();
+  if (appState.settings.requirePinForTasks && !isSupervisor()) {
+    alert('Está activado que solo Supervisión marque las tareas. Cambia al Modo Supervisión.');
+    return;
+  }
+
+  const task = appState.tasks.find(t => t.id === taskId);
+  if (!task || task.completed) return;
+
+  const granted = addMinutesToWallet(task.wallet, task.minutes);
+  task.completed = true;
+  if (granted > 0) {
+    playTone(587.33, 0.14, 0, 0.14, 'sine');
+    playTone(783.99, 0.22, 0.1, 0.14, 'sine');
+  }
+
+  persistState();
+  renderAll();
+}
+
+function toggleNewBonusField() {
+  const type = document.getElementById('newTaskType').value;
+  document.getElementById('newBonusMinutesWrap').classList.toggle('hidden', type !== 'bonus');
+}
+
+function addTask() {
+  if (!isSupervisor()) return;
+  const title = document.getElementById('newTaskTitle').value.trim();
+  const type = document.getElementById('newTaskType').value;
+  const isBonus = type === 'bonus';
+  const bonusMins = parseInt(document.getElementById('newTaskBonusMinutes').value, 10) || 5;
+  const wallet = document.getElementById('newTaskWallet').value;
+
+  if (!title) {
+    alert('Escribe una descripción para la tarea.');
+    return;
+  }
+
+  appState.tasks.push({
+    id: 't_' + Date.now(),
+    title,
+    note: isBonus ? 'Bonus fijo' : '',
+    isBonus,
+    fixedMinutes: isBonus ? bonusMins : 0,
+    minutes: isBonus ? bonusMins : 0,
+    wallet,
+    completed: false
+  });
+
+  recalculateTaskMinutes();
+  document.getElementById('newTaskTitle').value = '';
+  persistState();
+  renderAll();
+}
+
+function deleteTask(taskId) {
+  if (!isSupervisor()) return;
+  appState.tasks = appState.tasks.filter(t => t.id !== taskId);
+  recalculateTaskMinutes();
+  persistState();
+  renderAll();
+}
+
+function switchTaskWallet(taskId) {
+  if (!isSupervisor()) return;
+  const task = appState.tasks.find(t => t.id === taskId);
+  if (!task) return;
+  task.wallet = task.wallet === 'pc_ipad' ? 'mobile' : 'pc_ipad';
+  persistState();
+  renderAll();
+}
+
+function grantBonusMinutes() {
+  if (!isSupervisor()) return;
+  const wallet = document.getElementById('bonusWallet').value;
+  const mins = parseInt(document.getElementById('bonusMinutes').value, 10);
+  if (!mins || mins <= 0) return;
+
+  const granted = addMinutesToWallet(wallet, mins);
+  if (granted > 0) {
+    persistState();
+    renderAll();
+  }
+}
+
+function saveSettings() {
+  if (!isSupervisor()) return;
+  const weekdayCap = parseInt(document.getElementById('cfgWeekdayCap').value, 10);
+  const weekendCap = parseInt(document.getElementById('cfgWeekendCap').value, 10);
+  const weekendPcCap = parseInt(document.getElementById('cfgWeekendPcCap').value, 10);
+  const requirePinForTasks = document.getElementById('cfgRequirePinForTasks').value === 'true';
+
+  if (weekdayCap > 0) appState.settings.weekdayCap = weekdayCap;
+  if (weekendCap > 0) appState.settings.weekendCap = weekendCap;
+  if (weekendPcCap > 0) appState.settings.weekendPcIpadCap = weekendPcCap;
+  appState.settings.requirePinForTasks = requirePinForTasks;
+
+  recalculateTaskMinutes();
+  persistState();
+  renderAll();
+  alert('Reglas guardadas y tiempos recalculados.');
+}
+
+function restoreDefaultTasks() {
+  if (!isSupervisor()) return;
+  if (!confirm('¿Restaurar las 9 tareas originales de Pablo? Se recalcularán los tiempos automáticamente.')) return;
+  appState.tasks = getDefaultTasks();
+  recalculateTaskMinutes();
+  persistState();
+  renderAll();
+}
+
+function resetTodayOnly() {
+  if (!isSupervisor()) return;
+  if (!confirm('¿Reiniciar tareas marcadas y contadores del día de hoy?')) return;
+  appState.runningTimer = null;
+  appState.wallets = {
+    pc_ipad: { earnedSeconds: 0, consumedSeconds: 0 },
+    mobile: { earnedSeconds: 0, consumedSeconds: 0 }
+  };
+  appState.tasks = appState.tasks.map(t => ({ ...t, completed: false }));
+  recalculateTaskMinutes();
+  persistState();
+  renderAll();
+}
+
+/**
+ * ============================================================================
+ * RESUMEN SEMANAL CLICABLE (LUNES A DOMINGO)
+ * ============================================================================
+ */
+function openWeeklyModal() {
+  weeklyModalOffset = 0;
+  renderWeeklyModal();
+  document.getElementById('weeklyModal').classList.add('open');
+}
+
+function closeWeeklyModal() {
+  document.getElementById('weeklyModal').classList.remove('open');
+}
+
+function changeSummaryWeek(offset) {
+  weeklyModalOffset = offset;
+  renderWeeklyModal();
+}
+
+function renderWeeklyModal() {
+  const now = new Date();
+  const currentDay = now.getDay();
+  const mondayOffset = (currentDay === 0 ? -6 : 1 - currentDay) + (weeklyModalOffset * 7);
+
+  const mondayDate = new Date(now);
+  mondayDate.setDate(now.getDate() + mondayOffset);
+  const sundayDate = new Date(mondayDate);
+  sundayDate.setDate(mondayDate.getDate() + 6);
+
+  document.getElementById('weeklyRangeLabel').textContent =
+    `${mondayDate.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })} — ${sundayDate.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })}`;
+
+  document.getElementById('btnCurrWeek').disabled = weeklyModalOffset === 0;
+  document.getElementById('btnPrevWeek').disabled = weeklyModalOffset === -1;
+
+  const dayNames = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+  let sumEarned = 0;
+  let sumConsumed = 0;
+  let weekdaysDone = 0;
+  let rowsHtml = '';
+
+  const liveNow = Date.now();
+
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(mondayDate);
+    d.setDate(mondayDate.getDate() + i);
+    const key = getLocalDateKey(d);
+    const isToday = key === appState.currentDate;
+
+    let record = null;
+    if (isToday) {
+      const pcEarnedMin = Math.round(appState.wallets.pc_ipad.earnedSeconds / 60);
+      const pcConsumedMin = Math.round(getWalletConsumedSeconds('pc_ipad', liveNow) / 60);
+      const mobEarnedMin = Math.round(appState.wallets.mobile.earnedSeconds / 60);
+      const mobConsumedMin = Math.round(getWalletConsumedSeconds('mobile', liveNow) / 60);
+      record = {
+        earnedMin: pcEarnedMin + mobEarnedMin,
+        consumedMin: pcConsumedMin + mobConsumedMin,
+        pcEarnedMin,
+        pcConsumedMin,
+        mobEarnedMin,
+        mobConsumedMin,
+        tasksCompleted: appState.tasks.filter(t => t.completed).length,
+        totalTasks: appState.tasks.length
+      };
+    } else {
+      record = appState.history.find(h => h.date === key) || null;
+    }
+
+    if (record) {
+      sumEarned += record.earnedMin || 0;
+      sumConsumed += record.consumedMin || 0;
+      if (i < 5 && (record.tasksCompleted > 0 || record.earnedMin > 0)) {
+        weekdaysDone++;
+      }
+    }
+
+    const dateStr = d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
+    const detailHtml = record
+      ? `<div style="display:flex; gap:6px; flex-wrap:wrap;">
+           <span class="badge badge-success">✅ ${record.tasksCompleted}/${record.totalTasks} tareas</span>
+           <span class="badge badge-pc">💻 ${record.pcConsumedMin ?? 0}/${record.pcEarnedMin ?? 0}m</span>
+           <span class="badge badge-mobile">📱 ${record.mobConsumedMin ?? 0}/${record.mobEarnedMin ?? 0}m</span>
+         </div>`
+      : `<span class="muted">${d > now ? 'Próximo día' : 'Sin registro'}</span>`;
+
+    rowsHtml += `
+      <div class="weekly-day-row ${isToday ? 'is-today' : ''}">
+        <div><strong>${dayNames[i]}</strong> <span class="muted">${dateStr}${isToday ? ' · Hoy' : ''}</span></div>
+        ${detailHtml}
+      </div>
+    `;
+  }
+
+  document.getElementById('wkTotalEarned').textContent = `${sumEarned} min`;
+  document.getElementById('wkTotalConsumed').textContent = `${sumConsumed} min`;
+  document.getElementById('wkDaysCount').textContent = `${weekdaysDone} / 5`;
+  document.getElementById('weeklyRowsContainer').innerHTML = rowsHtml;
+}
+
+/**
+ * ============================================================================
+ * UTILIDADES Y COPIAS
+ * ============================================================================
+ */
+function toggleMute() {
+  appState.muted = !appState.muted;
+  persistState();
+  renderAll();
+}
+
+function showAlarmModal(walletKey) {
+  const name = walletKey === 'pc_ipad' ? 'Ordenador y iPad' : 'Móvil';
+  document.getElementById('alarmModalText').textContent =
+    `Se han completado los minutos disponibles en el monedero de ${name}. ¡Buena sesión, Pablo!`;
+  document.getElementById('alarmModal').classList.add('open');
+}
+
+function closeAlarmModal() {
+  document.getElementById('alarmModal').classList.remove('open');
+}
+
+function exportBackup() {
+  const blob = new Blob([JSON.stringify(appState, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `plan-pablo-copia-${getLocalDateKey()}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importBackup(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    try {
+      const parsed = JSON.parse(e.target.result);
+      if (!parsed.wallets || !parsed.tasks) throw new Error('Formato inválido');
+      appState = { ...createInitialState(), ...parsed };
+      checkAndRolloverDay();
+      recalculateTaskMinutes();
+      await persistState();
+      renderAll();
+      alert('Copia de seguridad importada correctamente.');
+    } catch {
+      alert('El archivo seleccionado no es una copia válida.');
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+/**
+ * ============================================================================
+ * RENDERIZADO PRINCIPAL
+ * ============================================================================
+ */
+function formatMMSS(totalSeconds) {
+  const s = Math.max(0, Math.floor(totalSeconds));
+  const mins = Math.floor(s / 60);
+  const secs = s % 60;
+  return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+}
+
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function renderTimerUIOnly(now = Date.now()) {
+  const activeCard = document.getElementById('activeTimerCard');
+  if (!appState.runningTimer) {
+    activeCard.classList.add('hidden');
+    return;
+  }
+
+  activeCard.classList.remove('hidden');
+  const walletKey = appState.runningTimer.wallet;
+  const w = appState.wallets[walletKey];
+  const remaining = getWalletRemainingSeconds(walletKey, now);
+  const pct = Math.max(0, Math.min(100, (remaining / Math.max(1, w.earnedSeconds)) * 100));
+
+  document.getElementById('activeWalletName').textContent =
+    walletKey === 'pc_ipad' ? 'Ordenador y iPad' : 'Móvil';
+  document.getElementById('bigCountdown').textContent = formatMMSS(remaining);
+
+  const fill = document.getElementById('timerProgressFill');
+  fill.style.width = pct + '%';
+
+  const badge = document.getElementById('timerStateBadge');
+  const warnText = document.getElementById('timerWarningText');
+
+  activeCard.classList.remove('warning-state');
+  if (remaining <= 300) {
+    activeCard.classList.add('warning-state');
+    fill.style.background = 'var(--warning)';
+    badge.className = 'badge badge-warning';
+    badge.textContent = 'Últimos minutos · Ve cerrando';
+    warnText.textContent = 'Quedan menos de 5 minutos. Ve guardando la partida con calma.';
+  } else {
+    fill.style.background = 'var(--success)';
+    badge.className = 'badge badge-success';
+    badge.textContent = 'Disfrutando recompensa';
+    warnText.textContent = 'Cuando falten 5 minutos recibirás un aviso suave.';
+  }
+
+  document.getElementById('pcIpadRemaining').textContent = formatMMSS(getWalletRemainingSeconds('pc_ipad', now));
+  document.getElementById('pcIpadConsumed').textContent = `${Math.floor(getWalletConsumedSeconds('pc_ipad', now) / 60)} min`;
+  document.getElementById('mobileRemaining').textContent = formatMMSS(getWalletRemainingSeconds('mobile', now));
+  document.getElementById('mobileConsumed').textContent = `${Math.floor(getWalletConsumedSeconds('mobile', now) / 60)} min`;
+}
+
+function renderWeeklyF1Tracker() {
+  const grid = document.getElementById('weekDaysGrid');
+  const names = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie'];
+  const now = new Date();
+  const currentDay = now.getDay();
+  const mondayOffset = currentDay === 0 ? -6 : 1 - currentDay;
+
+  let completedWeekdays = 0;
+  let html = '';
+
+  for (let i = 0; i < 5; i++) {
+    const d = new Date(now);
+    d.setDate(now.getDate() + mondayOffset + i);
+    const key = getLocalDateKey(d);
+    const isToday = key === appState.currentDate;
+
+    let done = false;
+    if (isToday) {
+      done = appState.tasks.some(t => t.completed);
+    } else {
+      const hist = appState.history.find(h => h.date === key);
+      done = Boolean(hist && (hist.tasksCompleted > 0 || hist.earnedMin > 0));
+    }
+
+    if (done) completedWeekdays++;
+    html += `<div class="day-chip ${done ? 'done' : ''} ${isToday ? 'today' : ''}">
+      ${names[i]}<br>${done ? '✅' : '○'}
+    </div>`;
+  }
+
+  grid.innerHTML = html;
+
+  const banner = document.getElementById('f1RewardBanner');
+  if (completedWeekdays >= 3) {
+    banner.className = 'badge badge-success';
+    banner.textContent = `🏎️ ¡Constancia conseguida (${completedWeekdays}/5 días)! Simulador F1 desbloqueado`;
+  } else {
+    banner.className = 'badge badge-info';
+    banner.textContent = `🏎️ Llevas ${completedWeekdays} de 5 días · Meta: 3 días para el Simulador F1`;
+  }
+}
+
+function renderAll() {
+  if (!currentMode) return;
+
+  const sup = isSupervisor();
+  const nowDate = new Date();
+  const caps = getTodayCaps();
+
+  document.getElementById('headerModeTitle').textContent = sup
+    ? '🛠️ Modo Supervisión · Plan de Pablo'
+    : '🏎️ Modo Piloto · Pablo';
+
+  document.getElementById('todayLabel').textContent = nowDate.toLocaleDateString('es-ES', {
+    weekday: 'long', day: 'numeric', month: 'long'
+  });
+
+  const dayBadge = document.getElementById('dayTypeBadge');
+  dayBadge.textContent = caps.isWeekend
+    ? `Fin de semana · Tope ${caps.dailyTotalCapMin} min`
+    : `Día escolar · Tope ${caps.dailyTotalCapMin} min`;
+  dayBadge.className = caps.isWeekend ? 'badge badge-success' : 'badge badge-info';
+
+  document.getElementById('soundToggleBtn').textContent = appState.muted ? '🔇 Sonido: OFF' : '🔊 Sonido: ON';
+  document.getElementById('adultBanner').classList.toggle('hidden', !sup);
+  document.getElementById('adultPanel').classList.toggle('hidden', !sup);
+
+  // Daily Cap Bar
+  const totalEarnedMin = Math.floor(getTotalEarnedSecondsToday() / 60);
+  document.getElementById('dailyEarnedSummary').textContent = `${totalEarnedMin} / ${caps.dailyTotalCapMin} min`;
+  document.getElementById('dailyCapFill').style.width = Math.min(100, (totalEarnedMin / caps.dailyTotalCapMin) * 100) + '%';
+
+  const pcWeekendInfo = document.getElementById('weekendPcCapInfo');
+  if (caps.isWeekend) {
+    pcWeekendInfo.classList.remove('hidden');
+    const pcEarnedMin = Math.floor(appState.wallets.pc_ipad.earnedSeconds / 60);
+    document.getElementById('pcWeekendEarned').textContent = `${pcEarnedMin} / ${caps.pcIpadWeekendCapMin} min`;
+    document.getElementById('pcIpadLimitHint').textContent = `Máx ${caps.pcIpadWeekendCapMin}m PC/iPad`;
+  } else {
+    pcWeekendInfo.classList.add('hidden');
+    document.getElementById('pcIpadLimitHint').textContent = 'iPad / PC';
+  }
+
+  // Wallets
+  const now = Date.now();
+  const pcRem = getWalletRemainingSeconds('pc_ipad', now);
+  const mobRem = getWalletRemainingSeconds('mobile', now);
+
+  document.getElementById('pcIpadRemaining').textContent = formatMMSS(pcRem);
+  document.getElementById('pcIpadEarned').textContent = `${Math.floor(appState.wallets.pc_ipad.earnedSeconds / 60)} min`;
+  document.getElementById('pcIpadConsumed').textContent = `${Math.floor(getWalletConsumedSeconds('pc_ipad', now) / 60)} min`;
+
+  document.getElementById('mobileRemaining').textContent = formatMMSS(mobRem);
+  document.getElementById('mobileEarned').textContent = `${Math.floor(appState.wallets.mobile.earnedSeconds / 60)} min`;
+  document.getElementById('mobileConsumed').textContent = `${Math.floor(getWalletConsumedSeconds('mobile', now) / 60)} min`;
+
+  const isPcRunning = appState.runningTimer?.wallet === 'pc_ipad';
+  const isMobRunning = appState.runningTimer?.wallet === 'mobile';
+
+  document.getElementById('cardPcIpad').classList.toggle('active-pc', isPcRunning);
+  document.getElementById('cardMobile').classList.toggle('active-mobile', isMobRunning);
+
+  document.getElementById('startPcBtn').disabled = pcRem <= 0 || isPcRunning;
+  document.getElementById('startPcBtn').textContent = isPcRunning ? '⏱️ En marcha...' : '▶️ Usar tiempo';
+
+  document.getElementById('startMobileBtn').disabled = mobRem <= 0 || isMobRunning;
+  document.getElementById('startMobileBtn').textContent = isMobRunning ? '⏱️ En marcha...' : '▶️ Usar tiempo';
+
+  renderTimerUIOnly(now);
+
+  // Break
+  const breakCountdown = document.getElementById('breakCountdown');
+  const breakBtn = document.getElementById('breakBtn');
+  if (appState.activeBreak) {
+    const rem = Math.max(0, Math.ceil((appState.activeBreak.endTimestamp - now) / 1000));
+    breakCountdown.textContent = formatMMSS(rem);
+    breakCountdown.classList.remove('hidden');
+    breakBtn.textContent = 'Finalizar pausa';
+    breakBtn.className = 'btn-outline btn-sm';
+  } else {
+    breakCountdown.classList.add('hidden');
+    breakBtn.textContent = 'Iniciar pausa';
+    breakBtn.className = 'btn-success btn-sm';
+  }
+
+  // Recalc Summary
+  const regularTasks = appState.tasks.filter(t => !t.isBonus);
+  const bonusTasks = appState.tasks.filter(t => t.isBonus);
+  const regularSum = regularTasks.reduce((acc, t) => acc + t.minutes, 0);
+  const bonusSum = bonusTasks.reduce((acc, t) => acc + t.minutes, 0);
+  document.getElementById('recalcSummary').innerHTML =
+    `⚖️ <strong>Reparto automático de hoy:</strong> ${regularTasks.length} tareas base (${regularSum} min) + ${bonusTasks.length} bonus (${bonusSum} min) = <strong>${regularSum + bonusSum} min</strong> tope.`;
+
+  // Tasks
+  const doneCount = appState.tasks.filter(t => t.completed).length;
+  document.getElementById('tasksDoneCounter').textContent = `${doneCount} de ${appState.tasks.length} completadas`;
+
+  const taskList = document.getElementById('taskList');
+  if (appState.tasks.length === 0) {
+    taskList.innerHTML = '<div class="muted">No hay tareas definidas.</div>';
+  } else {
+    taskList.innerHTML = appState.tasks.map(t => {
+      const walletBadge = t.wallet === 'pc_ipad'
+        ? '<span class="badge badge-pc">💻 Ordenador/iPad</span>'
+        : '<span class="badge badge-mobile">📱 Móvil</span>';
+      const typeBadge = t.isBonus
+        ? `<span class="badge badge-bonus">⭐ Bonus +${t.minutes} min</span>`
+        : `<span class="badge badge-info">+${t.minutes} min</span>`;
+
+      const adultControls = sup ? `
+        <button class="btn-outline btn-sm" onclick="switchTaskWallet('${t.id}')" title="Cambiar monedero">💻↔📱</button>
+        <button class="btn-outline btn-sm" onclick="deleteTask('${t.id}')" title="Eliminar y recalcular">🗑️</button>
+      ` : '';
+
+      const actionBtn = t.completed
+        ? '<span class="badge badge-success">✅ Conseguido</span>'
+        : `<button class="btn-primary btn-sm" onclick="toggleTask('${t.id}')">Completar (+${t.minutes}m)</button>`;
+
+      return `
+        <div class="task-item ${t.completed ? 'completed' : ''}">
+          <div class="task-info">
+            <div class="task-title">${escapeHtml(t.title)}</div>
+            ${t.note ? `<div class="task-sub">${escapeHtml(t.note)}</div>` : ''}
+            <div class="task-tags">
+              ${walletBadge}
+              ${typeBadge}
+            </div>
+          </div>
+          <div class="task-actions">
+            ${actionBtn}
+            ${adultControls}
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // Celebration
+  const celText = document.getElementById('celebrationMessage');
+  if (doneCount > 0 && doneCount === appState.tasks.length) {
+    celText.innerHTML = '🌟 <strong>¡Todas las metas de hoy completadas, Pablo!</strong> Gran constancia y esfuerzo.';
+  } else if (doneCount > 0) {
+    celText.innerHTML = `👏 ¡Llevas <strong>${doneCount}</strong> ${doneCount === 1 ? 'logro conseguido' : 'logros conseguidos'} hoy! Toca aquí para ver tu semana.`;
+  } else {
+    celText.textContent = 'Cada pequeño avance cuenta. Toca aquí para ver el resumen de tu semana.';
+  }
+
+  renderWeeklyF1Tracker();
+
+  if (sup) {
+    document.getElementById('cfgWeekdayCap').value = appState.settings.weekdayCap;
+    document.getElementById('cfgWeekendCap').value = appState.settings.weekendCap;
+    document.getElementById('cfgWeekendPcCap').value = appState.settings.weekendPcIpadCap;
+    document.getElementById('cfgRequirePinForTasks').value = String(appState.settings.requirePinForTasks);
+  }
+}
+
+initApp();
+</script>
+</body>
+</html>
