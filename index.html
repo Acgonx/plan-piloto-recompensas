@@ -541,8 +541,163 @@
     .muted { color: var(--text-muted); font-size: 0.85rem; }
     .hidden { display: none !important; }
 
+    /* Tranche distribution strip */
+    .tranche-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    .tranche-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 8px;
+      border-radius: 8px;
+      font-size: 0.74rem;
+      font-weight: 700;
+      border: 1px solid var(--border);
+      background: var(--surface-soft);
+      color: var(--text-muted);
+    }
+
+    .tranche-chip.mobile { border-color: #ddd6fe; background: #faf5ff; color: var(--mobile-color); }
+    .tranche-chip.pc_ipad { border-color: #bae6fd; background: #f0f9ff; color: var(--pc-color); }
+    .tranche-chip.filled { background: var(--success-soft); border-color: #86efac; color: #166534; }
+    .tranche-chip.active { outline: 2px solid var(--primary); }
+
+    /* Undo box in Supervision */
+    .undo-box {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: var(--surface-soft);
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .wallet-select-sm {
+      min-height: 36px;
+      padding: 4px 8px;
+      border-radius: 9px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      font-size: 0.8rem;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+    }
+
+    .badge-auto { background: #e0e7ff; color: #3730a3; }
+
+    /* Non-blocking toast */
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 22px;
+      transform: translateX(-50%) translateY(20px);
+      background: #1e293b;
+      color: #fff;
+      padding: 11px 18px;
+      border-radius: 12px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.28);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      z-index: 1200;
+      max-width: min(92vw, 460px);
+      text-align: center;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Nightly reading habit card */
+    .reading-box {
+      background: #eef2ff;
+      border: 1px solid #c7d2fe;
+      border-radius: 14px;
+      padding: 13px 14px;
+      margin-bottom: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      transition: background-color 0.2s ease, border-color 0.2s ease;
+    }
+
+    .reading-box.done {
+      background: var(--success-soft);
+      border-color: #86efac;
+    }
+
+    /* Proportional weekend bank box */
+    .weekend-bank-box {
+      background: linear-gradient(135deg, #fffbeb 0%, #f0fdf4 100%);
+      border: 1px solid #fde68a;
+      border-radius: 12px;
+      padding: 12px;
+      margin-top: 12px;
+    }
+
+    /* Supervision task filter bar */
+    .task-filter-bar {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+
+    .filter-pill {
+      min-height: 32px;
+      padding: 4px 10px;
+      border-radius: 8px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      background: var(--surface-soft);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+    }
+
+    .filter-pill.active {
+      background: var(--text);
+      color: #fff;
+      border-color: var(--text);
+    }
+
+    .badge-schedule { background: #f1f5f9; color: #475569; }
+    .badge-reading { background: #e0e7ff; color: #3730a3; }
+
+    .icon-btn-sm {
+      min-height: 36px;
+      min-width: 36px;
+      padding: 6px 8px;
+      font-size: 0.82rem;
+      border-radius: 9px;
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .summary-kpis-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin: 14px 0;
+    }
+
     @media (max-width: 820px) {
       .mode-grid, .wallets-grid, .main-grid, .summary-kpis { grid-template-columns: 1fr; }
+      .summary-kpis-4 { grid-template-columns: repeat(2, 1fr); }
       .task-item { flex-direction: column; align-items: stretch; }
       .task-actions { justify-content: flex-start; }
       .big-countdown { font-size: 2.2rem; }
@@ -602,7 +757,6 @@
     </div>
     <div class="topbar-actions">
       <button class="btn-outline btn-sm" onclick="openWeeklyModal()">📊 Resumen semanal</button>
-      <button class="btn-outline btn-sm" id="soundToggleBtn" onclick="toggleMute()">🔊 Sonido: ON</button>
       <button class="btn-primary btn-sm" onclick="returnToModeSelector()">🔄 Cambiar modo</button>
     </div>
   </header>
@@ -625,12 +779,11 @@
     <div class="timer-display-row">
       <div>
         <div id="bigCountdown" class="big-countdown">00:00</div>
-        <div id="timerWarningText" class="muted">Cuando falten 5 minutos recibirás un aviso suave.</div>
+        <div id="timerWarningText" class="muted">Disfruta tu tiempo con calma. Puedes pausar cuando quieras.</div>
       </div>
       <div style="display:flex; gap:8px; flex-wrap:wrap;">
         <button class="btn-warning" onclick="pauseConsumptionTimer()">⏸️ Pausar</button>
         <button class="btn-outline" id="wakeLockBtn" onclick="toggleWakeLock()">📱 Pantalla fija: OFF</button>
-        <button class="btn-outline" onclick="launchIphoneClockShortcut()" title="Requiere crear el atajo 'Alarma Pablo' en iPhone">⏰ Reloj iPhone</button>
       </div>
     </div>
     <div class="progress-track" style="margin-top:12px;">
@@ -647,16 +800,21 @@
       </div>
     </div>
     <p class="connection-text">
-      Empezamos con calma y paso a paso. <strong>Lo ganado no se resta por errores</strong>; los minutos del día no se acumulan para mañana. Recuerda los 30 min obligatorios de lectura antes de dormir.
+      Empezamos con calma y paso a paso. <strong>Lo ganado no se resta por errores</strong>; los minutos diarios no se guardan para mañana, pero todo lo que consigues de lunes a viernes va llenando tu <strong>tiempo de fin de semana</strong>.
     </p>
+    <div id="weekendPropNotice" class="hidden" style="background:#fffbeb; border:1px solid #fde68a; border-radius:10px; padding:10px 12px; font-size:0.84rem; color:#92400e; margin-bottom:10px;"></div>
     <div class="daily-cap-bar">
       <div style="display:flex; justify-content:space-between; font-size:0.88rem; font-weight:600; flex-wrap:wrap; gap:6px;">
-        <span>Progreso ganado hoy: <strong id="dailyEarnedSummary">0 / 90 min</strong></span>
+        <span id="dailyEarnedLabel">Progreso ganado hoy: <strong id="dailyEarnedSummary">0 / 90 min</strong></span>
         <span id="weekendPcCapInfo" class="muted hidden">Tope Ordenador/iPad fin de semana: <strong id="pcWeekendEarned">0 / 120 min</strong></span>
       </div>
       <div class="progress-track">
         <div id="dailyCapFill" class="progress-fill" style="width:0%;"></div>
       </div>
+      <div style="font-size:0.78rem; color:var(--text-muted); margin-top:2px;">
+        Orden de relleno automático:
+      </div>
+      <div id="trancheStrip" class="tranche-strip"></div>
     </div>
   </section>
 
@@ -721,6 +879,20 @@
         </div>
       </div>
 
+      <!-- Lectura obligatoria nocturna (hábito positivo) -->
+      <div id="nightReadingBox" class="reading-box">
+        <div>
+          <strong>🌙 Lectura nocturna obligatoria (30 min)</strong>
+          <div class="muted" id="nightReadingSub">Antes de dormir · Hábito diario (no suma ni resta minutos de pantalla).</div>
+        </div>
+        <button id="nightReadingBtn" class="btn-outline btn-sm" onclick="toggleNightReading()">Marcar lectura</button>
+      </div>
+
+      <div id="taskFilterBar" class="task-filter-bar hidden">
+        <button id="filterTodayBtn" class="filter-pill active" onclick="setTaskListFilter('today')">📅 Tareas de hoy</button>
+        <button id="filterAllBtn" class="filter-pill" onclick="setTaskListFilter('all')">📋 Todas (L-V y S-D)</button>
+      </div>
+
       <div id="recalcSummary" class="recalc-summary"></div>
       <div id="taskList" class="task-list"></div>
     </section>
@@ -732,7 +904,7 @@
         <div class="card-header">
           <div class="card-title">
             <span class="step-pill">Paso 3 · Celebración</span>
-            Constancia · Simulador F1
+            Constancia · Fin de semana y F1
           </div>
           <span class="badge badge-info">Ver detalle 📊</span>
         </div>
@@ -742,6 +914,20 @@
         <div class="week-days" id="weekDaysGrid"></div>
         <div id="f1RewardBanner" class="badge badge-info" style="width:100%; justify-content:center; padding:10px; font-size:0.84rem; text-align:center;">
           🏎️ Completa al menos 3 días entre semana para el Simulador F1
+        </div>
+
+        <!-- Acumulado proporcional para el fin de semana -->
+        <div class="weekend-bank-box">
+          <div style="display:flex; justify-content:space-between; align-items:center; gap:6px; flex-wrap:wrap; font-size:0.84rem; font-weight:700; margin-bottom:6px;">
+            <span>🏆 Tiempo ganado para el fin de semana</span>
+            <span id="weekendBankSummary">0 / 180 min/día</span>
+          </div>
+          <div class="progress-track" style="height:10px;">
+            <div id="weekendBankFill" class="progress-fill" style="width:0%; background:#d97706;"></div>
+          </div>
+          <div id="weekendBankSub" class="muted" style="font-size:0.78rem; margin-top:6px;">
+            Proporcional a tu esfuerzo de Lunes a Viernes (0 / 450 min · 0%).
+          </div>
         </div>
       </section>
 
@@ -759,6 +945,10 @@
               <label>Descripción de la tarea</label>
               <input type="text" id="newTaskTitle" placeholder="Ej. Repasar tablas de multiplicar" />
             </div>
+            <div class="field" style="grid-column: 1 / -1;">
+              <label>Nota opcional</label>
+              <input type="text" id="newTaskNote" placeholder="Detalle breve (opcional)" />
+            </div>
             <div class="field">
               <label>Tipo de tarea</label>
               <select id="newTaskType" onchange="toggleNewBonusField()">
@@ -773,8 +963,17 @@
             <div class="field">
               <label>Monedero</label>
               <select id="newTaskWallet">
-                <option value="pc_ipad">Ordenador y iPad</option>
-                <option value="mobile">Móvil</option>
+                <option value="auto">⚡ Automático (10m Móvil → 30m iPad...)</option>
+                <option value="pc_ipad">💻 Ordenador y iPad</option>
+                <option value="mobile">📱 Móvil</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Días activa</label>
+              <select id="newTaskSchedule">
+                <option value="weekday">📅 Solo L-V (colegio)</option>
+                <option value="all">📅 Todos los días</option>
+                <option value="weekend">📅 Solo fin de semana</option>
               </select>
             </div>
           </div>
@@ -783,15 +982,16 @@
 
         <div class="divider"></div>
 
-        <!-- Extra minutes -->
+        <!-- Extra minutes & Undo -->
         <div>
-          <strong style="font-size:0.92rem;">Sumar minutos extra manuales</strong>
+          <strong style="font-size:0.92rem;">Minutos extra y deshacer</strong>
           <div class="form-grid" style="margin-top:8px;">
             <div class="field">
               <label>Monedero</label>
               <select id="bonusWallet">
-                <option value="pc_ipad">Ordenador y iPad</option>
-                <option value="mobile">Móvil</option>
+                <option value="auto">⚡ Automático (orden de relleno)</option>
+                <option value="pc_ipad">💻 Ordenador y iPad</option>
+                <option value="mobile">📱 Móvil</option>
               </select>
             </div>
             <div class="field">
@@ -799,7 +999,14 @@
               <input type="number" id="bonusMinutes" value="5" min="1" max="120" />
             </div>
           </div>
-          <button class="btn-success btn-sm" onclick="grantBonusMinutes()">➕ Sumar minutos</button>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button class="btn-success btn-sm" onclick="grantBonusMinutes()">➕ Sumar minutos</button>
+            <button class="btn-outline btn-sm" id="undoMinutesBtn" onclick="undoLastMinuteAction()" disabled>↩️ Deshacer minutos</button>
+            <button class="btn-outline btn-sm hidden" id="resyncWeekendBtn" onclick="syncWeekendProportionalCredit(true)">🔄 Actualizar abono finde</button>
+          </div>
+          <div class="undo-box">
+            <div id="undoLastHint" class="muted" style="font-size:0.8rem;">No hay movimientos de minutos para deshacer hoy.</div>
+          </div>
         </div>
 
         <div class="divider"></div>
@@ -813,7 +1020,7 @@
               <input type="number" id="cfgWeekdayCap" min="15" max="300" />
             </div>
             <div class="field">
-              <label>Tope Fin de semana (min/día)</label>
+              <label>Tope máx. Fin de semana (min/día)</label>
               <input type="number" id="cfgWeekendCap" min="30" max="360" />
             </div>
             <div class="field">
@@ -830,19 +1037,21 @@
           </div>
           <div style="display:flex; gap:8px; flex-wrap:wrap;">
             <button class="btn-primary btn-sm" onclick="saveSettings()">💾 Guardar reglas</button>
-            <button class="btn-outline btn-sm" onclick="testAlarmSound(false)">🔔 Probar aviso 5 min</button>
-            <button class="btn-outline btn-sm" onclick="testAlarmSound(true)">⏰ Probar alarma final</button>
           </div>
         </div>
 
         <div class="divider"></div>
 
-        <!-- iPhone Clock Shortcut tip -->
-        <div style="background:var(--surface-soft); padding:12px; border-radius:10px; border:1px solid var(--border); font-size:0.82rem;">
-          <strong>⏰ Alarma en Reloj de iPhone (Atajo opcional):</strong>
-          <p class="muted" style="margin-top:4px; font-size:0.8rem;">
-            Por seguridad, iOS no deja que una web programe el Reloj sola. Si creas en tu iPhone un atajo llamado <strong>Alarma Pablo</strong> (<em>1. Recibir entrada de texto → 2. Iniciar temporizador con Entrada del atajo</em>), el botón «⏰ Reloj iPhone» lo activará directamente.
-          </p>
+        <!-- PIN Management -->
+        <div>
+          <strong style="font-size:0.92rem;">Seguridad · Cambiar PIN de Supervisión</strong>
+          <div class="form-grid" style="margin-top:8px;">
+            <div class="field">
+              <label>Nuevo PIN (4 dígitos)</label>
+              <input type="password" inputmode="numeric" maxlength="4" id="cfgNewPin" placeholder="••••" />
+            </div>
+          </div>
+          <button class="btn-outline btn-sm" onclick="changeAdultPin()">🔑 Guardar nuevo PIN</button>
         </div>
 
         <div class="divider"></div>
@@ -856,7 +1065,7 @@
               ⬆️ Importar copia
               <input type="file" accept=".json" style="display:none;" onchange="importBackup(event)" />
             </label>
-            <button class="btn-outline btn-sm" onclick="restoreDefaultTasks()">♻️ Restaurar 9 tareas</button>
+            <button class="btn-outline btn-sm" onclick="restoreDefaultTasks()">♻️ Restaurar 8 tareas</button>
             <button class="btn-outline btn-sm" onclick="resetTodayOnly()">🔄 Reiniciar hoy</button>
           </div>
         </div>
@@ -869,12 +1078,61 @@
 <div id="pinModal" class="modal-backdrop">
   <div class="modal">
     <h2 style="font-size:1.2rem; margin-bottom:6px;">🔐 Acceso Modo Supervisión</h2>
-    <p class="muted">Introduce el PIN de adulto (2486).</p>
+    <p class="muted">Introduce el PIN de adulto para entrar.</p>
     <input type="password" inputmode="numeric" maxlength="4" id="pinInput" class="pin-input" placeholder="••••" onkeydown="if(event.key==='Enter') verifyPin()" />
     <div id="pinError" class="muted hidden" style="color:var(--danger); margin-bottom:10px;">PIN incorrecto. Inténtalo de nuevo.</div>
     <div style="display:flex; gap:10px; justify-content:flex-end;">
       <button class="btn-outline" onclick="closePinModal()">Cancelar</button>
       <button class="btn-primary" onclick="verifyPin()">Entrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT TASK MODAL -->
+<div id="editTaskModal" class="modal-backdrop">
+  <div class="modal">
+    <h2 style="font-size:1.2rem; margin-bottom:10px;">✏️ Editar tarea</h2>
+    <input type="hidden" id="editTaskId" />
+    <div class="form-grid">
+      <div class="field" style="grid-column: 1 / -1;">
+        <label>Descripción</label>
+        <input type="text" id="editTaskTitle" />
+      </div>
+      <div class="field" style="grid-column: 1 / -1;">
+        <label>Nota opcional</label>
+        <input type="text" id="editTaskNote" />
+      </div>
+      <div class="field">
+        <label>Tipo de tarea</label>
+        <select id="editTaskType" onchange="toggleEditBonusField()">
+          <option value="regular">Tarea diaria (reparte tope)</option>
+          <option value="bonus">Bonus fijo</option>
+        </select>
+      </div>
+      <div class="field hidden" id="editBonusMinutesWrap">
+        <label>Minutos de bonus</label>
+        <input type="number" id="editTaskBonusMinutes" value="5" min="1" max="30" />
+      </div>
+      <div class="field">
+        <label>Monedero</label>
+        <select id="editTaskWallet">
+          <option value="auto">⚡ Automático</option>
+          <option value="pc_ipad">💻 Ordenador y iPad</option>
+          <option value="mobile">📱 Móvil</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Días activa</label>
+        <select id="editTaskSchedule">
+          <option value="weekday">📅 Solo L-V (colegio)</option>
+          <option value="all">📅 Todos los días</option>
+          <option value="weekend">📅 Solo fin de semana</option>
+        </select>
+      </div>
+    </div>
+    <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:12px;">
+      <button class="btn-outline" onclick="closeEditTaskModal()">Cancelar</button>
+      <button class="btn-primary" onclick="saveEditedTask()">💾 Guardar cambios</button>
     </div>
   </div>
 </div>
@@ -891,21 +1149,26 @@
     </div>
     <p class="muted" id="weeklyRangeLabel">Lunes a Domingo</p>
 
-    <div class="summary-kpis">
+    <div class="summary-kpis-4">
       <div class="kpi-box">
         <div class="kpi-val" id="wkTotalEarned">0 min</div>
         <div class="kpi-lbl">Ganado semana</div>
       </div>
       <div class="kpi-box">
         <div class="kpi-val" id="wkTotalConsumed">0 min</div>
-        <div class="kpi-lbl">Disfrutado semana</div>
+        <div class="kpi-lbl">Disfrutado</div>
       </div>
       <div class="kpi-box">
-        <div class="kpi-val" id="wkDaysCount">0 / 5</div>
-        <div class="kpi-lbl">Días L-V hacia F1</div>
+        <div class="kpi-val" id="wkWeekendUnlocked">0 min</div>
+        <div class="kpi-lbl">Finde desbloqueado/día</div>
+      </div>
+      <div class="kpi-box">
+        <div class="kpi-val" id="wkReadingCount">0 / 7</div>
+        <div class="kpi-lbl">🌙 Lecturas nocturnas</div>
       </div>
     </div>
 
+    <div id="wkF1Line" class="muted" style="font-size:0.84rem; margin-bottom:6px;"></div>
     <div id="weeklyRowsContainer" class="weekly-rows"></div>
 
     <div style="display:flex; justify-content:flex-end; margin-top:16px;">
@@ -914,17 +1177,8 @@
   </div>
 </div>
 
-<!-- ALARM FINISHED MODAL -->
-<div id="alarmModal" class="modal-backdrop">
-  <div class="modal" style="text-align:center;">
-    <div style="font-size:2.5rem; margin-bottom:8px;">⏰</div>
-    <h2 style="font-size:1.3rem; margin-bottom:8px;">¡Tiempo completado!</h2>
-    <p id="alarmModalText" class="muted" style="margin-bottom:18px;">
-      Se ha terminado tu tiempo en este monedero. ¡Buena sesión, Pablo!
-    </p>
-    <button class="btn-primary" style="width:100%;" onclick="closeAlarmModal()">Entendido</button>
-  </div>
-</div>
+<!-- TOAST NOTIFICATION -->
+<div id="toastBanner" class="toast" role="status" aria-live="polite"></div>
 
 <script>
 /**
@@ -956,7 +1210,7 @@ class LocalStorageAdapter {
   async save(state) {
     const payload = {
       ...state,
-      schemaVersion: 3,
+      schemaVersion: 5,
       updatedAt: new Date().toISOString()
     };
     if (!storageAvailable) {
@@ -981,7 +1235,7 @@ const dataService = new DataService(new LocalStorageAdapter('pablo_plan_recompen
  * CONFIGURACIÓN Y TAREAS
  * ============================================================================
  */
-const ADULT_PIN = '2486';
+const DEFAULT_ADULT_PIN = '2486';
 
 const BREAK_SUGGESTIONS = [
   'Estira brazos arriba y respira profundo 3 veces.',
@@ -995,92 +1249,90 @@ function getDefaultTasks() {
   return [
     {
       id: 't1',
-      title: 'Hacer la cama y recoger el desayuno limpiando el mantel',
+      title: 'Hacer la cama y recoger el desayuno',
       note: '',
       isBonus: false,
       fixedMinutes: 0,
       minutes: 0,
-      wallet: 'mobile',
+      wallet: 'auto',
+      schedule: 'all',
       completed: false
     },
     {
       id: 't2',
-      title: 'Contar qué se ha hecho en clase, anotar tareas en la agenda y traer material de estudio',
+      title: 'Contar qué se ha hecho en clase, anotar tareas en la agenda, mostrarla y traer material de estudio',
       note: '',
       isBonus: false,
       fixedMinutes: 0,
       minutes: 0,
-      wallet: 'pc_ipad',
+      wallet: 'auto',
+      schedule: 'weekday',
       completed: false
     },
     {
       id: 't3',
-      title: 'Tener anotaciones positivas',
-      note: 'Bonus fijo por actitud positiva',
-      isBonus: true,
-      fixedMinutes: 5,
-      minutes: 5,
-      wallet: 'mobile',
-      completed: false
-    },
-    {
-      id: 't4',
-      title: 'Tener notas de notable para arriba',
-      note: 'Bonus fijo por esfuerzo académico',
-      isBonus: true,
-      fixedMinutes: 5,
-      minutes: 5,
-      wallet: 'pc_ipad',
-      completed: false
-    },
-    {
-      id: 't5',
-      title: 'No tener anotaciones negativas',
+      title: 'Entrar en Classroom y mostrarlo',
       note: '',
       isBonus: false,
       fixedMinutes: 0,
       minutes: 0,
-      wallet: 'mobile',
+      wallet: 'auto',
+      schedule: 'weekday',
       completed: false
     },
     {
-      id: 't6',
+      id: 't4',
       title: 'Hacer bien las tareas sin faltas de ortografía y con buena letra',
       note: '',
       isBonus: false,
       fixedMinutes: 0,
       minutes: 0,
-      wallet: 'pc_ipad',
+      wallet: 'auto',
+      schedule: 'weekday',
       completed: false
     },
     {
-      id: 't7',
-      title: 'Ayudar a hacer tareas diarias del hogar',
+      id: 't5',
+      title: 'Ayudar a hacer las tareas diarias del hogar',
       note: '',
       isBonus: false,
       fixedMinutes: 0,
       minutes: 0,
-      wallet: 'mobile',
+      wallet: 'auto',
+      schedule: 'all',
       completed: false
     },
     {
-      id: 't8',
+      id: 't6',
       title: 'Leer 10 minutos extra durante el día',
       note: 'Extra durante el día (aparte de los 30 min obligatorios antes de dormir)',
       isBonus: false,
       fixedMinutes: 0,
       minutes: 0,
-      wallet: 'pc_ipad',
+      wallet: 'auto',
+      schedule: 'all',
       completed: false
     },
     {
-      id: 't9',
-      title: 'Ordenar el cuarto si está desordenado',
-      note: 'Mantenimiento: si ya está ordenado, se marca directamente como cumplida',
-      isBonus: false,
-      fixedMinutes: 0,
-      minutes: 0,
-      wallet: 'pc_ipad',
+      id: 't7',
+      title: 'Tener anotaciones positivas',
+      note: 'Bonus fijo por actitud positiva',
+      isBonus: true,
+      fixedMinutes: 5,
+      minutes: 5,
+      wallet: 'auto',
+      schedule: 'weekday',
+      completed: false
+    },
+    {
+      id: 't8',
+      title: 'Tener notas de notable hacia arriba',
+      note: 'Bonus fijo por esfuerzo académico',
+      isBonus: true,
+      fixedMinutes: 5,
+      minutes: 5,
+      wallet: 'auto',
+      schedule: 'weekday',
       completed: false
     }
   ];
@@ -1098,22 +1350,37 @@ function isWeekendDate(date = new Date()) {
   return day === 0 || day === 6;
 }
 
+function isTaskActiveOnWeekendFlag(task, weekend) {
+  const sch = task.schedule || 'all';
+  if (sch === 'all') return true;
+  if (sch === 'weekday') return !weekend;
+  if (sch === 'weekend') return weekend;
+  return true;
+}
+
+function isTaskActiveToday(task) {
+  return isTaskActiveOnWeekendFlag(task, isWeekendDate());
+}
+
 function createInitialState() {
   return {
-    schemaVersion: 3,
+    schemaVersion: 5,
     currentDate: getLocalDateKey(),
-    muted: false,
     settings: {
       weekdayCap: 90,
       weekendCap: 180,
       weekendPcIpadCap: 120,
-      requirePinForTasks: false
+      requirePinForTasks: false,
+      adultPin: DEFAULT_ADULT_PIN
     },
     wallets: {
       pc_ipad: { earnedSeconds: 0, consumedSeconds: 0 },
       mobile: { earnedSeconds: 0, consumedSeconds: 0 }
     },
     tasks: getDefaultTasks(),
+    nightReadingDone: false,
+    weekendAutoCreditedDate: null,
+    minuteUndoStack: [],
     runningTimer: null,
     activeBreak: null,
     history: []
@@ -1122,10 +1389,11 @@ function createInitialState() {
 
 let appState = createInitialState();
 let currentMode = null; // null | 'pilot' | 'supervisor'
+let taskListFilter = 'today'; // 'today' | 'all' (only visible in supervisor)
 let weeklyModalOffset = 0; // 0 = semana actual, -1 = semana pasada
-let audioCtx = null;
 let tickInterval = null;
 let wakeLockObj = null;
+let toastTimer = null;
 
 /**
  * ============================================================================
@@ -1134,6 +1402,7 @@ let wakeLockObj = null;
  */
 function enterPilotMode() {
   currentMode = 'pilot';
+  taskListFilter = 'today';
   renderModeVisibility();
   renderAll();
 }
@@ -1176,7 +1445,8 @@ function closePinModal() {
 
 function verifyPin() {
   const entered = document.getElementById('pinInput').value.trim();
-  if (entered === ADULT_PIN) {
+  const expected = String(appState.settings.adultPin || DEFAULT_ADULT_PIN);
+  if (entered === expected) {
     closePinModal();
     enterSupervisorMode();
   } else {
@@ -1186,7 +1456,7 @@ function verifyPin() {
 
 /**
  * ============================================================================
- * RECÁLCULO AUTOMÁTICO (OPCIÓN B: TECHO ESTRICTO 90 / 180 MIN)
+ * RECÁLCULO AUTOMÁTICO Y ACUMULACIÓN PROPORCIONAL DE FIN DE SEMANA
  * ============================================================================
  */
 function getTodayCaps() {
@@ -1198,10 +1468,58 @@ function getTodayCaps() {
   };
 }
 
+function getWeeklyProportionalSummary(weekOffset = 0) {
+  const now = new Date();
+  const currentDay = now.getDay();
+  const mondayOffset = (currentDay === 0 ? -6 : 1 - currentDay) + (weekOffset * 7);
+  const weekdayCap = Math.max(1, Number(appState.settings.weekdayCap) || 90);
+  const weekendCap = Math.max(1, Number(appState.settings.weekendCap) || 180);
+  const maxWeekMin = weekdayCap * 5;
+
+  let earnedWeekMin = 0;
+  let daysWithProgress = 0;
+
+  for (let i = 0; i < 5; i++) {
+    const d = new Date(now);
+    d.setDate(now.getDate() + mondayOffset + i);
+    const key = getLocalDateKey(d);
+    let dayEarned = 0;
+
+    if (key === appState.currentDate) {
+      dayEarned = Math.min(weekdayCap, Math.floor(getTotalEarnedSecondsToday() / 60));
+    } else {
+      const hist = appState.history.find(h => h.date === key);
+      if (hist) {
+        dayEarned = Math.min(weekdayCap, Number(hist.earnedMin || 0));
+      }
+    }
+
+    if (dayEarned > 0) daysWithProgress++;
+    earnedWeekMin += dayEarned;
+  }
+
+  const ratio = Math.min(1, earnedWeekMin / maxWeekMin);
+  const unlockedPerWeekendDayMin = Math.round(weekendCap * ratio);
+  const pct = Math.round(ratio * 100);
+
+  return {
+    earnedWeekMin,
+    maxWeekMin,
+    ratio,
+    pct,
+    unlockedPerWeekendDayMin,
+    weekendCap,
+    daysWithProgress
+  };
+}
+
 function recalculateTaskMinutes() {
-  const { dailyTotalCapMin } = getTodayCaps();
-  const bonusTasks = appState.tasks.filter(t => t.isBonus);
-  const regularTasks = appState.tasks.filter(t => !t.isBonus);
+  const weekdayCap = Math.max(1, Number(appState.settings.weekdayCap) || 90);
+  const weekdayTasks = appState.tasks.filter(t => isTaskActiveOnWeekendFlag(t, false));
+  const weekendOnlyTasks = appState.tasks.filter(t => (t.schedule || 'all') === 'weekend');
+
+  const bonusTasks = weekdayTasks.filter(t => t.isBonus);
+  const regularTasks = weekdayTasks.filter(t => !t.isBonus);
 
   let totalBonusMin = 0;
   bonusTasks.forEach(t => {
@@ -1210,7 +1528,7 @@ function recalculateTaskMinutes() {
     totalBonusMin += val;
   });
 
-  const regularPoolMin = Math.max(0, dailyTotalCapMin - totalBonusMin);
+  const regularPoolMin = Math.max(0, weekdayCap - totalBonusMin);
   if (regularTasks.length > 0) {
     const baseEach = Math.floor(regularPoolMin / regularTasks.length);
     const remainder = regularPoolMin % regularTasks.length;
@@ -1218,58 +1536,32 @@ function recalculateTaskMinutes() {
       t.minutes = baseEach + (idx < remainder ? 1 : 0);
     });
   }
+
+  weekendOnlyTasks.forEach(t => {
+    t.minutes = 0;
+  });
 }
 
 /**
  * ============================================================================
- * AUDIO OFFLINE Y WAKE LOCK / ATAJO IPHONE
+ * NOTIFICACIONES VISUALES Y WAKE LOCK
  * ============================================================================
  */
-function ensureAudioContext() {
-  if (!audioCtx) {
-    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-    if (AudioContextClass) audioCtx = new AudioContextClass();
-  }
-  if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
-}
-
-function playTone(freq, duration, delay = 0, volume = 0.2, type = 'sine') {
-  if (appState.muted) return;
-  ensureAudioContext();
-  if (!audioCtx) return;
-
-  const startTime = audioCtx.currentTime + delay;
-  const osc = audioCtx.createOscillator();
-  const gain = audioCtx.createGain();
-
-  osc.type = type;
-  osc.frequency.setValueAtTime(freq, startTime);
-  gain.gain.setValueAtTime(0.001, startTime);
-  gain.gain.exponentialRampToValueAtTime(volume, startTime + 0.03);
-  gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
-
-  osc.connect(gain);
-  gain.connect(audioCtx.destination);
-  osc.start(startTime);
-  osc.stop(startTime + duration + 0.05);
-}
-
-function testAlarmSound(isFinal) {
-  if (isFinal) {
-    [0, 0.5, 1.0].forEach(offset => {
-      playTone(523.25, 0.22, offset, 0.25, 'triangle');
-      playTone(659.25, 0.25, offset + 0.15, 0.25, 'triangle');
-    });
-  } else {
-    playTone(440, 0.25, 0, 0.15, 'sine');
-    playTone(554.37, 0.35, 0.2, 0.15, 'sine');
-  }
+function showToast(message) {
+  const el = document.getElementById('toastBanner');
+  if (!el) return;
+  el.textContent = message;
+  el.classList.add('show');
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => {
+    el.classList.remove('show');
+  }, 3200);
 }
 
 async function toggleWakeLock() {
   const btn = document.getElementById('wakeLockBtn');
   if (!('wakeLock' in navigator)) {
-    alert('Tu navegador no soporta mantener la pantalla fija automáticamente. Puedes ajustar el bloqueo automático en Ajustes del dispositivo.');
+    showToast('Tu navegador no soporta mantener la pantalla fija automáticamente.');
     return;
   }
   try {
@@ -1286,15 +1578,8 @@ async function toggleWakeLock() {
       btn.textContent = '📱 Pantalla fija: ON';
     }
   } catch {
-    alert('No se pudo activar pantalla fija en este dispositivo.');
+    showToast('No se pudo activar pantalla fija en este dispositivo.');
   }
-}
-
-function launchIphoneClockShortcut() {
-  if (!appState.runningTimer) return;
-  const remSeconds = getWalletRemainingSeconds(appState.runningTimer.wallet);
-  const mins = Math.max(1, Math.ceil(remSeconds / 60));
-  window.location.href = `shortcuts://run-shortcut?name=${encodeURIComponent('Alarma Pablo')}&input=text&text=${mins}`;
 }
 
 /**
@@ -1305,19 +1590,41 @@ function launchIphoneClockShortcut() {
 async function initApp() {
   const saved = await dataService.loadState();
   if (saved) {
+    const prevVersion = Number(saved.schemaVersion || 0);
     appState = {
       ...createInitialState(),
       ...saved,
+      schemaVersion: 5,
       settings: { ...createInitialState().settings, ...(saved.settings || {}) },
       wallets: {
         pc_ipad: { earnedSeconds: 0, consumedSeconds: 0, ...(saved.wallets?.pc_ipad || {}) },
         mobile: { earnedSeconds: 0, consumedSeconds: 0, ...(saved.wallets?.mobile || {}) }
-      }
+      },
+      nightReadingDone: Boolean(saved.nightReadingDone),
+      weekendAutoCreditedDate: saved.weekendAutoCreditedDate || null,
+      minuteUndoStack: Array.isArray(saved.minuteUndoStack) ? saved.minuteUndoStack : []
     };
+
+    if (prevVersion < 4) {
+      appState.tasks = getDefaultTasks();
+    } else {
+      const defaultScheduleById = {
+        t1: 'all', t2: 'weekday', t3: 'weekday', t4: 'weekday',
+        t5: 'all', t6: 'all', t7: 'weekday', t8: 'weekday'
+      };
+      appState.tasks = (appState.tasks || []).map(t => ({
+        ...t,
+        wallet: ['auto', 'pc_ipad', 'mobile'].includes(t.wallet) ? t.wallet : 'auto',
+        schedule: ['all', 'weekday', 'weekend'].includes(t.schedule)
+          ? t.schedule
+          : (defaultScheduleById[t.id] || 'all')
+      }));
+    }
   }
 
   checkAndRolloverDay();
   recalculateTaskMinutes();
+  syncWeekendProportionalCredit(false);
   await persistState();
   renderModeVisibility();
   renderAll();
@@ -1326,11 +1633,46 @@ async function initApp() {
   tickInterval = setInterval(onTimerTick, 500);
 }
 
+function syncWeekendProportionalCredit(manualTrigger = false) {
+  if (!isWeekendDate()) return;
+  const today = appState.currentDate;
+  const wk = getWeeklyProportionalSummary(0);
+  const currentEarnedMin = Math.floor(getTotalEarnedSecondsToday() / 60);
+
+  if (!manualTrigger && appState.weekendAutoCreditedDate === today) {
+    return;
+  }
+
+  appState.weekendAutoCreditedDate = today;
+
+  const missingMin = Math.max(0, wk.unlockedPerWeekendDayMin - currentEarnedMin);
+  if (missingMin > 0) {
+    const grant = addMinutesToWallet('auto', missingMin);
+    if (manualTrigger && grant.total > 0) {
+      pushUndoEntry({
+        type: 'manual',
+        label: `Abono proporcional finde (${formatGrantSummary(grant.pcMin, grant.mobMin)})`,
+        pcMin: grant.pcMin,
+        mobMin: grant.mobMin
+      });
+      persistState();
+      renderAll();
+      showToast(`🏆 Abono de fin de semana actualizado: ${formatGrantSummary(grant.pcMin, grant.mobMin)}`);
+    }
+  } else if (manualTrigger) {
+    showToast(`El fin de semana ya tiene cargados al menos los ${wk.unlockedPerWeekendDayMin} min proporcionales de la semana.`);
+  }
+}
+
 function checkAndRolloverDay() {
   const today = getLocalDateKey();
   if (appState.currentDate !== today) {
     appState.runningTimer = null;
     appState.activeBreak = null;
+
+    const prevDateObj = new Date(appState.currentDate + 'T12:00:00');
+    const prevWasWeekend = isWeekendDate(prevDateObj);
+    const prevActiveTasks = appState.tasks.filter(t => isTaskActiveOnWeekendFlag(t, prevWasWeekend));
 
     const pcEarnedMin = Math.round(appState.wallets.pc_ipad.earnedSeconds / 60);
     const pcConsumedMin = Math.round(appState.wallets.pc_ipad.consumedSeconds / 60);
@@ -1338,9 +1680,9 @@ function checkAndRolloverDay() {
     const mobConsumedMin = Math.round(appState.wallets.mobile.consumedSeconds / 60);
     const earnedMin = pcEarnedMin + mobEarnedMin;
     const consumedMin = pcConsumedMin + mobConsumedMin;
-    const completedCount = appState.tasks.filter(t => t.completed).length;
+    const completedCount = prevActiveTasks.filter(t => t.completed).length;
 
-    if (earnedMin > 0 || completedCount > 0) {
+    if (earnedMin > 0 || completedCount > 0 || appState.nightReadingDone) {
       appState.history.unshift({
         date: appState.currentDate,
         earnedMin,
@@ -1350,7 +1692,8 @@ function checkAndRolloverDay() {
         mobEarnedMin,
         mobConsumedMin,
         tasksCompleted: completedCount,
-        totalTasks: appState.tasks.length
+        totalTasks: prevActiveTasks.length,
+        nightReadingDone: Boolean(appState.nightReadingDone)
       });
       appState.history = appState.history.slice(0, 90);
     }
@@ -1361,7 +1704,11 @@ function checkAndRolloverDay() {
       mobile: { earnedSeconds: 0, consumedSeconds: 0 }
     };
     appState.tasks = appState.tasks.map(t => ({ ...t, completed: false }));
+    appState.nightReadingDone = false;
+    appState.weekendAutoCreditedDate = null;
+    appState.minuteUndoStack = [];
     recalculateTaskMinutes();
+    syncWeekendProportionalCredit(false);
   }
 }
 
@@ -1397,6 +1744,70 @@ function getWalletConsumedSeconds(walletKey, now = Date.now()) {
   return w.consumedSeconds;
 }
 
+function getDistributionTranches() {
+  const { isWeekend, dailyTotalCapMin, pcIpadWeekendCapMin } = getTodayCaps();
+  const tranches = [];
+  let total = 0;
+  let pcAssigned = 0;
+  let step = 0; // par: 10m móvil, impar: 30m ordenador/iPad
+
+  while (total < dailyTotalCapMin) {
+    const remainingTotal = dailyTotalCapMin - total;
+    if (step % 2 === 0) {
+      const size = Math.min(10, remainingTotal);
+      tranches.push({ wallet: 'mobile', cap: size });
+      total += size;
+    } else {
+      const desired = Math.min(30, remainingTotal);
+      const pcRoom = isWeekend ? Math.max(0, pcIpadWeekendCapMin - pcAssigned) : desired;
+      const pcPart = Math.min(desired, pcRoom);
+      const overflow = desired - pcPart;
+
+      if (pcPart > 0) {
+        tranches.push({ wallet: 'pc_ipad', cap: pcPart });
+        pcAssigned += pcPart;
+        total += pcPart;
+      }
+      if (overflow > 0) {
+        if (tranches.length > 0 && tranches[tranches.length - 1].wallet === 'mobile') {
+          tranches[tranches.length - 1].cap += overflow;
+        } else {
+          tranches.push({ wallet: 'mobile', cap: overflow });
+        }
+        total += overflow;
+      }
+    }
+    step++;
+  }
+
+  return tranches;
+}
+
+function getTrancheProgressSnapshot() {
+  const tranches = getDistributionTranches();
+  let mobPool = Math.floor(appState.wallets.mobile.earnedSeconds / 60);
+  let pcPool = Math.floor(appState.wallets.pc_ipad.earnedSeconds / 60);
+
+  return tranches.map(tr => {
+    let filled = 0;
+    if (tr.wallet === 'mobile') {
+      filled = Math.min(tr.cap, mobPool);
+      mobPool -= filled;
+    } else {
+      filled = Math.min(tr.cap, pcPool);
+      pcPool -= filled;
+    }
+    return { ...tr, filled, remaining: tr.cap - filled };
+  });
+}
+
+function formatGrantSummary(pcMin, mobMin) {
+  const parts = [];
+  if (mobMin > 0) parts.push(`+${mobMin}m Móvil`);
+  if (pcMin > 0) parts.push(`+${pcMin}m Ordenador/iPad`);
+  return parts.join(' y ');
+}
+
 function addMinutesToWallet(walletKey, minutes) {
   const { isWeekend, dailyTotalCapMin, pcIpadWeekendCapMin } = getTodayCaps();
   const totalEarnedMin = Math.floor(getTotalEarnedSecondsToday() / 60);
@@ -1404,29 +1815,146 @@ function addMinutesToWallet(walletKey, minutes) {
   const toGrant = Math.min(minutes, remainingDailyRoom);
 
   if (toGrant <= 0) {
-    alert('Ya se ha alcanzado el límite diario máximo de hoy.');
-    return 0;
+    showToast('Ya se ha alcanzado el límite diario máximo de hoy.');
+    return { total: 0, pcMin: 0, mobMin: 0 };
   }
 
-  if (isWeekend && walletKey === 'pc_ipad') {
+  let pcMin = 0;
+  let mobMin = 0;
+
+  if (walletKey === 'auto') {
+    const snapshot = getTrancheProgressSnapshot();
+    let left = toGrant;
+    let currentPcTotal = Math.floor(appState.wallets.pc_ipad.earnedSeconds / 60);
+
+    for (const tr of snapshot) {
+      if (left <= 0) break;
+      if (tr.remaining <= 0) continue;
+
+      const chunk = Math.min(left, tr.remaining);
+      if (tr.wallet === 'pc_ipad') {
+        const pcRoom = isWeekend ? Math.max(0, pcIpadWeekendCapMin - currentPcTotal) : chunk;
+        const pcPart = Math.min(chunk, pcRoom);
+        const overflow = chunk - pcPart;
+        pcMin += pcPart;
+        currentPcTotal += pcPart;
+        mobMin += overflow;
+      } else {
+        mobMin += chunk;
+      }
+      left -= chunk;
+    }
+
+    // Si quedase algún minuto residual, lo añadimos a Móvil
+    if (left > 0) {
+      mobMin += left;
+    }
+  } else if (isWeekend && walletKey === 'pc_ipad') {
     const currentPcMin = Math.floor(appState.wallets.pc_ipad.earnedSeconds / 60);
     const remainingPcRoom = Math.max(0, pcIpadWeekendCapMin - currentPcMin);
-    const pcPart = Math.min(toGrant, remainingPcRoom);
-    const overflowToMobile = toGrant - pcPart;
-
-    appState.wallets.pc_ipad.earnedSeconds += pcPart * 60;
-    if (overflowToMobile > 0) {
-      appState.wallets.mobile.earnedSeconds += overflowToMobile * 60;
-    }
-    return toGrant;
+    pcMin = Math.min(toGrant, remainingPcRoom);
+    mobMin = toGrant - pcMin;
+  } else if (walletKey === 'pc_ipad') {
+    pcMin = toGrant;
+  } else {
+    mobMin = toGrant;
   }
 
-  appState.wallets[walletKey].earnedSeconds += toGrant * 60;
-  return toGrant;
+  appState.wallets.pc_ipad.earnedSeconds += pcMin * 60;
+  appState.wallets.mobile.earnedSeconds += mobMin * 60;
+
+  return { total: pcMin + mobMin, pcMin, mobMin };
+}
+
+function pushUndoEntry({ type, taskId = null, label, pcMin, mobMin }) {
+  if (!Array.isArray(appState.minuteUndoStack)) {
+    appState.minuteUndoStack = [];
+  }
+  appState.minuteUndoStack.push({
+    id: 'u_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+    type,
+    taskId,
+    label,
+    pcDeltaSec: pcMin * 60,
+    mobDeltaSec: mobMin * 60,
+    createdAt: Date.now()
+  });
+}
+
+function applyUndoEntry(entry) {
+  const now = Date.now();
+  const pcConsumed = getWalletConsumedSeconds('pc_ipad', now);
+  const mobConsumed = getWalletConsumedSeconds('mobile', now);
+
+  if (entry.pcDeltaSec > 0) {
+    appState.wallets.pc_ipad.earnedSeconds = Math.max(
+      pcConsumed,
+      appState.wallets.pc_ipad.earnedSeconds - entry.pcDeltaSec
+    );
+  }
+  if (entry.mobDeltaSec > 0) {
+    appState.wallets.mobile.earnedSeconds = Math.max(
+      mobConsumed,
+      appState.wallets.mobile.earnedSeconds - entry.mobDeltaSec
+    );
+  }
+
+  if (appState.runningTimer) {
+    const activeKey = appState.runningTimer.wallet;
+    if (getWalletRemainingSeconds(activeKey, now) <= 0) {
+      appState.wallets[activeKey].consumedSeconds = appState.wallets[activeKey].earnedSeconds;
+      appState.runningTimer = null;
+    }
+  }
+
+  if (entry.taskId) {
+    const task = appState.tasks.find(t => t.id === entry.taskId);
+    if (task) task.completed = false;
+  }
+}
+
+function undoLastMinuteAction() {
+  if (!isSupervisor()) return;
+  if (!Array.isArray(appState.minuteUndoStack) || appState.minuteUndoStack.length === 0) {
+    showToast('No hay movimientos de minutos para deshacer.');
+    return;
+  }
+
+  const entry = appState.minuteUndoStack.pop();
+  applyUndoEntry(entry);
+  persistState();
+  renderAll();
+  showToast(`↩️ Deshecho: ${entry.label}`);
+}
+
+function undoTaskById(taskId) {
+  if (!isSupervisor()) return;
+  const task = appState.tasks.find(t => t.id === taskId);
+  if (!task || !task.completed) return;
+
+  const stack = Array.isArray(appState.minuteUndoStack) ? appState.minuteUndoStack : [];
+  let idx = -1;
+  for (let i = stack.length - 1; i >= 0; i--) {
+    if (stack[i].taskId === taskId) {
+      idx = i;
+      break;
+    }
+  }
+
+  if (idx >= 0) {
+    const [entry] = stack.splice(idx, 1);
+    applyUndoEntry(entry);
+    showToast(`↩️ Tarea desmarcada y minutos devueltos: ${task.title}`);
+  } else {
+    task.completed = false;
+    showToast(`↩️ Tarea desmarcada: ${task.title}`);
+  }
+
+  persistState();
+  renderAll();
 }
 
 function startConsumptionTimer(walletKey) {
-  ensureAudioContext();
   checkAndRolloverDay();
 
   if (appState.runningTimer) {
@@ -1436,15 +1964,14 @@ function startConsumptionTimer(walletKey) {
 
   const remaining = getWalletRemainingSeconds(walletKey);
   if (remaining <= 0) {
-    alert('No quedan minutos disponibles en este monedero. ¡Completa una tarea para ganar tiempo!');
+    showToast('No quedan minutos disponibles en este monedero. ¡Completa una tarea para ganar tiempo!');
     return;
   }
 
   appState.runningTimer = {
     wallet: walletKey,
     startedAt: Date.now(),
-    baseConsumed: appState.wallets[walletKey].consumedSeconds,
-    fiveMinWarned: remaining <= 300
+    baseConsumed: appState.wallets[walletKey].consumedSeconds
   };
 
   persistState();
@@ -1475,18 +2002,12 @@ function onTimerTick() {
     const consumed = getWalletConsumedSeconds(walletKey, now);
     const remaining = Math.max(0, w.earnedSeconds - consumed);
 
-    if (remaining <= 300 && remaining > 0 && !appState.runningTimer.fiveMinWarned) {
-      appState.runningTimer.fiveMinWarned = true;
-      testAlarmSound(false);
-      persistState();
-    }
-
     if (remaining <= 0) {
+      const name = walletKey === 'pc_ipad' ? 'Ordenador y iPad' : 'Móvil';
       w.consumedSeconds = w.earnedSeconds;
       appState.runningTimer = null;
       persistState();
-      testAlarmSound(true);
-      showAlarmModal(walletKey);
+      showToast(`Tiempo completado en ${name}. ¡Buena sesión, Pablo!`);
       renderAll();
       return;
     }
@@ -1498,8 +2019,8 @@ function onTimerTick() {
     const breakRemaining = Math.max(0, Math.ceil((appState.activeBreak.endTimestamp - now) / 1000));
     if (breakRemaining <= 0) {
       appState.activeBreak = null;
-      testAlarmSound(false);
       persistState();
+      showToast('Descanso activo completado. ¡Listo para seguir!');
       renderAll();
     } else {
       document.getElementById('breakCountdown').textContent = formatMMSS(breakRemaining);
@@ -1508,7 +2029,6 @@ function onTimerTick() {
 }
 
 function toggleActiveBreak() {
-  ensureAudioContext();
   if (appState.activeBreak) {
     appState.activeBreak = null;
   } else {
@@ -1529,21 +2049,66 @@ function isSupervisor() {
   return currentMode === 'supervisor';
 }
 
+function toggleNightReading() {
+  checkAndRolloverDay();
+  appState.nightReadingDone = !appState.nightReadingDone;
+  persistState();
+  renderAll();
+  if (appState.nightReadingDone) {
+    showToast('🌙 ¡Lectura nocturna de 30 min completada! Gran hábito, Pablo.');
+  } else {
+    showToast('🌙 Lectura nocturna desmarcada.');
+  }
+}
+
+function setTaskListFilter(filter) {
+  taskListFilter = filter === 'all' ? 'all' : 'today';
+  renderAll();
+}
+
 function toggleTask(taskId) {
   checkAndRolloverDay();
   if (appState.settings.requirePinForTasks && !isSupervisor()) {
-    alert('Está activado que solo Supervisión marque las tareas. Cambia al Modo Supervisión.');
+    showToast('Solo Supervisión puede marcar tareas ahora mismo.');
     return;
   }
 
   const task = appState.tasks.find(t => t.id === taskId);
   if (!task || task.completed) return;
 
-  const granted = addMinutesToWallet(task.wallet, task.minutes);
+  if (!isTaskActiveToday(task)) {
+    showToast('Esta tarea está programada para otros días de la semana.');
+    return;
+  }
+
+  if (isWeekendDate()) {
+    task.completed = true;
+    pushUndoEntry({
+      type: 'task',
+      taskId: task.id,
+      label: task.title,
+      pcMin: 0,
+      mobMin: 0
+    });
+    showToast('✨ ¡Rutina de fin de semana completada!');
+    persistState();
+    renderAll();
+    return;
+  }
+
+  const grant = addMinutesToWallet(task.wallet || 'auto', task.minutes);
   task.completed = true;
-  if (granted > 0) {
-    playTone(587.33, 0.14, 0, 0.14, 'sine');
-    playTone(783.99, 0.22, 0.1, 0.14, 'sine');
+
+  pushUndoEntry({
+    type: 'task',
+    taskId: task.id,
+    label: task.title,
+    pcMin: grant.pcMin,
+    mobMin: grant.mobMin
+  });
+
+  if (grant.total > 0) {
+    showToast(`✅ ${formatGrantSummary(grant.pcMin, grant.mobMin)}`);
   }
 
   persistState();
@@ -1558,31 +2123,36 @@ function toggleNewBonusField() {
 function addTask() {
   if (!isSupervisor()) return;
   const title = document.getElementById('newTaskTitle').value.trim();
+  const noteInput = document.getElementById('newTaskNote').value.trim();
   const type = document.getElementById('newTaskType').value;
   const isBonus = type === 'bonus';
   const bonusMins = parseInt(document.getElementById('newTaskBonusMinutes').value, 10) || 5;
   const wallet = document.getElementById('newTaskWallet').value;
+  const schedule = document.getElementById('newTaskSchedule').value;
 
   if (!title) {
-    alert('Escribe una descripción para la tarea.');
+    showToast('Escribe una descripción para la tarea.');
     return;
   }
 
   appState.tasks.push({
     id: 't_' + Date.now(),
     title,
-    note: isBonus ? 'Bonus fijo' : '',
+    note: noteInput || (isBonus ? 'Bonus fijo' : ''),
     isBonus,
     fixedMinutes: isBonus ? bonusMins : 0,
     minutes: isBonus ? bonusMins : 0,
     wallet,
+    schedule: ['all', 'weekday', 'weekend'].includes(schedule) ? schedule : 'weekday',
     completed: false
   });
 
   recalculateTaskMinutes();
   document.getElementById('newTaskTitle').value = '';
+  document.getElementById('newTaskNote').value = '';
   persistState();
   renderAll();
+  showToast('➕ Tarea añadida y tiempos recalculados.');
 }
 
 function deleteTask(taskId) {
@@ -1593,11 +2163,92 @@ function deleteTask(taskId) {
   renderAll();
 }
 
-function switchTaskWallet(taskId) {
+function moveTask(taskId, direction) {
+  if (!isSupervisor()) return;
+  const visibleTasks = taskListFilter === 'all'
+    ? appState.tasks
+    : appState.tasks.filter(t => isTaskActiveToday(t));
+
+  const visIdx = visibleTasks.findIndex(t => t.id === taskId);
+  const targetVisIdx = visIdx + direction;
+  if (visIdx < 0 || targetVisIdx < 0 || targetVisIdx >= visibleTasks.length) return;
+
+  const idxA = appState.tasks.findIndex(t => t.id === visibleTasks[visIdx].id);
+  const idxB = appState.tasks.findIndex(t => t.id === visibleTasks[targetVisIdx].id);
+  if (idxA < 0 || idxB < 0) return;
+
+  const temp = appState.tasks[idxA];
+  appState.tasks[idxA] = appState.tasks[idxB];
+  appState.tasks[idxB] = temp;
+
+  recalculateTaskMinutes();
+  persistState();
+  renderAll();
+}
+
+function toggleEditBonusField() {
+  const type = document.getElementById('editTaskType').value;
+  document.getElementById('editBonusMinutesWrap').classList.toggle('hidden', type !== 'bonus');
+}
+
+function openEditTaskModal(taskId) {
   if (!isSupervisor()) return;
   const task = appState.tasks.find(t => t.id === taskId);
   if (!task) return;
-  task.wallet = task.wallet === 'pc_ipad' ? 'mobile' : 'pc_ipad';
+
+  document.getElementById('editTaskId').value = task.id;
+  document.getElementById('editTaskTitle').value = task.title;
+  document.getElementById('editTaskNote').value = task.note || '';
+  document.getElementById('editTaskType').value = task.isBonus ? 'bonus' : 'regular';
+  document.getElementById('editTaskBonusMinutes').value = task.fixedMinutes || task.minutes || 5;
+  document.getElementById('editTaskWallet').value = task.wallet || 'auto';
+  document.getElementById('editTaskSchedule').value = task.schedule || 'all';
+  toggleEditBonusField();
+
+  document.getElementById('editTaskModal').classList.add('open');
+}
+
+function closeEditTaskModal() {
+  document.getElementById('editTaskModal').classList.remove('open');
+}
+
+function saveEditedTask() {
+  if (!isSupervisor()) return;
+  const taskId = document.getElementById('editTaskId').value;
+  const task = appState.tasks.find(t => t.id === taskId);
+  if (!task) return;
+
+  const title = document.getElementById('editTaskTitle').value.trim();
+  if (!title) {
+    showToast('La descripción no puede estar vacía.');
+    return;
+  }
+
+  const isBonus = document.getElementById('editTaskType').value === 'bonus';
+  const bonusMins = Math.max(1, parseInt(document.getElementById('editTaskBonusMinutes').value, 10) || 5);
+  const wallet = document.getElementById('editTaskWallet').value;
+  const schedule = document.getElementById('editTaskSchedule').value;
+
+  task.title = title;
+  task.note = document.getElementById('editTaskNote').value.trim();
+  task.isBonus = isBonus;
+  task.fixedMinutes = isBonus ? bonusMins : 0;
+  task.wallet = ['auto', 'pc_ipad', 'mobile'].includes(wallet) ? wallet : 'auto';
+  task.schedule = ['all', 'weekday', 'weekend'].includes(schedule) ? schedule : 'all';
+
+  recalculateTaskMinutes();
+  persistState();
+  closeEditTaskModal();
+  renderAll();
+  showToast('✏️ Tarea actualizada.');
+}
+
+function setTaskWallet(taskId, walletValue) {
+  if (!isSupervisor()) return;
+  const task = appState.tasks.find(t => t.id === taskId);
+  if (!task) return;
+  if (!['auto', 'pc_ipad', 'mobile'].includes(walletValue)) return;
+  task.wallet = walletValue;
   persistState();
   renderAll();
 }
@@ -1608,10 +2259,18 @@ function grantBonusMinutes() {
   const mins = parseInt(document.getElementById('bonusMinutes').value, 10);
   if (!mins || mins <= 0) return;
 
-  const granted = addMinutesToWallet(wallet, mins);
-  if (granted > 0) {
+  const grant = addMinutesToWallet(wallet, mins);
+  if (grant.total > 0) {
+    const summary = formatGrantSummary(grant.pcMin, grant.mobMin);
+    pushUndoEntry({
+      type: 'manual',
+      label: `Minutos extra (${summary})`,
+      pcMin: grant.pcMin,
+      mobMin: grant.mobMin
+    });
     persistState();
     renderAll();
+    showToast(`➕ Añadidos ${summary}`);
   }
 }
 
@@ -1630,16 +2289,31 @@ function saveSettings() {
   recalculateTaskMinutes();
   persistState();
   renderAll();
-  alert('Reglas guardadas y tiempos recalculados.');
+  showToast('💾 Reglas guardadas y tiempos recalculados.');
+}
+
+function changeAdultPin() {
+  if (!isSupervisor()) return;
+  const input = document.getElementById('cfgNewPin');
+  const newPin = input.value.trim();
+  if (!/^\d{4}$/.test(newPin)) {
+    showToast('El PIN debe tener exactamente 4 números.');
+    return;
+  }
+  appState.settings.adultPin = newPin;
+  input.value = '';
+  persistState();
+  showToast('🔐 PIN de Supervisión actualizado correctamente.');
 }
 
 function restoreDefaultTasks() {
   if (!isSupervisor()) return;
-  if (!confirm('¿Restaurar las 9 tareas originales de Pablo? Se recalcularán los tiempos automáticamente.')) return;
+  if (!confirm('¿Restaurar las 8 tareas configuradas de Pablo? Se recalcularán los tiempos automáticamente.')) return;
   appState.tasks = getDefaultTasks();
   recalculateTaskMinutes();
   persistState();
   renderAll();
+  showToast('♻️ Tareas restauradas.');
 }
 
 function resetTodayOnly() {
@@ -1651,9 +2325,14 @@ function resetTodayOnly() {
     mobile: { earnedSeconds: 0, consumedSeconds: 0 }
   };
   appState.tasks = appState.tasks.map(t => ({ ...t, completed: false }));
+  appState.nightReadingDone = false;
+  appState.weekendAutoCreditedDate = null;
+  appState.minuteUndoStack = [];
   recalculateTaskMinutes();
+  syncWeekendProportionalCredit(false);
   persistState();
   renderAll();
+  showToast('🔄 Día reiniciado.');
 }
 
 /**
@@ -1696,9 +2375,11 @@ function renderWeeklyModal() {
   let sumEarned = 0;
   let sumConsumed = 0;
   let weekdaysDone = 0;
+  let readingCount = 0;
   let rowsHtml = '';
 
   const liveNow = Date.now();
+  const wkProp = getWeeklyProportionalSummary(weeklyModalOffset);
 
   for (let i = 0; i < 7; i++) {
     const d = new Date(mondayDate);
@@ -1708,6 +2389,7 @@ function renderWeeklyModal() {
 
     let record = null;
     if (isToday) {
+      const activeToday = appState.tasks.filter(t => isTaskActiveToday(t));
       const pcEarnedMin = Math.round(appState.wallets.pc_ipad.earnedSeconds / 60);
       const pcConsumedMin = Math.round(getWalletConsumedSeconds('pc_ipad', liveNow) / 60);
       const mobEarnedMin = Math.round(appState.wallets.mobile.earnedSeconds / 60);
@@ -1719,8 +2401,9 @@ function renderWeeklyModal() {
         pcConsumedMin,
         mobEarnedMin,
         mobConsumedMin,
-        tasksCompleted: appState.tasks.filter(t => t.completed).length,
-        totalTasks: appState.tasks.length
+        tasksCompleted: activeToday.filter(t => t.completed).length,
+        totalTasks: activeToday.length,
+        nightReadingDone: Boolean(appState.nightReadingDone)
       };
     } else {
       record = appState.history.find(h => h.date === key) || null;
@@ -1732,14 +2415,19 @@ function renderWeeklyModal() {
       if (i < 5 && (record.tasksCompleted > 0 || record.earnedMin > 0)) {
         weekdaysDone++;
       }
+      if (record.nightReadingDone) readingCount++;
     }
 
     const dateStr = d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
+    const readingBadge = record?.nightReadingDone
+      ? '<span class="badge badge-reading">🌙 Lectura</span>'
+      : '';
     const detailHtml = record
       ? `<div style="display:flex; gap:6px; flex-wrap:wrap;">
            <span class="badge badge-success">✅ ${record.tasksCompleted}/${record.totalTasks} tareas</span>
            <span class="badge badge-pc">💻 ${record.pcConsumedMin ?? 0}/${record.pcEarnedMin ?? 0}m</span>
            <span class="badge badge-mobile">📱 ${record.mobConsumedMin ?? 0}/${record.mobEarnedMin ?? 0}m</span>
+           ${readingBadge}
          </div>`
       : `<span class="muted">${d > now ? 'Próximo día' : 'Sin registro'}</span>`;
 
@@ -1753,7 +2441,10 @@ function renderWeeklyModal() {
 
   document.getElementById('wkTotalEarned').textContent = `${sumEarned} min`;
   document.getElementById('wkTotalConsumed').textContent = `${sumConsumed} min`;
-  document.getElementById('wkDaysCount').textContent = `${weekdaysDone} / 5`;
+  document.getElementById('wkWeekendUnlocked').textContent = `${wkProp.unlockedPerWeekendDayMin} min`;
+  document.getElementById('wkReadingCount').textContent = `${readingCount} / 7`;
+  document.getElementById('wkF1Line').textContent =
+    `🏎️ Constancia Simulador F1: ${weekdaysDone}/5 días L-V · Acumulado L-V para finde: ${wkProp.earnedWeekMin}/${wkProp.maxWeekMin} min (${wkProp.pct}% → ${wkProp.unlockedPerWeekendDayMin} min/día Sáb y Dom).`;
   document.getElementById('weeklyRowsContainer').innerHTML = rowsHtml;
 }
 
@@ -1762,23 +2453,6 @@ function renderWeeklyModal() {
  * UTILIDADES Y COPIAS
  * ============================================================================
  */
-function toggleMute() {
-  appState.muted = !appState.muted;
-  persistState();
-  renderAll();
-}
-
-function showAlarmModal(walletKey) {
-  const name = walletKey === 'pc_ipad' ? 'Ordenador y iPad' : 'Móvil';
-  document.getElementById('alarmModalText').textContent =
-    `Se han completado los minutos disponibles en el monedero de ${name}. ¡Buena sesión, Pablo!`;
-  document.getElementById('alarmModal').classList.add('open');
-}
-
-function closeAlarmModal() {
-  document.getElementById('alarmModal').classList.remove('open');
-}
-
 function exportBackup() {
   const blob = new Blob([JSON.stringify(appState, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
@@ -1797,14 +2471,28 @@ function importBackup(event) {
     try {
       const parsed = JSON.parse(e.target.result);
       if (!parsed.wallets || !parsed.tasks) throw new Error('Formato inválido');
-      appState = { ...createInitialState(), ...parsed };
+      appState = {
+        ...createInitialState(),
+        ...parsed,
+        schemaVersion: 5,
+        settings: { ...createInitialState().settings, ...(parsed.settings || {}) },
+        nightReadingDone: Boolean(parsed.nightReadingDone),
+        weekendAutoCreditedDate: parsed.weekendAutoCreditedDate || null,
+        minuteUndoStack: Array.isArray(parsed.minuteUndoStack) ? parsed.minuteUndoStack : []
+      };
+      appState.tasks = appState.tasks.map(t => ({
+        ...t,
+        wallet: ['auto', 'pc_ipad', 'mobile'].includes(t.wallet) ? t.wallet : 'auto',
+        schedule: ['all', 'weekday', 'weekend'].includes(t.schedule) ? t.schedule : 'all'
+      }));
       checkAndRolloverDay();
       recalculateTaskMinutes();
+      syncWeekendProportionalCredit(false);
       await persistState();
       renderAll();
-      alert('Copia de seguridad importada correctamente.');
+      showToast('Copia de seguridad importada correctamente.');
     } catch {
-      alert('El archivo seleccionado no es una copia válida.');
+      showToast('El archivo seleccionado no es una copia válida.');
     }
   };
   reader.readAsText(file);
@@ -1865,7 +2553,7 @@ function renderTimerUIOnly(now = Date.now()) {
     fill.style.background = 'var(--success)';
     badge.className = 'badge badge-success';
     badge.textContent = 'Disfrutando recompensa';
-    warnText.textContent = 'Cuando falten 5 minutos recibirás un aviso suave.';
+    warnText.textContent = 'Disfruta tu tiempo con calma. Puedes pausar cuando quieras.';
   }
 
   document.getElementById('pcIpadRemaining').textContent = formatMMSS(getWalletRemainingSeconds('pc_ipad', now));
@@ -1931,20 +2619,45 @@ function renderAll() {
     weekday: 'long', day: 'numeric', month: 'long'
   });
 
+  const wkProp = getWeeklyProportionalSummary(0);
+
   const dayBadge = document.getElementById('dayTypeBadge');
   dayBadge.textContent = caps.isWeekend
-    ? `Fin de semana · Tope ${caps.dailyTotalCapMin} min`
+    ? `Fin de semana · Desbloqueado ${wkProp.unlockedPerWeekendDayMin}/${caps.dailyTotalCapMin} min`
     : `Día escolar · Tope ${caps.dailyTotalCapMin} min`;
   dayBadge.className = caps.isWeekend ? 'badge badge-success' : 'badge badge-info';
 
-  document.getElementById('soundToggleBtn').textContent = appState.muted ? '🔇 Sonido: OFF' : '🔊 Sonido: ON';
   document.getElementById('adultBanner').classList.toggle('hidden', !sup);
   document.getElementById('adultPanel').classList.toggle('hidden', !sup);
 
-  // Daily Cap Bar
+  // Weekend proportional notice in Step 1
+  const wkNotice = document.getElementById('weekendPropNotice');
+  if (caps.isWeekend) {
+    wkNotice.classList.remove('hidden');
+    wkNotice.innerHTML =
+      `🏆 <strong>Fin de semana proporcional:</strong> Con tus <strong>${wkProp.earnedWeekMin}/${wkProp.maxWeekMin} min</strong> de Lunes a Viernes (${wkProp.pct}%), has desbloqueado <strong>${wkProp.unlockedPerWeekendDayMin} min por día</strong> para sábado y domingo.`;
+  } else {
+    wkNotice.classList.add('hidden');
+  }
+
+  // Daily Cap Bar & Tranche Strip
   const totalEarnedMin = Math.floor(getTotalEarnedSecondsToday() / 60);
-  document.getElementById('dailyEarnedSummary').textContent = `${totalEarnedMin} / ${caps.dailyTotalCapMin} min`;
+  document.getElementById('dailyEarnedLabel').innerHTML = caps.isWeekend
+    ? `Tiempo disponible hoy: <strong id="dailyEarnedSummary">${totalEarnedMin} / ${caps.dailyTotalCapMin} min</strong>`
+    : `Progreso ganado hoy: <strong id="dailyEarnedSummary">${totalEarnedMin} / ${caps.dailyTotalCapMin} min</strong>`;
   document.getElementById('dailyCapFill').style.width = Math.min(100, (totalEarnedMin / caps.dailyTotalCapMin) * 100) + '%';
+
+  const trancheSnapshot = getTrancheProgressSnapshot();
+  let activeMarked = false;
+  document.getElementById('trancheStrip').innerHTML = trancheSnapshot.map((tr, i) => {
+    const isFilled = tr.remaining === 0;
+    const isActive = !isFilled && !activeMarked;
+    if (isActive) activeMarked = true;
+    const icon = tr.wallet === 'mobile' ? '📱' : '💻';
+    const label = tr.wallet === 'mobile' ? 'Móvil' : 'iPad/PC';
+    const cls = `tranche-chip ${tr.wallet} ${isFilled ? 'filled' : ''} ${isActive ? 'active' : ''}`;
+    return `<span class="${cls}">${i + 1}º ${icon} ${tr.filled}/${tr.cap}m ${label}${isFilled ? ' ✓' : ''}</span>`;
+  }).join('');
 
   const pcWeekendInfo = document.getElementById('weekendPcCapInfo');
   if (caps.isWeekend) {
@@ -1999,46 +2712,113 @@ function renderAll() {
     breakBtn.className = 'btn-success btn-sm';
   }
 
-  // Recalc Summary
-  const regularTasks = appState.tasks.filter(t => !t.isBonus);
-  const bonusTasks = appState.tasks.filter(t => t.isBonus);
-  const regularSum = regularTasks.reduce((acc, t) => acc + t.minutes, 0);
-  const bonusSum = bonusTasks.reduce((acc, t) => acc + t.minutes, 0);
-  document.getElementById('recalcSummary').innerHTML =
-    `⚖️ <strong>Reparto automático de hoy:</strong> ${regularTasks.length} tareas base (${regularSum} min) + ${bonusTasks.length} bonus (${bonusSum} min) = <strong>${regularSum + bonusSum} min</strong> tope.`;
+  // Night Reading Check
+  const readingBox = document.getElementById('nightReadingBox');
+  const readingBtn = document.getElementById('nightReadingBtn');
+  const readingSub = document.getElementById('nightReadingSub');
+  readingBox.classList.toggle('done', Boolean(appState.nightReadingDone));
+  if (appState.nightReadingDone) {
+    readingBtn.textContent = '✅ Completada';
+    readingBtn.className = 'btn-success btn-sm';
+    readingSub.textContent = '¡Genial! Lectura de 30 min antes de dormir registrada hoy.';
+  } else {
+    readingBtn.textContent = 'Marcar lectura';
+    readingBtn.className = 'btn-outline btn-sm';
+    readingSub.textContent = 'Antes de dormir · Hábito diario (no suma ni resta minutos de pantalla).';
+  }
+
+  // Filter Bar (Supervisor only)
+  const filterBar = document.getElementById('taskFilterBar');
+  filterBar.classList.toggle('hidden', !sup);
+  if (sup) {
+    document.getElementById('filterTodayBtn').classList.toggle('active', taskListFilter === 'today');
+    document.getElementById('filterAllBtn').classList.toggle('active', taskListFilter === 'all');
+  }
+
+  // Recalc Summary & Active Tasks
+  const todayActiveTasks = appState.tasks.filter(t => isTaskActiveToday(t));
+  const visibleTasks = (sup && taskListFilter === 'all') ? appState.tasks : todayActiveTasks;
+
+  const recalcEl = document.getElementById('recalcSummary');
+  if (caps.isWeekend) {
+    recalcEl.innerHTML =
+      `🏆 <strong>Fin de semana proporcional:</strong> Tus minutos de hoy se desbloquean con lo acumulado de Lunes a Viernes (${wkProp.pct}% → <strong>${wkProp.unlockedPerWeekendDayMin} min/día</strong>). Las tareas de abajo son rutinas positivas de fin de semana.`;
+  } else {
+    const regularTasks = todayActiveTasks.filter(t => !t.isBonus);
+    const bonusTasks = todayActiveTasks.filter(t => t.isBonus);
+    const regularSum = regularTasks.reduce((acc, t) => acc + t.minutes, 0);
+    const bonusSum = bonusTasks.reduce((acc, t) => acc + t.minutes, 0);
+    recalcEl.innerHTML =
+      `⚖️ <strong>Reparto automático de hoy (L-V):</strong> ${regularTasks.length} tareas base (${regularSum} min) + ${bonusTasks.length} bonus (${bonusSum} min) = <strong>${regularSum + bonusSum} min</strong> tope.`;
+  }
 
   // Tasks
-  const doneCount = appState.tasks.filter(t => t.completed).length;
-  document.getElementById('tasksDoneCounter').textContent = `${doneCount} de ${appState.tasks.length} completadas`;
+  const doneCount = todayActiveTasks.filter(t => t.completed).length;
+  document.getElementById('tasksDoneCounter').textContent = `${doneCount} de ${todayActiveTasks.length} completadas hoy`;
 
   const taskList = document.getElementById('taskList');
-  if (appState.tasks.length === 0) {
-    taskList.innerHTML = '<div class="muted">No hay tareas definidas.</div>';
+  if (visibleTasks.length === 0) {
+    taskList.innerHTML = '<div class="muted">No hay tareas programadas para mostrar aquí.</div>';
   } else {
-    taskList.innerHTML = appState.tasks.map(t => {
-      const walletBadge = t.wallet === 'pc_ipad'
-        ? '<span class="badge badge-pc">💻 Ordenador/iPad</span>'
-        : '<span class="badge badge-mobile">📱 Móvil</span>';
-      const typeBadge = t.isBonus
-        ? `<span class="badge badge-bonus">⭐ Bonus +${t.minutes} min</span>`
-        : `<span class="badge badge-info">+${t.minutes} min</span>`;
+    taskList.innerHTML = visibleTasks.map((t, visIdx) => {
+      const activeToday = isTaskActiveToday(t);
+      const wType = t.wallet || 'auto';
+      const sch = t.schedule || 'all';
+
+      const scheduleBadge = sch === 'weekday'
+        ? '<span class="badge badge-schedule">📅 L-V</span>'
+        : sch === 'weekend'
+          ? '<span class="badge badge-schedule">📅 Fin de semana</span>'
+          : '<span class="badge badge-schedule">📅 Todos los días</span>';
+
+      const walletBadge = wType === 'auto'
+        ? '<span class="badge badge-auto">⚡ Auto</span>'
+        : wType === 'pc_ipad'
+          ? '<span class="badge badge-pc">💻 iPad/PC</span>'
+          : '<span class="badge badge-mobile">📱 Móvil</span>';
+
+      const typeBadge = (caps.isWeekend && activeToday)
+        ? '<span class="badge badge-success">✨ Rutina positiva</span>'
+        : t.isBonus
+          ? `<span class="badge badge-bonus">⭐ Bonus +${t.minutes} min</span>`
+          : `<span class="badge badge-info">+${t.minutes} min</span>`;
+
+      const undoTaskBtn = (sup && t.completed)
+        ? `<button class="icon-btn-sm" onclick="undoTaskById('${t.id}')" title="Deshacer esta tarea y devolver sus minutos">↩️</button>`
+        : '';
 
       const adultControls = sup ? `
-        <button class="btn-outline btn-sm" onclick="switchTaskWallet('${t.id}')" title="Cambiar monedero">💻↔📱</button>
-        <button class="btn-outline btn-sm" onclick="deleteTask('${t.id}')" title="Eliminar y recalcular">🗑️</button>
+        ${undoTaskBtn}
+        <button class="icon-btn-sm" onclick="moveTask('${t.id}', -1)" ${visIdx === 0 ? 'disabled' : ''} title="Subir orden">⬆️</button>
+        <button class="icon-btn-sm" onclick="moveTask('${t.id}', 1)" ${visIdx === visibleTasks.length - 1 ? 'disabled' : ''} title="Bajar orden">⬇️</button>
+        <button class="icon-btn-sm" onclick="openEditTaskModal('${t.id}')" title="Editar tarea">✏️</button>
+        <select class="wallet-select-sm" aria-label="Destino de minutos" onchange="setTaskWallet('${t.id}', this.value)">
+          <option value="auto" ${wType === 'auto' ? 'selected' : ''}>⚡ Auto</option>
+          <option value="pc_ipad" ${wType === 'pc_ipad' ? 'selected' : ''}>💻 iPad/PC</option>
+          <option value="mobile" ${wType === 'mobile' ? 'selected' : ''}>📱 Móvil</option>
+        </select>
+        <button class="icon-btn-sm" onclick="deleteTask('${t.id}')" title="Eliminar y recalcular">🗑️</button>
       ` : '';
 
-      const actionBtn = t.completed
-        ? '<span class="badge badge-success">✅ Conseguido</span>'
-        : `<button class="btn-primary btn-sm" onclick="toggleTask('${t.id}')">Completar (+${t.minutes}m)</button>`;
+      let actionBtn = '';
+      if (!activeToday) {
+        actionBtn = '<span class="badge badge-schedule">No toca hoy</span>';
+      } else if (t.completed) {
+        actionBtn = '<span class="badge badge-success">✅ Conseguido</span>';
+      } else if (caps.isWeekend) {
+        actionBtn = `<button class="btn-primary btn-sm" onclick="toggleTask('${t.id}')">Completar rutina</button>`;
+      } else {
+        actionBtn = `<button class="btn-primary btn-sm" onclick="toggleTask('${t.id}')">Completar (+${t.minutes}m)</button>`;
+      }
 
       return `
-        <div class="task-item ${t.completed ? 'completed' : ''}">
+        <div class="task-item ${t.completed && activeToday ? 'completed' : ''}" style="${!activeToday ? 'opacity:0.72;' : ''}">
           <div class="task-info">
             <div class="task-title">${escapeHtml(t.title)}</div>
             ${t.note ? `<div class="task-sub">${escapeHtml(t.note)}</div>` : ''}
             <div class="task-tags">
-              ${walletBadge}
+              ${scheduleBadge}
+              ${!caps.isWeekend || !activeToday ? walletBadge : ''}
               ${typeBadge}
             </div>
           </div>
@@ -2051,15 +2831,21 @@ function renderAll() {
     }).join('');
   }
 
-  // Celebration
+  // Celebration & Weekend Proportional Bank
   const celText = document.getElementById('celebrationMessage');
-  if (doneCount > 0 && doneCount === appState.tasks.length) {
+  if (doneCount > 0 && doneCount === todayActiveTasks.length) {
     celText.innerHTML = '🌟 <strong>¡Todas las metas de hoy completadas, Pablo!</strong> Gran constancia y esfuerzo.';
   } else if (doneCount > 0) {
     celText.innerHTML = `👏 ¡Llevas <strong>${doneCount}</strong> ${doneCount === 1 ? 'logro conseguido' : 'logros conseguidos'} hoy! Toca aquí para ver tu semana.`;
   } else {
     celText.textContent = 'Cada pequeño avance cuenta. Toca aquí para ver el resumen de tu semana.';
   }
+
+  document.getElementById('weekendBankSummary').textContent =
+    `${wkProp.unlockedPerWeekendDayMin} / ${wkProp.weekendCap} min/día`;
+  document.getElementById('weekendBankFill').style.width = `${wkProp.pct}%`;
+  document.getElementById('weekendBankSub').textContent =
+    `Proporcional a tu semana L-V: ${wkProp.earnedWeekMin} / ${wkProp.maxWeekMin} min (${wkProp.pct}%) → ${wkProp.unlockedPerWeekendDayMin} min el sábado y ${wkProp.unlockedPerWeekendDayMin} min el domingo.`;
 
   renderWeeklyF1Tracker();
 
@@ -2068,6 +2854,20 @@ function renderAll() {
     document.getElementById('cfgWeekendCap').value = appState.settings.weekendCap;
     document.getElementById('cfgWeekendPcCap').value = appState.settings.weekendPcIpadCap;
     document.getElementById('cfgRequirePinForTasks').value = String(appState.settings.requirePinForTasks);
+    document.getElementById('resyncWeekendBtn').classList.toggle('hidden', !caps.isWeekend);
+
+    const stack = Array.isArray(appState.minuteUndoStack) ? appState.minuteUndoStack : [];
+    const undoBtn = document.getElementById('undoMinutesBtn');
+    const undoHint = document.getElementById('undoLastHint');
+    undoBtn.disabled = stack.length === 0;
+    undoBtn.textContent = stack.length > 0 ? `↩️ Deshacer minutos (${stack.length})` : '↩️ Deshacer minutos';
+    if (stack.length > 0) {
+      const last = stack[stack.length - 1];
+      const deltaStr = formatGrantSummary(Math.round(last.pcDeltaSec / 60), Math.round(last.mobDeltaSec / 60));
+      undoHint.textContent = `Último movimiento: ${last.label}${deltaStr ? ' · ' + deltaStr : ''}`;
+    } else {
+      undoHint.textContent = 'No hay movimientos de minutos para deshacer hoy.';
+    }
   }
 }
 
