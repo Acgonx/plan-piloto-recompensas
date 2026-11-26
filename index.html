@@ -780,12 +780,12 @@
     .badge-cloud { background: #ecfdf5; color: #047857; }
     .badge-local { background: #f1f5f9; color: #475569; }
 
-    /* Wallet Choice Modal on Task Completion */
+    /* Wallet Choice & Minutes Confirmation Modal on Task Completion */
     .wallet-choice-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       gap: 10px;
-      margin: 14px 0 12px;
+      margin: 12px 0;
     }
 
     .wallet-choice-btn {
@@ -794,22 +794,75 @@
       align-items: flex-start;
       text-align: left;
       gap: 4px;
-      padding: 14px;
+      padding: 12px 14px;
       border-radius: 14px;
       border: 2px solid var(--border);
       background: var(--surface-soft);
       color: var(--text);
-      min-height: 92px;
-      transition: transform 0.12s ease, border-color 0.15s ease, background-color 0.15s ease;
+      min-height: 82px;
+      transition: transform 0.12s ease, border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
     }
 
-    .wallet-choice-btn:hover { transform: translateY(-1px); }
+    .wallet-choice-btn:hover:not(:disabled) { transform: translateY(-1px); }
+    .wallet-choice-btn:disabled { opacity: 0.5; cursor: not-allowed; }
     .wallet-choice-btn.pc { border-color: #bae6fd; background: #f0f9ff; }
-    .wallet-choice-btn.pc:hover { border-color: var(--pc-color); }
+    .wallet-choice-btn.pc.selected { border-color: var(--pc-color); box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.18); }
     .wallet-choice-btn.mobile { border-color: #ddd6fe; background: #faf5ff; }
-    .wallet-choice-btn.mobile:hover { border-color: var(--mobile-color); }
-    .wallet-choice-title { font-size: 0.96rem; font-weight: 800; }
-    .wallet-choice-meta { font-size: 0.78rem; color: var(--text-muted); font-weight: 600; line-height: 1.35; }
+    .wallet-choice-btn.mobile.selected { border-color: var(--mobile-color); box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.18); }
+    .wallet-choice-btn.auto { grid-column: 1 / -1; min-height: auto; padding: 10px 14px; border-color: #cbd5e1; background: #f8fafc; }
+    .wallet-choice-btn.auto.selected { border-color: var(--primary); background: var(--primary-soft); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.16); }
+    .wallet-choice-title { font-size: 0.94rem; font-weight: 800; }
+    .wallet-choice-meta { font-size: 0.76rem; color: var(--text-muted); font-weight: 600; line-height: 1.35; }
+
+    .minutes-confirm-box {
+      background: var(--surface-soft);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px 14px;
+      margin: 12px 0 14px;
+    }
+
+    .minutes-stepper {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+
+    .minutes-stepper input {
+      width: 86px;
+      text-align: center;
+      font-size: 1.15rem;
+      font-weight: 800;
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 2px solid var(--primary);
+      background: #ffffff;
+      color: var(--text);
+    }
+
+    .minutes-limit-hint {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 8px;
+      font-weight: 600;
+    }
+
+    .minutes-limit-hint.at-cap {
+      color: var(--warning);
+    }
+
+    .wallet-auto-banner {
+      margin: 10px 0;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: var(--primary-soft);
+      border: 1px solid #bfdbfe;
+      color: #1e40af;
+      font-size: 0.84rem;
+      font-weight: 600;
+    }
 
     /* Positive Weekly Streak (L-J) */
     .streak-header {
@@ -1054,7 +1107,7 @@
       <div style="flex:1; min-width:210px;">
         <div style="font-weight:700; font-size:0.92rem;" id="cloudSyncCardTitle">☁️ Sincronización familiar (iPad ↔ iPhone)</div>
         <div class="muted" style="font-size:0.8rem; margin-top:2px;" id="cloudSyncCardDesc">
-          Conecta la misma cuenta de Google en el iPad de Pablo y en tu iPhone para sincronizar en tiempo real y activar avisos push.
+          Conecta la misma cuenta de Google en el iPad de Pablo y en tu iPhone para sincronizar en tiempo real.
         </div>
       </div>
       <div style="display:flex; gap:8px; align-items:center;">
@@ -1420,60 +1473,6 @@
 
         <div class="divider"></div>
 
-        <!-- Push Notifications via ntfy -->
-        <div>
-          <strong style="font-size:0.92rem;">📲 Avisos push en tu iPhone (ntfy)</strong>
-          <div class="ntfy-box">
-            <ol class="ntfy-steps">
-              <li>Instala la app gratuita <strong>ntfy</strong> en tu iPhone (App Store).</li>
-              <li>Toca <strong>+</strong> en <strong>ntfy</strong> y suscríbete al tema privado de abajo.</li>
-            </ol>
-
-            <div id="ntfyAuthWarning" class="badge badge-warning hidden" style="width:100%; justify-content:flex-start; margin-bottom:10px; padding:7px 10px; border-radius:9px;">
-              ☁️ Conecta tu cuenta de Google en la pantalla inicial para activar los avisos push.
-            </div>
-
-            <div class="field">
-              <label>Tema privado de ntfy (6-64 letras, números, - o _)</label>
-              <div class="ntfy-topic-row">
-                <input type="text" id="cfgNtfyTopic" maxlength="64" placeholder="Ej. pablo-piloto-9482a" autocomplete="off" />
-                <button type="button" class="btn-outline btn-sm" onclick="generateNtfyTopic()" title="Generar un tema privado aleatorio">🎲 Generar</button>
-                <button type="button" class="btn-outline btn-sm" onclick="copyNtfyTopic()" title="Copiar tema">📋 Copiar</button>
-              </div>
-            </div>
-
-            <div class="ntfy-checks">
-              <label class="ntfy-check-item">
-                <input type="checkbox" id="cfgNtfyEnabled" />
-                <span><strong>Activar notificaciones en mi iPhone</strong></span>
-              </label>
-              <label class="ntfy-check-item">
-                <input type="checkbox" id="cfgNtfyOnStart" />
-                <span>Avisar al iniciar el temporizador</span>
-              </label>
-              <label class="ntfy-check-item">
-                <input type="checkbox" id="cfgNtfyOnPause" />
-                <span>Avisar al pausar el temporizador</span>
-              </label>
-              <label class="ntfy-check-item">
-                <input type="checkbox" id="cfgNtfyFiveMin" />
-                <span>Pre-aviso cuando queden 5 minutos</span>
-              </label>
-              <label class="ntfy-check-item">
-                <input type="checkbox" id="cfgNtfyOnEnd" />
-                <span>Aviso cuando se acabe el tiempo</span>
-              </label>
-            </div>
-
-            <div style="display:flex; gap:8px; flex-wrap:wrap;">
-              <button type="button" class="btn-primary btn-sm" onclick="saveNtfySettings()">💾 Guardar avisos</button>
-              <button type="button" class="btn-outline btn-sm" id="testNtfyBtn" onclick="testNtfyNotification()">🧪 Probar en iPhone</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="divider"></div>
-
         <!-- PIN Management -->
         <div>
           <strong style="font-size:0.92rem;">Seguridad · Cambiar PIN de Supervisión</strong>
@@ -1610,26 +1609,51 @@
   </div>
 </div>
 
-<!-- WALLET CHOICE MODAL (on task completion) -->
+<!-- TASK COMPLETION: CONFIRM MINUTES & WALLET MODAL -->
 <div id="walletChoiceModal" class="modal-backdrop" onclick="if(event.target===this) closeWalletChoiceModal()">
   <div class="modal">
-    <h2 style="font-size:1.16rem; margin-bottom:4px;">🎯 ¿A qué monedero van estos minutos?</h2>
+    <h2 style="font-size:1.16rem; margin-bottom:4px;">✅ Confirmar tarea y minutos</h2>
     <p class="muted" id="walletChoiceTaskLabel" style="font-size:0.86rem;"></p>
 
-    <div class="wallet-choice-grid">
-      <button type="button" class="wallet-choice-btn pc" id="choosePcBtn" onclick="confirmWalletChoice('pc_ipad')">
-        <span class="wallet-choice-title">💻 Ordenador y iPad</span>
-        <span class="wallet-choice-meta" id="choosePcMeta"></span>
-      </button>
-      <button type="button" class="wallet-choice-btn mobile" id="chooseMobBtn" onclick="confirmWalletChoice('mobile')">
-        <span class="wallet-choice-title">📱 Móvil</span>
-        <span class="wallet-choice-meta" id="chooseMobMeta"></span>
-      </button>
+    <div id="walletAutoLockedBanner" class="wallet-auto-banner hidden"></div>
+
+    <div id="walletChoiceSection">
+      <div style="font-size:0.8rem; font-weight:700; color:var(--text-muted); margin-top:10px;">
+        1. Monedero de destino
+      </div>
+      <div class="wallet-choice-grid">
+        <button type="button" class="wallet-choice-btn pc" id="choosePcBtn" onclick="selectCompletionWallet('pc_ipad')">
+          <span class="wallet-choice-title">💻 Ordenador y iPad</span>
+          <span class="wallet-choice-meta" id="choosePcMeta"></span>
+        </button>
+        <button type="button" class="wallet-choice-btn mobile" id="chooseMobBtn" onclick="selectCompletionWallet('mobile')">
+          <span class="wallet-choice-title">📱 Móvil</span>
+          <span class="wallet-choice-meta" id="chooseMobMeta"></span>
+        </button>
+        <button type="button" class="wallet-choice-btn auto" id="chooseAutoBtn" onclick="selectCompletionWallet('auto')">
+          <span class="wallet-choice-title">⚡ Orden automático (repartir respetando topes)</span>
+          <span class="wallet-choice-meta" id="chooseAutoMeta"></span>
+        </button>
+      </div>
     </div>
 
-    <div style="display:flex; gap:8px; justify-content:space-between; flex-wrap:wrap; margin-top:4px;">
-      <button type="button" class="btn-outline btn-sm" onclick="confirmWalletChoice('auto')">⚡ Orden automático</button>
-      <button type="button" class="btn-outline btn-sm" onclick="closeWalletChoiceModal()">Cancelar</button>
+    <div class="minutes-confirm-box">
+      <label for="walletChoiceMinutesInput" style="font-size:0.84rem; font-weight:700; color:var(--text); display:block;">
+        Minutos a sumar (puedes confirmarlos o modificarlos)
+      </label>
+      <div class="minutes-stepper">
+        <button type="button" class="btn-outline btn-sm" id="btnStepMinM5" onclick="stepWalletChoiceMinutes(-5)">-5</button>
+        <button type="button" class="btn-outline btn-sm" id="btnStepMinM1" onclick="stepWalletChoiceMinutes(-1)">-1</button>
+        <input type="number" id="walletChoiceMinutesInput" inputmode="numeric" min="0" max="90" oninput="onWalletChoiceMinutesInput()" />
+        <button type="button" class="btn-outline btn-sm" id="btnStepMinP1" onclick="stepWalletChoiceMinutes(1)">+1</button>
+        <button type="button" class="btn-outline btn-sm" id="btnStepMinP5" onclick="stepWalletChoiceMinutes(5)">+5</button>
+      </div>
+      <div id="walletChoiceLimitHint" class="minutes-limit-hint"></div>
+    </div>
+
+    <div style="display:flex; gap:8px; justify-content:flex-end; flex-wrap:wrap;">
+      <button type="button" class="btn-outline" onclick="closeWalletChoiceModal()">Cancelar</button>
+      <button type="button" class="btn-primary" id="confirmWalletChoiceBtn" onclick="submitWalletChoiceModal()">✅ Confirmar</button>
     </div>
   </div>
 </div>
@@ -1757,7 +1781,6 @@ let remotePlanCreatedAt = null;
 const remoteHistoryCreatedAtMap = new Map();
 let unsubPlan = null;
 let unsubHistory = null;
-let lastSyncedTimerSig = '';
 
 function handleFirestoreError(error, operationType, path) {
   const errInfo = {
@@ -2000,82 +2023,6 @@ async function savePlanToCloud() {
   }
 }
 
-async function callNtfyApi(endpoint, payload = {}) {
-  if (!currentUser) return null;
-  try {
-    const idToken = await currentUser.getIdToken();
-    const resp = await fetch(endpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${idToken}`
-      },
-      body: JSON.stringify(payload)
-    });
-    const data = await resp.json().catch(() => ({}));
-    if (!resp.ok) {
-      return { ok: false, error: data.error || `Error ${resp.status}` };
-    }
-    return data;
-  } catch (err) {
-    console.warn('ntfy API call failed:', err.message);
-    return { ok: false, error: 'No se pudo conectar con el servidor de avisos.' };
-  }
-}
-
-function getWalletDisplayName(walletKey) {
-  return walletKey === 'pc_ipad' ? 'Ordenador y iPad' : 'Móvil';
-}
-
-function notifyServerTimerStart(walletKey, remainingSeconds) {
-  const s = appState.settings || {};
-  if (!currentUser || !s.ntfyEnabled || !isValidNtfyTopicStr(s.ntfyTopic)) return;
-  lastSyncedTimerSig = `${walletKey}_${appState.runningTimer?.startedAt || 0}`;
-  callNtfyApi('/api/ntfy/timer/start', {
-    topic: s.ntfyTopic.trim(),
-    walletName: getWalletDisplayName(walletKey),
-    remainingSeconds,
-    notifyOnStart: s.ntfyOnStart !== false,
-    notifyFiveMin: s.ntfyFiveMin !== false,
-    notifyOnEnd: s.ntfyOnEnd !== false
-  });
-}
-
-function notifyServerTimerSync() {
-  const s = appState.settings || {};
-  if (!currentUser || !appState.runningTimer || !s.ntfyEnabled || !isValidNtfyTopicStr(s.ntfyTopic)) return;
-  const sig = `${appState.runningTimer.wallet}_${appState.runningTimer.startedAt}`;
-  if (sig === lastSyncedTimerSig) return;
-  const rem = getWalletRemainingSeconds(appState.runningTimer.wallet);
-  if (rem <= 0) return;
-  lastSyncedTimerSig = sig;
-  callNtfyApi('/api/ntfy/timer/sync', {
-    topic: s.ntfyTopic.trim(),
-    walletName: getWalletDisplayName(appState.runningTimer.wallet),
-    remainingSeconds: rem,
-    notifyFiveMin: s.ntfyFiveMin !== false,
-    notifyOnEnd: s.ntfyOnEnd !== false
-  });
-}
-
-function notifyServerTimerPause(walletKey, remainingSeconds) {
-  lastSyncedTimerSig = '';
-  const s = appState.settings || {};
-  if (!currentUser) return;
-  callNtfyApi('/api/ntfy/timer/pause', {
-    topic: isValidNtfyTopicStr(s.ntfyTopic) && s.ntfyEnabled ? s.ntfyTopic.trim() : '',
-    walletName: getWalletDisplayName(walletKey),
-    remainingSeconds,
-    notifyOnPause: Boolean(s.ntfyEnabled && s.ntfyOnPause !== false)
-  });
-}
-
-function notifyServerTimerCancel() {
-  lastSyncedTimerSig = '';
-  if (!currentUser) return;
-  callNtfyApi('/api/ntfy/timer/cancel', {});
-}
-
 function renderCloudSyncUI() {
   const card = document.getElementById('cloudSyncCard');
   const title = document.getElementById('cloudSyncCardTitle');
@@ -2083,7 +2030,6 @@ function renderCloudSyncUI() {
   const signInBtn = document.getElementById('googleSignInBtn');
   const signOutBtn = document.getElementById('googleSignOutBtn');
   const topBadge = document.getElementById('cloudSyncBadge');
-  const ntfyWarn = document.getElementById('ntfyAuthWarning');
 
   if (currentUser) {
     card?.classList.add('synced');
@@ -2095,13 +2041,12 @@ function renderCloudSyncUI() {
       topBadge.className = 'badge badge-cloud';
       topBadge.textContent = '☁️ Nube activa';
     }
-    ntfyWarn?.classList.add('hidden');
   } else {
     card?.classList.remove('synced');
     if (title) title.textContent = '☁️ Sincronización familiar (iPad ↔ iPhone)';
     if (desc) {
       desc.textContent = firebaseReady
-        ? 'Conecta la misma cuenta de Google en el iPad de Pablo y en tu iPhone para sincronizar en tiempo real y activar avisos push.'
+        ? 'Conecta la misma cuenta de Google en el iPad de Pablo y en tu iPhone para sincronizar en tiempo real.'
         : 'Conectando servicio en la nube... Puedes usar la app en modo local mientras tanto.';
     }
     if (signInBtn) {
@@ -2113,7 +2058,6 @@ function renderCloudSyncUI() {
       topBadge.className = 'badge badge-local';
       topBadge.textContent = '📱 Solo local';
     }
-    ntfyWarn?.classList.remove('hidden');
   }
 }
 
@@ -2124,7 +2068,6 @@ function detachCloudListeners() {
   remotePlanExists = false;
   remotePlanCreatedAt = null;
   remoteHistoryCreatedAtMap.clear();
-  lastSyncedTimerSig = '';
 }
 
 async function attachCloudListeners(user) {
@@ -2181,9 +2124,6 @@ async function attachCloudListeners(user) {
       await dataService.saveState(appState);
       if (migrated || rolled || credited) {
         await savePlanToCloud();
-      }
-      if (appState.runningTimer) {
-        notifyServerTimerSync();
       }
       renderModeVisibility();
       renderAll();
@@ -2837,7 +2777,6 @@ function checkAndRolloverDay() {
     appState.minuteUndoStack = [];
     recalculateTaskMinutes();
     syncWeekendProportionalCredit(false);
-    notifyServerTimerCancel();
     return true;
   }
   return false;
@@ -3050,15 +2989,6 @@ function addMinutesToWallet(walletKey, minutes) {
   appState.wallets.pc_ipad.earnedSeconds += pcMin * 60;
   appState.wallets.mobile.earnedSeconds += mobMin * 60;
 
-  if (
-    appState.runningTimer &&
-    ((appState.runningTimer.wallet === 'pc_ipad' && pcMin > 0) ||
-      (appState.runningTimer.wallet === 'mobile' && mobMin > 0))
-  ) {
-    lastSyncedTimerSig = '';
-    notifyServerTimerSync();
-  }
-
   return { total: pcMin + mobMin, pcMin, mobMin };
 }
 
@@ -3101,10 +3031,6 @@ function applyUndoEntry(entry) {
     if (remAfterUndo <= 0) {
       appState.wallets[activeKey].consumedSeconds = appState.wallets[activeKey].earnedSeconds;
       appState.runningTimer = null;
-      notifyServerTimerCancel();
-    } else {
-      lastSyncedTimerSig = '';
-      notifyServerTimerSync();
     }
   }
 
@@ -3181,22 +3107,15 @@ function startConsumptionTimer(walletKey) {
   };
 
   persistState();
-  notifyServerTimerStart(walletKey, remaining);
   renderAll();
 }
 
 function pauseConsumptionTimer(silent = false) {
   if (!appState.runningTimer) return;
   const walletKey = appState.runningTimer.wallet;
-  const remaining = getWalletRemainingSeconds(walletKey);
   appState.wallets[walletKey].consumedSeconds = getWalletConsumedSeconds(walletKey);
   appState.runningTimer = null;
   persistState();
-  if (silent) {
-    notifyServerTimerCancel();
-  } else {
-    notifyServerTimerPause(walletKey, remaining);
-  }
   renderAll();
 }
 
@@ -3222,7 +3141,6 @@ function onTimerTick() {
       const name = walletKey === 'pc_ipad' ? 'Ordenador y iPad' : 'Móvil';
       w.consumedSeconds = w.earnedSeconds;
       appState.runningTimer = null;
-      lastSyncedTimerSig = '';
       persistState();
       showToast(`Tiempo completado en ${name}. ¡Buena sesión, Pablo!`);
       renderAll();
@@ -3284,33 +3202,176 @@ function setTaskListFilter(filter) {
 }
 
 let pendingWalletTaskId = null;
+let selectedCompletionWallet = 'pc_ipad';
+let completionAutoLockedReason = '';
+
+function getMaxMinutesForWalletSelection(walletKey, room) {
+  const { dailyTotalCapMin } = getTodayCaps();
+  const totalEarnedMin = Math.floor(getTotalEarnedSecondsToday() / 60);
+  const remainingDailyRoom = Math.max(0, dailyTotalCapMin - totalEarnedMin);
+
+  if (walletKey === 'pc_ipad') return Math.min(room.pcRoom, remainingDailyRoom);
+  if (walletKey === 'mobile') return Math.min(room.mobRoom, remainingDailyRoom);
+  return Math.min(room.pcRoom + room.mobRoom, remainingDailyRoom);
+}
+
+function refreshWalletChoiceModalUI(keepCurrentValue = true) {
+  const task = appState.tasks.find(t => t.id === pendingWalletTaskId);
+  if (!task) return;
+
+  const room = getTodayWalletRoom();
+  const maxPc = getMaxMinutesForWalletSelection('pc_ipad', room);
+  const maxMob = getMaxMinutesForWalletSelection('mobile', room);
+  const maxAuto = getMaxMinutesForWalletSelection('auto', room);
+  const maxAllowed = getMaxMinutesForWalletSelection(selectedCompletionWallet, room);
+
+  const pcBtn = document.getElementById('choosePcBtn');
+  const mobBtn = document.getElementById('chooseMobBtn');
+  const autoBtn = document.getElementById('chooseAutoBtn');
+
+  pcBtn.disabled = maxPc <= 0;
+  mobBtn.disabled = maxMob <= 0;
+  autoBtn.disabled = maxAuto <= 0;
+
+  pcBtn.classList.toggle('selected', selectedCompletionWallet === 'pc_ipad');
+  mobBtn.classList.toggle('selected', selectedCompletionWallet === 'mobile');
+  autoBtn.classList.toggle('selected', selectedCompletionWallet === 'auto');
+
+  document.getElementById('choosePcMeta').textContent = maxPc > 0
+    ? `${room.pcEarnedMin}/${room.pcCapMin} min · caben hasta ${maxPc} min`
+    : `Tope alcanzado (${room.pcCapMin}/${room.pcCapMin} min)`;
+  document.getElementById('chooseMobMeta').textContent = maxMob > 0
+    ? `${room.mobEarnedMin}/${room.mobCapMin} min · caben hasta ${maxMob} min`
+    : `Tope alcanzado (${room.mobCapMin}/${room.mobCapMin} min)`;
+  document.getElementById('chooseAutoMeta').textContent = maxAuto > 0
+    ? `Margen combinado disponible hoy: hasta ${maxAuto} min`
+    : 'Tope diario alcanzado (0 min disponibles)';
+
+  const input = document.getElementById('walletChoiceMinutesInput');
+  input.min = 0;
+  input.max = maxAllowed;
+  input.disabled = maxAllowed <= 0;
+
+  let val;
+  if (keepCurrentValue) {
+    const parsed = parseInt(input.value, 10);
+    val = Number.isFinite(parsed) ? parsed : task.minutes;
+  } else {
+    val = Math.min(task.minutes, maxAllowed);
+  }
+  const clamped = Math.max(0, Math.min(maxAllowed, val));
+  input.value = String(clamped);
+
+  const walletLabel = selectedCompletionWallet === 'pc_ipad'
+    ? `Ordenador y iPad (tope ${room.pcCapMin} min)`
+    : selectedCompletionWallet === 'mobile'
+      ? `Móvil (tope ${room.mobCapMin} min)`
+      : 'orden automático';
+
+  const hint = document.getElementById('walletChoiceLimitHint');
+  if (maxAllowed <= 0) {
+    hint.textContent = 'Tope diario alcanzado: puedes marcar la tarea completada con 0 min extra.';
+    hint.classList.add('at-cap');
+  } else {
+    hint.textContent = `Máximo permitido en ${walletLabel}: ${maxAllowed} min.`;
+    hint.classList.toggle('at-cap', clamped >= maxAllowed);
+  }
+
+  document.getElementById('btnStepMinM5').disabled = clamped <= 0;
+  document.getElementById('btnStepMinM1').disabled = clamped <= 0;
+  document.getElementById('btnStepMinP1').disabled = clamped >= maxAllowed;
+  document.getElementById('btnStepMinP5').disabled = clamped >= maxAllowed;
+
+  const confirmBtn = document.getElementById('confirmWalletChoiceBtn');
+  confirmBtn.textContent = clamped > 0 ? `✅ Confirmar (+${clamped} min)` : '✅ Completar (0 min)';
+}
 
 function openWalletChoiceModal(task, room) {
   pendingWalletTaskId = task.id;
   document.getElementById('walletChoiceTaskLabel').textContent =
-    `${task.title} (+${task.minutes} min)`;
+    `${task.title} · Sugerido: +${task.minutes} min`;
 
-  const pcOverflow = Math.max(0, task.minutes - room.pcRoom);
-  const mobOverflow = Math.max(0, task.minutes - room.mobRoom);
+  const bothHaveRoom = room.pcRoom > 0 && room.mobRoom > 0;
+  const autoBanner = document.getElementById('walletAutoLockedBanner');
+  const choiceSection = document.getElementById('walletChoiceSection');
 
-  document.getElementById('choosePcMeta').textContent = pcOverflow > 0
-    ? `${room.pcEarnedMin}/${room.pcCapMin}m · caben ${room.pcRoom}m (+${Math.min(pcOverflow, room.mobRoom)}m pasan a Móvil)`
-    : `${room.pcEarnedMin}/${room.pcCapMin}m · quedan ${room.pcRoom}m de tope`;
+  if (room.pcRoom <= 0 && room.mobRoom > 0) {
+    selectedCompletionWallet = 'mobile';
+    completionAutoLockedReason = `Ordenador/iPad al tope (${room.pcCapMin}m) → destino automático: Móvil`;
+    autoBanner.textContent = `⚡ ${completionAutoLockedReason}. Confirma o ajusta los minutos abajo.`;
+    autoBanner.classList.remove('hidden');
+    choiceSection.classList.add('hidden');
+  } else if (room.mobRoom <= 0 && room.pcRoom > 0) {
+    selectedCompletionWallet = 'pc_ipad';
+    completionAutoLockedReason = `Móvil al tope (${room.mobCapMin}m) → destino automático: Ordenador y iPad`;
+    autoBanner.textContent = `⚡ ${completionAutoLockedReason}. Confirma o ajusta los minutos abajo.`;
+    autoBanner.classList.remove('hidden');
+    choiceSection.classList.add('hidden');
+  } else if (room.pcRoom <= 0 && room.mobRoom <= 0) {
+    selectedCompletionWallet = 'auto';
+    completionAutoLockedReason = 'Tope diario alcanzado';
+    autoBanner.textContent = '🏁 Ya se ha alcanzado el límite diario máximo en ambos monederos (0 min adicionales).';
+    autoBanner.classList.remove('hidden');
+    choiceSection.classList.add('hidden');
+  } else {
+    completionAutoLockedReason = '';
+    selectedCompletionWallet = task.wallet === 'mobile' ? 'mobile' : 'pc_ipad';
+    autoBanner.classList.add('hidden');
+    choiceSection.classList.toggle('hidden', !bothHaveRoom);
+  }
 
-  document.getElementById('chooseMobMeta').textContent = mobOverflow > 0
-    ? `${room.mobEarnedMin}/${room.mobCapMin}m · caben ${room.mobRoom}m (+${Math.min(mobOverflow, room.pcRoom)}m pasan a iPad/PC)`
-    : `${room.mobEarnedMin}/${room.mobCapMin}m · quedan ${room.mobRoom}m de tope`;
-
+  refreshWalletChoiceModalUI(false);
   document.getElementById('walletChoiceModal').classList.add('open');
+}
+
+function selectCompletionWallet(walletKey) {
+  const room = getTodayWalletRoom();
+  const maxForPick = getMaxMinutesForWalletSelection(walletKey, room);
+  if (maxForPick <= 0) return;
+  selectedCompletionWallet = walletKey;
+  refreshWalletChoiceModalUI(true);
+}
+
+function onWalletChoiceMinutesInput() {
+  const room = getTodayWalletRoom();
+  const maxAllowed = getMaxMinutesForWalletSelection(selectedCompletionWallet, room);
+  const input = document.getElementById('walletChoiceMinutesInput');
+  const raw = input.value.trim();
+  if (raw === '') {
+    document.getElementById('confirmWalletChoiceBtn').textContent = '✅ Completar (0 min)';
+    return;
+  }
+  const parsed = parseInt(raw, 10);
+  if (!Number.isFinite(parsed) || parsed < 0) {
+    input.value = '0';
+  } else if (parsed > maxAllowed) {
+    input.value = String(maxAllowed);
+    showToast(`No se puede superar el límite de este monedero (máx. ${maxAllowed} min).`);
+  }
+  refreshWalletChoiceModalUI(true);
+}
+
+function stepWalletChoiceMinutes(delta) {
+  const room = getTodayWalletRoom();
+  const maxAllowed = getMaxMinutesForWalletSelection(selectedCompletionWallet, room);
+  const input = document.getElementById('walletChoiceMinutesInput');
+  const current = parseInt(input.value, 10) || 0;
+  const next = Math.max(0, Math.min(maxAllowed, current + delta));
+  input.value = String(next);
+  refreshWalletChoiceModalUI(true);
 }
 
 function closeWalletChoiceModal() {
   pendingWalletTaskId = null;
+  completionAutoLockedReason = '';
   document.getElementById('walletChoiceModal').classList.remove('open');
 }
 
-function completeTaskWithWallet(task, walletKey, autoReason = '') {
-  const grant = addMinutesToWallet(walletKey, task.minutes);
+function completeTaskWithWallet(task, walletKey, minutesToGrant, autoReason = '') {
+  const safeMinutes = Math.max(0, Math.floor(Number(minutesToGrant) || 0));
+  const grant = safeMinutes > 0
+    ? addMinutesToWallet(walletKey, safeMinutes)
+    : { total: 0, pcMin: 0, mobMin: 0 };
   task.completed = true;
 
   pushUndoEntry({
@@ -3325,22 +3386,29 @@ function completeTaskWithWallet(task, walletKey, autoReason = '') {
     const summary = formatGrantSummary(grant.pcMin, grant.mobMin);
     showToast(autoReason ? `✅ ${autoReason} → ${summary}` : `✅ ${summary}`);
   } else {
-    showToast('✅ Tarea completada (tope diario ya alcanzado).');
+    showToast('✅ Tarea completada (0 min añadidos).');
   }
 
   persistState();
   renderAll();
 }
 
-function confirmWalletChoice(walletKey) {
+function submitWalletChoiceModal() {
   if (!isSupervisor() || !pendingWalletTaskId) {
     closeWalletChoiceModal();
     return;
   }
   const task = appState.tasks.find(t => t.id === pendingWalletTaskId);
+  const walletKey = selectedCompletionWallet;
+  const reason = completionAutoLockedReason;
+  const room = getTodayWalletRoom();
+  const maxAllowed = getMaxMinutesForWalletSelection(walletKey, room);
+  const rawVal = parseInt(document.getElementById('walletChoiceMinutesInput').value, 10);
+  const finalMinutes = Math.max(0, Math.min(maxAllowed, Number.isFinite(rawVal) ? rawVal : 0));
+
   closeWalletChoiceModal();
   if (!task || task.completed) return;
-  completeTaskWithWallet(task, walletKey);
+  completeTaskWithWallet(task, walletKey, finalMinutes, reason);
 }
 
 function toggleTask(taskId) {
@@ -3376,22 +3444,6 @@ function toggleTask(taskId) {
   }
 
   const room = getTodayWalletRoom();
-
-  // Si un monedero ya alcanzó su límite, se lleva automáticamente al que falte sin preguntar
-  if (room.pcRoom <= 0 && room.mobRoom > 0) {
-    completeTaskWithWallet(task, 'mobile', `iPad/PC al tope (${room.pcCapMin}m)`);
-    return;
-  }
-  if (room.mobRoom <= 0 && room.pcRoom > 0) {
-    completeTaskWithWallet(task, 'pc_ipad', `Móvil al tope (${room.mobCapMin}m)`);
-    return;
-  }
-  if (room.pcRoom <= 0 && room.mobRoom <= 0) {
-    completeTaskWithWallet(task, 'auto');
-    return;
-  }
-
-  // Ambos monederos tienen hueco: preguntar a qué monedero va
   openWalletChoiceModal(task, room);
 }
 
@@ -3573,11 +3625,12 @@ function transferWalletMinutes() {
 
   const fromKey = dir === 'mobile_to_pc' ? 'mobile' : 'pc_ipad';
   const toKey = dir === 'mobile_to_pc' ? 'pc_ipad' : 'mobile';
+  const walletName = k => (k === 'pc_ipad' ? 'Ordenador y iPad' : 'Móvil');
 
   const now = Date.now();
   const availableMin = Math.floor(getWalletRemainingSeconds(fromKey, now) / 60);
   if (availableMin <= 0) {
-    showToast(`No quedan minutos disponibles en ${getWalletDisplayName(fromKey)} para traspasar.`);
+    showToast(`No quedan minutos disponibles en ${walletName(fromKey)} para traspasar.`);
     return;
   }
 
@@ -3596,16 +3649,12 @@ function transferWalletMinutes() {
     if (getWalletRemainingSeconds(activeKey, now) <= 0) {
       appState.wallets[activeKey].consumedSeconds = appState.wallets[activeKey].earnedSeconds;
       appState.runningTimer = null;
-      notifyServerTimerCancel();
-    } else if (activeKey === fromKey || activeKey === toKey) {
-      lastSyncedTimerSig = '';
-      notifyServerTimerSync();
     }
   }
 
   persistState();
   renderAll();
-  showToast(`🔄 Pasados ${actualMin} min de ${getWalletDisplayName(fromKey)} a ${getWalletDisplayName(toKey)}.`);
+  showToast(`🔄 Pasados ${actualMin} min de ${walletName(fromKey)} a ${walletName(toKey)}.`);
 }
 
 function toggleFridayNegativeNote() {
@@ -3616,7 +3665,6 @@ function toggleFridayNegativeNote() {
       const wk = appState.runningTimer.wallet;
       appState.wallets[wk].consumedSeconds = getWalletConsumedSeconds(wk);
       appState.runningTimer = null;
-      notifyServerTimerCancel();
     }
     showToast('🎉 Viernes en modo tiempo libre de ocio (no se cuentan minutos).');
   } else {
@@ -3659,101 +3707,6 @@ function saveSettings() {
   showToast('💾 Reglas guardadas y tiempos recalculados.');
 }
 
-function generateNtfyTopic() {
-  if (!isSupervisor()) return;
-  const chars = 'abcdefghjkmnpqrstuvwxyz23456789';
-  let suffix = '';
-  const bytes = new Uint8Array(10);
-  if (window.crypto?.getRandomValues) {
-    window.crypto.getRandomValues(bytes);
-    for (let i = 0; i < bytes.length; i++) suffix += chars[bytes[i] % chars.length];
-  } else {
-    suffix = Math.random().toString(36).slice(2, 12);
-  }
-  const topic = `pablo-plan-${suffix}`;
-  document.getElementById('cfgNtfyTopic').value = topic;
-  document.getElementById('cfgNtfyEnabled').checked = true;
-  showToast('🎲 Tema privado generado. Pulsa "Guardar avisos" y suscríbete en la app ntfy de tu iPhone.');
-}
-
-async function copyNtfyTopic() {
-  const topic = document.getElementById('cfgNtfyTopic').value.trim();
-  if (!topic) {
-    showToast('Primero escribe o genera un tema privado de ntfy.');
-    return;
-  }
-  try {
-    await navigator.clipboard.writeText(topic);
-    showToast('📋 Tema copiado. Pégalo en la app ntfy de tu iPhone.');
-  } catch {
-    showToast(`Tu tema ntfy es: ${topic}`);
-  }
-}
-
-async function saveNtfySettings() {
-  if (!isSupervisor()) return;
-  const topic = document.getElementById('cfgNtfyTopic').value.trim();
-  const enabled = document.getElementById('cfgNtfyEnabled').checked;
-
-  if (topic && !isValidNtfyTopicStr(topic)) {
-    showToast('El tema ntfy debe tener entre 6 y 64 caracteres (solo letras, números, - o _).');
-    return;
-  }
-  if (enabled && !topic) {
-    showToast('Genera o escribe un tema privado de ntfy antes de activar los avisos.');
-    return;
-  }
-
-  appState.settings.ntfyTopic = topic;
-  appState.settings.ntfyEnabled = enabled;
-  appState.settings.ntfyOnStart = document.getElementById('cfgNtfyOnStart').checked;
-  appState.settings.ntfyOnPause = document.getElementById('cfgNtfyOnPause').checked;
-  appState.settings.ntfyFiveMin = document.getElementById('cfgNtfyFiveMin').checked;
-  appState.settings.ntfyOnEnd = document.getElementById('cfgNtfyOnEnd').checked;
-
-  await persistState();
-
-  if (appState.runningTimer) {
-    lastSyncedTimerSig = '';
-    if (enabled && topic) {
-      notifyServerTimerSync();
-    } else {
-      notifyServerTimerCancel();
-    }
-  }
-
-  renderAll();
-  showToast(enabled ? '📲 Avisos push ntfy guardados y activos.' : '📲 Configuración de avisos ntfy guardada.');
-}
-
-async function testNtfyNotification() {
-  if (!isSupervisor()) return;
-  if (!currentUser) {
-    showToast('Conecta primero tu cuenta de Google en la pantalla de inicio para enviar avisos.');
-    return;
-  }
-  const topic = document.getElementById('cfgNtfyTopic').value.trim();
-  if (!isValidNtfyTopicStr(topic)) {
-    showToast('Genera o escribe un tema ntfy válido (6-64 caracteres) antes de probar.');
-    return;
-  }
-
-  const btn = document.getElementById('testNtfyBtn');
-  btn.disabled = true;
-  btn.textContent = 'Enviando...';
-  try {
-    const res = await callNtfyApi('/api/ntfy/test', { topic });
-    if (res?.ok) {
-      showToast('✅ Notificación de prueba enviada. ¡Debería sonar en tu iPhone ahora!');
-    } else {
-      showToast(res?.error || 'No se pudo enviar el aviso de prueba.');
-    }
-  } finally {
-    btn.disabled = false;
-    btn.textContent = '🧪 Probar en iPhone';
-  }
-}
-
 function changeAdultPin() {
   if (!isSupervisor()) return;
   const input = document.getElementById('cfgNewPin');
@@ -3792,7 +3745,6 @@ function resetTodayOnly() {
   appState.minuteUndoStack = [];
   recalculateTaskMinutes();
   syncWeekendProportionalCredit(false);
-  notifyServerTimerCancel();
   persistState();
   renderAll();
   showToast('🔄 Día reiniciado.');
@@ -4623,12 +4575,6 @@ function renderAll() {
     setIfIdle('cfgWeekendPcCap', appState.settings.weekendPcIpadCap);
     setIfIdle('cfgRequirePinForTasks', 'true');
     updateWeekdayCapHint();
-    setIfIdle('cfgNtfyTopic', appState.settings.ntfyTopic || '');
-    setCheckedIfIdle('cfgNtfyEnabled', appState.settings.ntfyEnabled);
-    setCheckedIfIdle('cfgNtfyOnStart', appState.settings.ntfyOnStart !== false);
-    setCheckedIfIdle('cfgNtfyOnPause', appState.settings.ntfyOnPause !== false);
-    setCheckedIfIdle('cfgNtfyFiveMin', appState.settings.ntfyFiveMin !== false);
-    setCheckedIfIdle('cfgNtfyOnEnd', appState.settings.ntfyOnEnd !== false);
 
     document.getElementById('resyncWeekendBtn').classList.toggle('hidden', !caps.isWeekend);
     renderCloudSyncUI();
@@ -4783,17 +4729,16 @@ Object.assign(window, {
   setTaskWallet,
   deleteTask,
   toggleTask,
-  confirmWalletChoice,
+  selectCompletionWallet,
+  onWalletChoiceMinutesInput,
+  stepWalletChoiceMinutes,
+  submitWalletChoiceModal,
   closeWalletChoiceModal,
   triggerPwaInstall,
   openPwaInstallModal,
   closePwaInstallModal,
   signInWithGoogle,
-  signOutGoogle,
-  generateNtfyTopic,
-  copyNtfyTopic,
-  saveNtfySettings,
-  testNtfyNotification
+  signOutGoogle
 });
 
 initPwaSupport();
