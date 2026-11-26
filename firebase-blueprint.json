@@ -1,0 +1,179 @@
+{
+  "entities": {
+    "FamilyPlan": {
+      "title": "FamilyPlan",
+      "description": "Estado diario y configuración del Plan de Acción y Recompensas de una familia, aislado por UID del propietario.",
+      "type": "object",
+      "properties": {
+        "ownerId": {
+          "type": "string",
+          "description": "Firebase Auth UID del propietario del plan.",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "schemaVersion": {
+          "type": "integer",
+          "description": "Versión del esquema de datos."
+        },
+        "currentDate": {
+          "type": "string",
+          "description": "Fecha local activa en formato YYYY-MM-DD.",
+          "maxLength": 10,
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+        },
+        "nightReadingDone": {
+          "type": "boolean",
+          "description": "Indica si se completó la lectura nocturna obligatoria de 30 minutos."
+        },
+        "weekendAutoCreditedDate": {
+          "type": "string",
+          "description": "Fecha YYYY-MM-DD en la que ya se aplicó el abono proporcional de fin de semana, o cadena vacía.",
+          "maxLength": 10
+        },
+        "settings": {
+          "type": "object",
+          "description": "Reglas diarias, PIN de supervisión y configuración de notificaciones ntfy."
+        },
+        "wallets": {
+          "type": "object",
+          "description": "Segundos ganados y consumidos hoy en pc_ipad y mobile."
+        },
+        "tasks": {
+          "type": "array",
+          "description": "Lista acotada (máx. 40) de tareas diarias y bonus."
+        },
+        "minuteUndoStack": {
+          "type": "array",
+          "description": "Historial acotado (máx. 50) de movimientos de minutos del día para deshacer desde Supervisión."
+        },
+        "runningTimer": {
+          "type": "object",
+          "description": "Estado del temporizador activo de consumo de pantalla."
+        },
+        "activeBreak": {
+          "type": "object",
+          "description": "Estado de la pausa de Descanso Activo de 4 minutos."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp de servidor de creación (inmutable)."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp de servidor de última actualización."
+        }
+      },
+      "required": [
+        "ownerId",
+        "schemaVersion",
+        "currentDate",
+        "nightReadingDone",
+        "weekendAutoCreditedDate",
+        "settings",
+        "wallets",
+        "tasks",
+        "minuteUndoStack",
+        "runningTimer",
+        "activeBreak",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "DailyHistoryRecord": {
+      "title": "DailyHistoryRecord",
+      "description": "Resumen consolidado de un día anterior para el seguimiento semanal, constancia F1 y cálculo proporcional de fin de semana.",
+      "type": "object",
+      "properties": {
+        "ownerId": {
+          "type": "string",
+          "description": "Firebase Auth UID del propietario del plan.",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "date": {
+          "type": "string",
+          "description": "Fecha del registro en formato YYYY-MM-DD.",
+          "maxLength": 10,
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+        },
+        "earnedMin": {
+          "type": "integer",
+          "description": "Total de minutos ganados ese día."
+        },
+        "consumedMin": {
+          "type": "integer",
+          "description": "Total de minutos consumidos ese día."
+        },
+        "pcEarnedMin": {
+          "type": "integer",
+          "description": "Minutos ganados en Ordenador/iPad."
+        },
+        "pcConsumedMin": {
+          "type": "integer",
+          "description": "Minutos consumidos en Ordenador/iPad."
+        },
+        "mobEarnedMin": {
+          "type": "integer",
+          "description": "Minutos ganados en Móvil."
+        },
+        "mobConsumedMin": {
+          "type": "integer",
+          "description": "Minutos consumidos en Móvil."
+        },
+        "tasksCompleted": {
+          "type": "integer",
+          "description": "Número de tareas completadas ese día."
+        },
+        "totalTasks": {
+          "type": "integer",
+          "description": "Número total de tareas activas ese día."
+        },
+        "nightReadingDone": {
+          "type": "boolean",
+          "description": "Indica si se completó la lectura nocturna de 30 minutos."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp de servidor de creación (inmutable)."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp de servidor de actualización."
+        }
+      },
+      "required": [
+        "ownerId",
+        "date",
+        "earnedMin",
+        "consumedMin",
+        "pcEarnedMin",
+        "pcConsumedMin",
+        "mobEarnedMin",
+        "mobConsumedMin",
+        "tasksCompleted",
+        "totalTasks",
+        "nightReadingDone",
+        "createdAt",
+        "updatedAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/plans/{userId}": {
+      "schema": {
+        "$ref": "#/entities/FamilyPlan"
+      },
+      "description": "Documento principal del plan familiar, accesible únicamente por el propietario autenticado y verificado."
+    },
+    "/plans/{userId}/history/{dateKey}": {
+      "schema": {
+        "$ref": "#/entities/DailyHistoryRecord"
+      },
+      "description": "Subcolección de registros históricos diarios vinculados al plan familiar."
+    }
+  }
+}

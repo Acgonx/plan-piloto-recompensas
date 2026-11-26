@@ -695,6 +695,81 @@
       margin: 14px 0;
     }
 
+    /* Cloud Sync Card & ntfy Push Settings */
+    .sync-card {
+      margin-top: 18px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px 16px;
+      box-shadow: var(--shadow);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      text-align: left;
+    }
+
+    .sync-card.synced {
+      border-color: #bbf7d0;
+      background: #f0fdf4;
+    }
+
+    .ntfy-box {
+      background: var(--surface-soft);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      margin-top: 8px;
+    }
+
+    .ntfy-steps {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+      padding-left: 18px;
+      line-height: 1.5;
+    }
+
+    .ntfy-topic-row {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .ntfy-topic-row input {
+      flex: 1;
+      min-width: 170px;
+    }
+
+    .ntfy-checks {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 7px;
+      margin: 10px 0 12px;
+    }
+
+    .ntfy-check-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+      color: var(--text);
+      cursor: pointer;
+    }
+
+    .ntfy-check-item input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--primary);
+      cursor: pointer;
+    }
+
+    .badge-cloud { background: #ecfdf5; color: #047857; }
+    .badge-local { background: #f1f5f9; color: #475569; }
+
     @media (max-width: 820px) {
       .mode-grid, .wallets-grid, .main-grid, .summary-kpis { grid-template-columns: 1fr; }
       .summary-kpis-4 { grid-template-columns: repeat(2, 1fr); }
@@ -739,6 +814,19 @@
         <button class="btn-dark" style="margin-top:8px; width:100%;">🔒 Entrar con PIN</button>
       </div>
     </div>
+
+    <div id="cloudSyncCard" class="sync-card">
+      <div style="flex:1; min-width:210px;">
+        <div style="font-weight:700; font-size:0.92rem;" id="cloudSyncCardTitle">☁️ Sincronización familiar (iPad ↔ iPhone)</div>
+        <div class="muted" style="font-size:0.8rem; margin-top:2px;" id="cloudSyncCardDesc">
+          Conecta la misma cuenta de Google en el iPad de Pablo y en tu iPhone para sincronizar en tiempo real y activar avisos push.
+        </div>
+      </div>
+      <div style="display:flex; gap:8px; align-items:center;">
+        <button id="googleSignInBtn" class="btn-primary btn-sm" onclick="signInWithGoogle()">🔑 Conectar con Google</button>
+        <button id="googleSignOutBtn" class="btn-outline btn-sm hidden" onclick="signOutGoogle()">Cerrar sesión</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -753,6 +841,7 @@
       <div class="subtitle">
         <span id="todayLabel">Hoy</span>
         <span id="dayTypeBadge" class="badge badge-info">Día escolar</span>
+        <span id="cloudSyncBadge" class="badge badge-local">📱 Modo local</span>
       </div>
     </div>
     <div class="topbar-actions">
@@ -800,10 +889,11 @@
       </div>
     </div>
     <p class="connection-text">
-      Empezamos con calma y paso a paso. <strong>Lo ganado no se resta por errores</strong>; los minutos diarios no se guardan para mañana, pero todo lo que consigues de lunes a viernes va llenando tu <strong>tiempo de fin de semana</strong>.
+      Empezamos con calma y paso a paso. <strong>Lo ganado no se resta por errores</strong>; los viernes sin anotación negativa son de <strong>tiempo libre de ocio</strong>, y lo que consigues de lunes a jueves va llenando tu <strong>tiempo de fin de semana</strong>.
     </p>
+    <div id="fridayFreeNotice" class="hidden" style="background:#ecfdf5; border:1px solid #86efac; border-radius:10px; padding:10px 12px; font-size:0.84rem; color:#166534; margin-bottom:10px;"></div>
     <div id="weekendPropNotice" class="hidden" style="background:#fffbeb; border:1px solid #fde68a; border-radius:10px; padding:10px 12px; font-size:0.84rem; color:#92400e; margin-bottom:10px;"></div>
-    <div class="daily-cap-bar">
+    <div id="dailyCapBar" class="daily-cap-bar">
       <div style="display:flex; justify-content:space-between; font-size:0.88rem; font-weight:600; flex-wrap:wrap; gap:6px;">
         <span id="dailyEarnedLabel">Progreso ganado hoy: <strong id="dailyEarnedSummary">0 / 90 min</strong></span>
         <span id="weekendPcCapInfo" class="muted hidden">Tope Ordenador/iPad fin de semana: <strong id="pcWeekendEarned">0 / 120 min</strong></span>
@@ -827,10 +917,10 @@
           <span class="badge badge-pc" id="pcIpadLimitHint">iPad / PC</span>
         </div>
         <div class="wallet-time" id="pcIpadRemaining">00:00</div>
-        <div class="muted">Minutos disponibles hoy</div>
+        <div class="muted" id="pcIpadSub">Minutos disponibles hoy</div>
       </div>
       <button class="btn-pc" id="startPcBtn" onclick="startConsumptionTimer('pc_ipad')">▶️ Usar tiempo</button>
-      <div class="wallet-meta">
+      <div class="wallet-meta" id="pcIpadMeta">
         <span>Ganado hoy: <strong id="pcIpadEarned">0 min</strong></span>
         <span>Usado hoy: <strong id="pcIpadConsumed">0 min</strong></span>
       </div>
@@ -843,10 +933,10 @@
           <span class="badge badge-mobile">Móvil</span>
         </div>
         <div class="wallet-time" id="mobileRemaining">00:00</div>
-        <div class="muted">Minutos disponibles hoy</div>
+        <div class="muted" id="mobileSub">Minutos disponibles hoy</div>
       </div>
       <button class="btn-mobile" id="startMobileBtn" onclick="startConsumptionTimer('mobile')">▶️ Usar tiempo</button>
-      <div class="wallet-meta">
+      <div class="wallet-meta" id="mobileMeta">
         <span>Ganado hoy: <strong id="mobileEarned">0 min</strong></span>
         <span>Usado hoy: <strong id="mobileConsumed">0 min</strong></span>
       </div>
@@ -937,6 +1027,17 @@
           <div class="card-title">⚙️ Panel de Supervisión</div>
         </div>
 
+        <!-- Friday Free Time vs Negative Note Override (Visible on Fridays) -->
+        <div id="fridayControlBox" class="hidden" style="background:#f0fdf4; border:1px solid #86efac; border-radius:12px; padding:12px; margin-bottom:14px;">
+          <strong style="font-size:0.92rem;">🎉 Control de Viernes (Tiempo libre)</strong>
+          <div id="fridayStatusText" class="muted" style="font-size:0.82rem; margin:4px 0 10px;">
+            Sin anotación negativa hoy: Pablo tiene tiempo libre de ocio sin contar minutos.
+          </div>
+          <button type="button" id="toggleFridayNegBtn" class="btn-warning btn-sm" onclick="toggleFridayNegativeNote()">
+            ⚠️ Registrar anotación negativa hoy
+          </button>
+        </div>
+
         <!-- Add Task -->
         <div>
           <strong style="font-size:0.92rem;">Agregar nueva tarea (recalcula el tiempo automático)</strong>
@@ -1011,6 +1112,27 @@
 
         <div class="divider"></div>
 
+        <!-- Transfer minutes between wallets -->
+        <div>
+          <strong style="font-size:0.92rem;">🔄 Traspasar minutos entre monederos</strong>
+          <div class="form-grid" style="margin-top:8px;">
+            <div class="field">
+              <label>Dirección del traspaso</label>
+              <select id="transferDirection">
+                <option value="mobile_to_pc">📱 Móvil → 💻 Ordenador y iPad</option>
+                <option value="pc_to_mobile">💻 Ordenador y iPad → 📱 Móvil</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Minutos a pasar</label>
+              <input type="number" id="transferMinutes" value="10" min="1" max="180" />
+            </div>
+          </div>
+          <button type="button" class="btn-primary btn-sm" onclick="transferWalletMinutes()">🔄 Pasar minutos</button>
+        </div>
+
+        <div class="divider"></div>
+
         <!-- Settings -->
         <div>
           <strong style="font-size:0.92rem;">Límites y control</strong>
@@ -1029,14 +1151,67 @@
             </div>
             <div class="field">
               <label>Quién marca tareas</label>
-              <select id="cfgRequirePinForTasks">
-                <option value="false">Ambos pueden marcar tareas</option>
-                <option value="true">Solo Supervisión marca tareas</option>
+              <select id="cfgRequirePinForTasks" disabled>
+                <option value="true" selected>Solo Supervisión (bloqueado en Modo Piloto)</option>
               </select>
             </div>
           </div>
           <div style="display:flex; gap:8px; flex-wrap:wrap;">
             <button class="btn-primary btn-sm" onclick="saveSettings()">💾 Guardar reglas</button>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Push Notifications via ntfy -->
+        <div>
+          <strong style="font-size:0.92rem;">📲 Avisos push en tu iPhone (ntfy)</strong>
+          <div class="ntfy-box">
+            <ol class="ntfy-steps">
+              <li>Instala la app gratuita <strong>ntfy</strong> en tu iPhone (App Store).</li>
+              <li>Toca <strong>+</strong> en <strong>ntfy</strong> y suscríbete al tema privado de abajo.</li>
+            </ol>
+
+            <div id="ntfyAuthWarning" class="badge badge-warning hidden" style="width:100%; justify-content:flex-start; margin-bottom:10px; padding:7px 10px; border-radius:9px;">
+              ☁️ Conecta tu cuenta de Google en la pantalla inicial para activar los avisos push.
+            </div>
+
+            <div class="field">
+              <label>Tema privado de ntfy (6-64 letras, números, - o _)</label>
+              <div class="ntfy-topic-row">
+                <input type="text" id="cfgNtfyTopic" maxlength="64" placeholder="Ej. pablo-piloto-9482a" autocomplete="off" />
+                <button type="button" class="btn-outline btn-sm" onclick="generateNtfyTopic()" title="Generar un tema privado aleatorio">🎲 Generar</button>
+                <button type="button" class="btn-outline btn-sm" onclick="copyNtfyTopic()" title="Copiar tema">📋 Copiar</button>
+              </div>
+            </div>
+
+            <div class="ntfy-checks">
+              <label class="ntfy-check-item">
+                <input type="checkbox" id="cfgNtfyEnabled" />
+                <span><strong>Activar notificaciones en mi iPhone</strong></span>
+              </label>
+              <label class="ntfy-check-item">
+                <input type="checkbox" id="cfgNtfyOnStart" />
+                <span>Avisar al iniciar el temporizador</span>
+              </label>
+              <label class="ntfy-check-item">
+                <input type="checkbox" id="cfgNtfyOnPause" />
+                <span>Avisar al pausar el temporizador</span>
+              </label>
+              <label class="ntfy-check-item">
+                <input type="checkbox" id="cfgNtfyFiveMin" />
+                <span>Pre-aviso cuando queden 5 minutos</span>
+              </label>
+              <label class="ntfy-check-item">
+                <input type="checkbox" id="cfgNtfyOnEnd" />
+                <span>Aviso cuando se acabe el tiempo</span>
+              </label>
+            </div>
+
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+              <button type="button" class="btn-primary btn-sm" onclick="saveNtfySettings()">💾 Guardar avisos</button>
+              <button type="button" class="btn-outline btn-sm" id="testNtfyBtn" onclick="testNtfyNotification()">🧪 Probar en iPhone</button>
+            </div>
           </div>
         </div>
 
@@ -1065,7 +1240,7 @@
               ⬆️ Importar copia
               <input type="file" accept=".json" style="display:none;" onchange="importBackup(event)" />
             </label>
-            <button class="btn-outline btn-sm" onclick="restoreDefaultTasks()">♻️ Restaurar 8 tareas</button>
+            <button class="btn-outline btn-sm" onclick="restoreDefaultTasks()">♻️ Restaurar 9 tareas</button>
             <button class="btn-outline btn-sm" onclick="resetTodayOnly()">🔄 Reiniciar hoy</button>
           </div>
         </div>
@@ -1180,10 +1355,31 @@
 <!-- TOAST NOTIFICATION -->
 <div id="toastBanner" class="toast" role="status" aria-live="polite"></div>
 
-<script>
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js';
+import {
+  getAuth,
+  GoogleAuthProvider,
+  signInWithPopup,
+  signOut,
+  onAuthStateChanged
+} from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js';
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  getDocFromServer,
+  setDoc,
+  collection,
+  query,
+  where,
+  onSnapshot,
+  serverTimestamp
+} from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js';
+
 /**
  * ============================================================================
- * CAPA DE DATOS (DataService) - Lista para futura sincronización remota
+ * CAPA DE DATOS (LocalStorage + Firebase Firestore en tiempo real + ntfy)
  * ============================================================================
  */
 let storageAvailable = true;
@@ -1210,7 +1406,7 @@ class LocalStorageAdapter {
   async save(state) {
     const payload = {
       ...state,
-      schemaVersion: 5,
+      schemaVersion: 6,
       updatedAt: new Date().toISOString()
     };
     if (!storageAvailable) {
@@ -1229,6 +1425,554 @@ class DataService {
 }
 
 const dataService = new DataService(new LocalStorageAdapter('pablo_plan_recompensas_v3'));
+
+// Firebase & Cloud Sync runtime state
+const OperationType = {
+  CREATE: 'create',
+  UPDATE: 'update',
+  DELETE: 'delete',
+  LIST: 'list',
+  GET: 'get',
+  WRITE: 'write'
+};
+
+let firebaseApp = null;
+let firebaseAuth = null;
+let firestoreDb = null;
+let currentUser = null;
+let firebaseReady = false;
+let cloudSyncReady = false;
+let remotePlanExists = false;
+let remotePlanCreatedAt = null;
+const remoteHistoryCreatedAtMap = new Map();
+let unsubPlan = null;
+let unsubHistory = null;
+let lastSyncedTimerSig = '';
+
+function handleFirestoreError(error, operationType, path) {
+  const errInfo = {
+    error: error instanceof Error ? error.message : String(error),
+    authInfo: {
+      userId: firebaseAuth?.currentUser?.uid,
+      email: firebaseAuth?.currentUser?.email,
+      emailVerified: firebaseAuth?.currentUser?.emailVerified,
+      isAnonymous: firebaseAuth?.currentUser?.isAnonymous,
+      tenantId: firebaseAuth?.currentUser?.tenantId,
+      providerInfo: firebaseAuth?.currentUser?.providerData?.map(provider => ({
+        providerId: provider.providerId,
+        displayName: provider.displayName,
+        email: provider.email,
+        photoUrl: provider.photoURL
+      })) || []
+    },
+    operationType,
+    path
+  };
+  console.error('Firestore Error: ', JSON.stringify(errInfo));
+  showToast('Error al sincronizar con la nube. Revisa tu conexión.');
+  throw new Error(JSON.stringify(errInfo));
+}
+
+function clampInt(val, min, max, fallback = 0) {
+  const n = Math.floor(Number(val));
+  if (!Number.isFinite(n)) return fallback;
+  return Math.max(min, Math.min(max, n));
+}
+
+function isValidDateKeyStr(val) {
+  return typeof val === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(val);
+}
+
+function isValidNtfyTopicStr(val) {
+  return typeof val === 'string' && /^[a-zA-Z0-9_-]{6,64}$/.test(val);
+}
+
+function buildFirestorePlanPayload(state, uid, existingCreatedAt) {
+  const s = state.settings || {};
+  const topicRaw = typeof s.ntfyTopic === 'string' ? s.ntfyTopic.trim() : '';
+  const safeTopic = isValidNtfyTopicStr(topicRaw) ? topicRaw : '';
+  const safePin = /^\d{4}$/.test(String(s.adultPin || '')) ? String(s.adultPin) : DEFAULT_ADULT_PIN;
+
+  const pcEarned = clampInt(state.wallets?.pc_ipad?.earnedSeconds, 0, 36000, 0);
+  const pcConsumed = Math.min(pcEarned, clampInt(state.wallets?.pc_ipad?.consumedSeconds, 0, 36000, 0));
+  const mobEarned = clampInt(state.wallets?.mobile?.earnedSeconds, 0, 36000, 0);
+  const mobConsumed = Math.min(mobEarned, clampInt(state.wallets?.mobile?.consumedSeconds, 0, 36000, 0));
+
+  const tasks = (Array.isArray(state.tasks) ? state.tasks : []).slice(0, 40).map((t, idx) => ({
+    id: String(t.id || ('t_' + idx)).slice(0, 64),
+    title: String(t.title || 'Tarea').slice(0, 200),
+    note: String(t.note || '').slice(0, 300),
+    isBonus: Boolean(t.isBonus),
+    fixedMinutes: clampInt(t.fixedMinutes, 0, 120, 0),
+    minutes: clampInt(t.minutes, 0, 360, 0),
+    wallet: ['auto', 'pc_ipad', 'mobile'].includes(t.wallet) ? t.wallet : 'auto',
+    schedule: ['all', 'weekday', 'weekend'].includes(t.schedule) ? t.schedule : 'all',
+    completed: Boolean(t.completed)
+  }));
+
+  const undoStack = (Array.isArray(state.minuteUndoStack) ? state.minuteUndoStack : []).slice(-50).map((u, idx) => ({
+    id: String(u.id || ('u_' + idx)).slice(0, 64),
+    type: u.type === 'manual' ? 'manual' : 'task',
+    taskId: typeof u.taskId === 'string' ? u.taskId.slice(0, 64) : '',
+    label: String(u.label || 'Movimiento').slice(0, 240),
+    pcDeltaSec: clampInt(u.pcDeltaSec, 0, 36000, 0),
+    mobDeltaSec: clampInt(u.mobDeltaSec, 0, 36000, 0),
+    createdAt: clampInt(u.createdAt, 0, Number.MAX_SAFE_INTEGER, Date.now())
+  }));
+
+  const rt = state.runningTimer && ['pc_ipad', 'mobile'].includes(state.runningTimer.wallet)
+    ? {
+        active: true,
+        wallet: state.runningTimer.wallet,
+        startedAt: clampInt(state.runningTimer.startedAt, 0, Number.MAX_SAFE_INTEGER, Date.now()),
+        baseConsumed: clampInt(state.runningTimer.baseConsumed, 0, 36000, 0)
+      }
+    : { active: false, wallet: '', startedAt: 0, baseConsumed: 0 };
+
+  const ab = state.activeBreak && Number(state.activeBreak.endTimestamp) > 0
+    ? {
+        active: true,
+        endTimestamp: clampInt(state.activeBreak.endTimestamp, 0, Number.MAX_SAFE_INTEGER, 0)
+      }
+    : { active: false, endTimestamp: 0 };
+
+  const weekendCredited = isValidDateKeyStr(state.weekendAutoCreditedDate)
+    ? state.weekendAutoCreditedDate
+    : '';
+
+  return {
+    ownerId: uid,
+    schemaVersion: 6,
+    currentDate: isValidDateKeyStr(state.currentDate) ? state.currentDate : getLocalDateKey(),
+    nightReadingDone: Boolean(state.nightReadingDone),
+    weekendAutoCreditedDate: weekendCredited,
+    settings: {
+      weekdayCap: clampInt(s.weekdayCap, 15, 300, 90),
+      weekendCap: clampInt(s.weekendCap, 30, 360, 180),
+      weekendPcIpadCap: clampInt(s.weekendPcIpadCap, 30, 240, 120),
+      requirePinForTasks: true,
+      adultPin: safePin,
+      ntfyTopic: safeTopic,
+      ntfyEnabled: Boolean(s.ntfyEnabled),
+      ntfyOnStart: s.ntfyOnStart !== false,
+      ntfyOnPause: s.ntfyOnPause !== false,
+      ntfyFiveMin: s.ntfyFiveMin !== false,
+      ntfyOnEnd: s.ntfyOnEnd !== false
+    },
+    wallets: {
+      pc_ipad: { earnedSeconds: pcEarned, consumedSeconds: pcConsumed },
+      mobile: { earnedSeconds: mobEarned, consumedSeconds: mobConsumed }
+    },
+    tasks,
+    minuteUndoStack: undoStack,
+    runningTimer: rt,
+    activeBreak: ab,
+    createdAt: existingCreatedAt || serverTimestamp(),
+    updatedAt: serverTimestamp()
+  };
+}
+
+function buildFirestoreHistoryPayload(record, uid, existingCreatedAt) {
+  return {
+    ownerId: uid,
+    date: record.date,
+    earnedMin: clampInt(record.earnedMin, 0, 600, 0),
+    consumedMin: clampInt(record.consumedMin, 0, 600, 0),
+    pcEarnedMin: clampInt(record.pcEarnedMin, 0, 600, 0),
+    pcConsumedMin: clampInt(record.pcConsumedMin, 0, 600, 0),
+    mobEarnedMin: clampInt(record.mobEarnedMin, 0, 600, 0),
+    mobConsumedMin: clampInt(record.mobConsumedMin, 0, 600, 0),
+    tasksCompleted: clampInt(record.tasksCompleted, 0, 40, 0),
+    totalTasks: clampInt(record.totalTasks, 0, 40, 0),
+    nightReadingDone: Boolean(record.nightReadingDone),
+    createdAt: existingCreatedAt || serverTimestamp(),
+    updatedAt: serverTimestamp()
+  };
+}
+
+function applyRemotePlanToAppState(data) {
+  const defaults = createInitialState();
+  const remoteVer = Number(data.schemaVersion || 0);
+  const needsMigration = remoteVer < 6;
+  appState = {
+    ...defaults,
+    schemaVersion: 6,
+    currentDate: isValidDateKeyStr(data.currentDate) ? data.currentDate : getLocalDateKey(),
+    nightReadingDone: Boolean(data.nightReadingDone),
+    weekendAutoCreditedDate: isValidDateKeyStr(data.weekendAutoCreditedDate) ? data.weekendAutoCreditedDate : null,
+    settings: { ...defaults.settings, ...(data.settings || {}), requirePinForTasks: true },
+    wallets: {
+      pc_ipad: { earnedSeconds: 0, consumedSeconds: 0, ...(data.wallets?.pc_ipad || {}) },
+      mobile: { earnedSeconds: 0, consumedSeconds: 0, ...(data.wallets?.mobile || {}) }
+    },
+    tasks: needsMigration ? getDefaultTasks() : (Array.isArray(data.tasks) ? data.tasks : getDefaultTasks()),
+    minuteUndoStack: Array.isArray(data.minuteUndoStack)
+      ? data.minuteUndoStack.map(u => ({ ...u, taskId: u.taskId || null }))
+      : [],
+    runningTimer: data.runningTimer?.active && ['pc_ipad', 'mobile'].includes(data.runningTimer.wallet)
+      ? {
+          wallet: data.runningTimer.wallet,
+          startedAt: data.runningTimer.startedAt,
+          baseConsumed: data.runningTimer.baseConsumed
+        }
+      : null,
+    activeBreak: data.activeBreak?.active && data.activeBreak.endTimestamp > 0
+      ? { endTimestamp: data.activeBreak.endTimestamp }
+      : null,
+    history: appState.history || []
+  };
+  return needsMigration;
+}
+
+async function saveHistoryRecordToCloud(record) {
+  if (!firestoreDb || !currentUser || !remotePlanExists || !isValidDateKeyStr(record?.date)) return;
+  const uid = currentUser.uid;
+  const histPath = `plans/${uid}/history/${record.date}`;
+  const histRef = doc(firestoreDb, 'plans', uid, 'history', record.date);
+  try {
+    const existingCreated = remoteHistoryCreatedAtMap.get(record.date) || null;
+    const payload = buildFirestoreHistoryPayload(record, uid, existingCreated);
+    await setDoc(histRef, payload);
+  } catch (err) {
+    handleFirestoreError(err, OperationType.WRITE, histPath);
+  }
+}
+
+async function savePlanToCloud() {
+  if (!firestoreDb || !currentUser || !cloudSyncReady) return;
+  const uid = currentUser.uid;
+  const planPath = `plans/${uid}`;
+  const planRef = doc(firestoreDb, 'plans', uid);
+  try {
+    const payload = buildFirestorePlanPayload(appState, uid, remotePlanCreatedAt);
+    await setDoc(planRef, payload);
+    if (!remotePlanExists || !remotePlanCreatedAt) {
+      const freshSnap = await getDoc(planRef);
+      if (freshSnap.exists()) {
+        remotePlanExists = true;
+        remotePlanCreatedAt = freshSnap.data().createdAt || remotePlanCreatedAt;
+      }
+    }
+  } catch (err) {
+    handleFirestoreError(err, remotePlanExists ? OperationType.UPDATE : OperationType.CREATE, planPath);
+  }
+}
+
+async function callNtfyApi(endpoint, payload = {}) {
+  if (!currentUser) return null;
+  try {
+    const idToken = await currentUser.getIdToken();
+    const resp = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${idToken}`
+      },
+      body: JSON.stringify(payload)
+    });
+    const data = await resp.json().catch(() => ({}));
+    if (!resp.ok) {
+      return { ok: false, error: data.error || `Error ${resp.status}` };
+    }
+    return data;
+  } catch (err) {
+    console.warn('ntfy API call failed:', err.message);
+    return { ok: false, error: 'No se pudo conectar con el servidor de avisos.' };
+  }
+}
+
+function getWalletDisplayName(walletKey) {
+  return walletKey === 'pc_ipad' ? 'Ordenador y iPad' : 'Móvil';
+}
+
+function notifyServerTimerStart(walletKey, remainingSeconds) {
+  const s = appState.settings || {};
+  if (!currentUser || !s.ntfyEnabled || !isValidNtfyTopicStr(s.ntfyTopic)) return;
+  lastSyncedTimerSig = `${walletKey}_${appState.runningTimer?.startedAt || 0}`;
+  callNtfyApi('/api/ntfy/timer/start', {
+    topic: s.ntfyTopic.trim(),
+    walletName: getWalletDisplayName(walletKey),
+    remainingSeconds,
+    notifyOnStart: s.ntfyOnStart !== false,
+    notifyFiveMin: s.ntfyFiveMin !== false,
+    notifyOnEnd: s.ntfyOnEnd !== false
+  });
+}
+
+function notifyServerTimerSync() {
+  const s = appState.settings || {};
+  if (!currentUser || !appState.runningTimer || !s.ntfyEnabled || !isValidNtfyTopicStr(s.ntfyTopic)) return;
+  const sig = `${appState.runningTimer.wallet}_${appState.runningTimer.startedAt}`;
+  if (sig === lastSyncedTimerSig) return;
+  const rem = getWalletRemainingSeconds(appState.runningTimer.wallet);
+  if (rem <= 0) return;
+  lastSyncedTimerSig = sig;
+  callNtfyApi('/api/ntfy/timer/sync', {
+    topic: s.ntfyTopic.trim(),
+    walletName: getWalletDisplayName(appState.runningTimer.wallet),
+    remainingSeconds: rem,
+    notifyFiveMin: s.ntfyFiveMin !== false,
+    notifyOnEnd: s.ntfyOnEnd !== false
+  });
+}
+
+function notifyServerTimerPause(walletKey, remainingSeconds) {
+  lastSyncedTimerSig = '';
+  const s = appState.settings || {};
+  if (!currentUser) return;
+  callNtfyApi('/api/ntfy/timer/pause', {
+    topic: isValidNtfyTopicStr(s.ntfyTopic) && s.ntfyEnabled ? s.ntfyTopic.trim() : '',
+    walletName: getWalletDisplayName(walletKey),
+    remainingSeconds,
+    notifyOnPause: Boolean(s.ntfyEnabled && s.ntfyOnPause !== false)
+  });
+}
+
+function notifyServerTimerCancel() {
+  lastSyncedTimerSig = '';
+  if (!currentUser) return;
+  callNtfyApi('/api/ntfy/timer/cancel', {});
+}
+
+function renderCloudSyncUI() {
+  const card = document.getElementById('cloudSyncCard');
+  const title = document.getElementById('cloudSyncCardTitle');
+  const desc = document.getElementById('cloudSyncCardDesc');
+  const signInBtn = document.getElementById('googleSignInBtn');
+  const signOutBtn = document.getElementById('googleSignOutBtn');
+  const topBadge = document.getElementById('cloudSyncBadge');
+  const ntfyWarn = document.getElementById('ntfyAuthWarning');
+
+  if (currentUser) {
+    card?.classList.add('synced');
+    if (title) title.textContent = '☁️ Sincronización activa (iPad ↔ iPhone)';
+    if (desc) desc.textContent = `Conectado como ${currentUser.email || 'Cuenta familiar'}. Los cambios y tiempos se actualizan al instante.`;
+    signInBtn?.classList.add('hidden');
+    signOutBtn?.classList.remove('hidden');
+    if (topBadge) {
+      topBadge.className = 'badge badge-cloud';
+      topBadge.textContent = '☁️ Nube activa';
+    }
+    ntfyWarn?.classList.add('hidden');
+  } else {
+    card?.classList.remove('synced');
+    if (title) title.textContent = '☁️ Sincronización familiar (iPad ↔ iPhone)';
+    if (desc) {
+      desc.textContent = firebaseReady
+        ? 'Conecta la misma cuenta de Google en el iPad de Pablo y en tu iPhone para sincronizar en tiempo real y activar avisos push.'
+        : 'Conectando servicio en la nube... Puedes usar la app en modo local mientras tanto.';
+    }
+    if (signInBtn) {
+      signInBtn.classList.remove('hidden');
+      signInBtn.disabled = !firebaseReady;
+    }
+    signOutBtn?.classList.add('hidden');
+    if (topBadge) {
+      topBadge.className = 'badge badge-local';
+      topBadge.textContent = '📱 Solo local';
+    }
+    ntfyWarn?.classList.remove('hidden');
+  }
+}
+
+function detachCloudListeners() {
+  if (unsubPlan) { unsubPlan(); unsubPlan = null; }
+  if (unsubHistory) { unsubHistory(); unsubHistory = null; }
+  cloudSyncReady = false;
+  remotePlanExists = false;
+  remotePlanCreatedAt = null;
+  remoteHistoryCreatedAtMap.clear();
+  lastSyncedTimerSig = '';
+}
+
+async function attachCloudListeners(user) {
+  detachCloudListeners();
+  const uid = user.uid;
+  const planPath = `plans/${uid}`;
+  const planRef = doc(firestoreDb, 'plans', uid);
+
+  try {
+    const initialSnap = await getDoc(planRef);
+    if (!initialSnap.exists()) {
+      // First time connecting this Google account: migrate local data to Firestore
+      const initialPayload = buildFirestorePlanPayload(appState, uid, null);
+      await setDoc(planRef, initialPayload);
+      const createdSnap = await getDoc(planRef);
+      if (createdSnap.exists()) {
+        remotePlanExists = true;
+        remotePlanCreatedAt = createdSnap.data().createdAt || null;
+      }
+      // Migrate existing local history records after parent doc exists (Master Gate)
+      const localHistory = Array.isArray(appState.history) ? appState.history : [];
+      for (const rec of localHistory.slice(0, 60)) {
+        if (isValidDateKeyStr(rec?.date)) {
+          await saveHistoryRecordToCloud(rec);
+        }
+      }
+    } else {
+      remotePlanExists = true;
+      remotePlanCreatedAt = initialSnap.data().createdAt || null;
+      applyRemotePlanToAppState(initialSnap.data());
+      await dataService.saveState(appState);
+    }
+  } catch (err) {
+    handleFirestoreError(err, OperationType.GET, planPath);
+    return;
+  }
+
+  cloudSyncReady = true;
+
+  // Real-time listener on /plans/{uid}
+  unsubPlan = onSnapshot(
+    planRef,
+    async (snap) => {
+      if (!snap.exists()) return;
+      const data = snap.data();
+      remotePlanExists = true;
+      if (data.createdAt) {
+        remotePlanCreatedAt = data.createdAt;
+      }
+      const migrated = applyRemotePlanToAppState(data);
+      const rolled = checkAndRolloverDay();
+      recalculateTaskMinutes();
+      const credited = syncWeekendProportionalCredit(false);
+      await dataService.saveState(appState);
+      if (migrated || rolled || credited) {
+        await savePlanToCloud();
+      }
+      if (appState.runningTimer) {
+        notifyServerTimerSync();
+      }
+      renderModeVisibility();
+      renderAll();
+    },
+    (err) => {
+      handleFirestoreError(err, OperationType.GET, planPath);
+    }
+  );
+
+  // Real-time listener on /plans/{uid}/history (ownerId filter matches rules)
+  const historyCol = collection(firestoreDb, 'plans', uid, 'history');
+  const historyQuery = query(historyCol, where('ownerId', '==', uid));
+  unsubHistory = onSnapshot(
+    historyQuery,
+    async (querySnap) => {
+      const items = [];
+      remoteHistoryCreatedAtMap.clear();
+      querySnap.forEach((docSnap) => {
+        const d = docSnap.data();
+        if (d.createdAt) {
+          remoteHistoryCreatedAtMap.set(d.date, d.createdAt);
+        }
+        items.push({
+          date: d.date,
+          earnedMin: d.earnedMin || 0,
+          consumedMin: d.consumedMin || 0,
+          pcEarnedMin: d.pcEarnedMin || 0,
+          pcConsumedMin: d.pcConsumedMin || 0,
+          mobEarnedMin: d.mobEarnedMin || 0,
+          mobConsumedMin: d.mobConsumedMin || 0,
+          tasksCompleted: d.tasksCompleted || 0,
+          totalTasks: d.totalTasks || 0,
+          nightReadingDone: Boolean(d.nightReadingDone)
+        });
+      });
+      items.sort((a, b) => String(b.date).localeCompare(String(a.date)));
+      appState.history = items.slice(0, 90);
+      await dataService.saveState(appState);
+      if (currentMode) {
+        renderAll();
+        if (document.getElementById('weeklyModal')?.classList.contains('open')) {
+          renderWeeklyModal();
+        }
+      }
+    },
+    (err) => {
+      handleFirestoreError(err, OperationType.LIST, `plans/${uid}/history`);
+    }
+  );
+}
+
+async function testConnection() {
+  if (!firestoreDb) return;
+  try {
+    await getDocFromServer(doc(firestoreDb, 'test', 'connection'));
+  } catch (error) {
+    if (error instanceof Error && error.message.includes('the client is offline')) {
+      console.error('Please check your Firebase configuration.');
+    }
+  }
+}
+
+async function initFirebaseCloud() {
+  try {
+    const resp = await fetch('/api/firebase-config');
+    if (!resp.ok) return;
+    const cfg = await resp.json();
+    if (!cfg?.apiKey || !cfg?.projectId) return;
+
+    firebaseApp = initializeApp({
+      apiKey: cfg.apiKey,
+      authDomain: cfg.authDomain,
+      projectId: cfg.projectId,
+      storageBucket: cfg.storageBucket,
+      messagingSenderId: cfg.messagingSenderId,
+      appId: cfg.appId
+    });
+    firebaseAuth = getAuth(firebaseApp);
+    firestoreDb = cfg.firestoreDatabaseId
+      ? getFirestore(firebaseApp, cfg.firestoreDatabaseId)
+      : getFirestore(firebaseApp);
+    firebaseReady = true;
+
+    testConnection();
+
+    onAuthStateChanged(firebaseAuth, async (user) => {
+      currentUser = user || null;
+      renderCloudSyncUI();
+      if (user) {
+        try {
+          await attachCloudListeners(user);
+        } catch {
+          // Error already logged & toasted by handleFirestoreError
+        }
+      } else {
+        detachCloudListeners();
+      }
+    });
+  } catch (err) {
+    console.warn('Cloud sync initialization skipped:', err.message);
+  } finally {
+    renderCloudSyncUI();
+  }
+}
+
+async function signInWithGoogle() {
+  if (!firebaseAuth) {
+    showToast('La nube no está disponible en este momento.');
+    return;
+  }
+  try {
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: 'select_account' });
+    await signInWithPopup(firebaseAuth, provider);
+    showToast('☁️ Cuenta conectada. Sincronizando en tiempo real...');
+  } catch (err) {
+    if (err?.code === 'auth/popup-closed-by-user') return;
+    showToast('No se pudo iniciar sesión con Google. Revisa si el navegador bloqueó la ventana.');
+  }
+}
+
+async function signOutGoogle() {
+  if (!firebaseAuth) return;
+  try {
+    detachCloudListeners();
+    await signOut(firebaseAuth);
+    showToast('Sesión cerrada. La app sigue funcionando en modo local.');
+  } catch {
+    showToast('No se pudo cerrar sesión.');
+  }
+}
 
 /**
  * ============================================================================
@@ -1260,7 +2004,7 @@ function getDefaultTasks() {
     },
     {
       id: 't2',
-      title: 'Contar qué se ha hecho en clase, anotar tareas en la agenda, mostrarla y traer material de estudio',
+      title: 'Contar qué ha hecho, anotar tareas en agenda, mostrarla y traer el material de estudio',
       note: '',
       isBonus: false,
       fixedMinutes: 0,
@@ -1271,7 +2015,7 @@ function getDefaultTasks() {
     },
     {
       id: 't3',
-      title: 'Entrar en Classroom y mostrarlo',
+      title: 'No tener anotaciones negativas',
       note: '',
       isBonus: false,
       fixedMinutes: 0,
@@ -1282,7 +2026,7 @@ function getDefaultTasks() {
     },
     {
       id: 't4',
-      title: 'Hacer bien las tareas sin faltas de ortografía y con buena letra',
+      title: 'Entrar en Classroom, mostrarlo y hacer las tareas correspondientes',
       note: '',
       isBonus: false,
       fixedMinutes: 0,
@@ -1315,6 +2059,17 @@ function getDefaultTasks() {
     },
     {
       id: 't7',
+      title: 'Hacer las tareas, no tener faltas de ortografía graves o por despiste, limpieza en las tareas',
+      note: '',
+      isBonus: false,
+      fixedMinutes: 0,
+      minutes: 0,
+      wallet: 'auto',
+      schedule: 'weekday',
+      completed: false
+    },
+    {
+      id: 't8',
       title: 'Tener anotaciones positivas',
       note: 'Bonus fijo por actitud positiva',
       isBonus: true,
@@ -1325,7 +2080,7 @@ function getDefaultTasks() {
       completed: false
     },
     {
-      id: 't8',
+      id: 't9',
       title: 'Tener notas de notable hacia arriba',
       note: 'Bonus fijo por esfuerzo académico',
       isBonus: true,
@@ -1350,6 +2105,18 @@ function isWeekendDate(date = new Date()) {
   return day === 0 || day === 6;
 }
 
+function isFridayDate(date = new Date()) {
+  return date.getDay() === 5;
+}
+
+function isFridayNegativeNoteToday() {
+  return isFridayDate() && appState.weekendAutoCreditedDate === appState.currentDate;
+}
+
+function isFridayFreeTimeToday() {
+  return isFridayDate() && !isFridayNegativeNoteToday();
+}
+
 function isTaskActiveOnWeekendFlag(task, weekend) {
   const sch = task.schedule || 'all';
   if (sch === 'all') return true;
@@ -1364,14 +2131,20 @@ function isTaskActiveToday(task) {
 
 function createInitialState() {
   return {
-    schemaVersion: 5,
+    schemaVersion: 6,
     currentDate: getLocalDateKey(),
     settings: {
       weekdayCap: 90,
       weekendCap: 180,
       weekendPcIpadCap: 120,
-      requirePinForTasks: false,
-      adultPin: DEFAULT_ADULT_PIN
+      requirePinForTasks: true,
+      adultPin: DEFAULT_ADULT_PIN,
+      ntfyTopic: '',
+      ntfyEnabled: false,
+      ntfyOnStart: true,
+      ntfyOnPause: true,
+      ntfyFiveMin: true,
+      ntfyOnEnd: true
     },
     wallets: {
       pc_ipad: { earnedSeconds: 0, consumedSeconds: 0 },
@@ -1474,7 +2247,8 @@ function getWeeklyProportionalSummary(weekOffset = 0) {
   const mondayOffset = (currentDay === 0 ? -6 : 1 - currentDay) + (weekOffset * 7);
   const weekdayCap = Math.max(1, Number(appState.settings.weekdayCap) || 90);
   const weekendCap = Math.max(1, Number(appState.settings.weekendCap) || 180);
-  const maxWeekMin = weekdayCap * 5;
+  // Los viernes sin anotación negativa son tiempo libre sin minutos, por lo que el 100% se calcula sobre L-J (4 días).
+  const maxWeekMin = weekdayCap * 4;
 
   let earnedWeekMin = 0;
   let daysWithProgress = 0;
@@ -1498,12 +2272,13 @@ function getWeeklyProportionalSummary(weekOffset = 0) {
     earnedWeekMin += dayEarned;
   }
 
-  const ratio = Math.min(1, earnedWeekMin / maxWeekMin);
+  const effectiveEarned = Math.min(maxWeekMin, earnedWeekMin);
+  const ratio = Math.min(1, effectiveEarned / maxWeekMin);
   const unlockedPerWeekendDayMin = Math.round(weekendCap * ratio);
   const pct = Math.round(ratio * 100);
 
   return {
-    earnedWeekMin,
+    earnedWeekMin: effectiveEarned,
     maxWeekMin,
     ratio,
     pct,
@@ -1594,8 +2369,8 @@ async function initApp() {
     appState = {
       ...createInitialState(),
       ...saved,
-      schemaVersion: 5,
-      settings: { ...createInitialState().settings, ...(saved.settings || {}) },
+      schemaVersion: 6,
+      settings: { ...createInitialState().settings, ...(saved.settings || {}), requirePinForTasks: true },
       wallets: {
         pc_ipad: { earnedSeconds: 0, consumedSeconds: 0, ...(saved.wallets?.pc_ipad || {}) },
         mobile: { earnedSeconds: 0, consumedSeconds: 0, ...(saved.wallets?.mobile || {}) }
@@ -1605,12 +2380,12 @@ async function initApp() {
       minuteUndoStack: Array.isArray(saved.minuteUndoStack) ? saved.minuteUndoStack : []
     };
 
-    if (prevVersion < 4) {
+    if (prevVersion < 6) {
       appState.tasks = getDefaultTasks();
     } else {
       const defaultScheduleById = {
         t1: 'all', t2: 'weekday', t3: 'weekday', t4: 'weekday',
-        t5: 'all', t6: 'all', t7: 'weekday', t8: 'weekday'
+        t5: 'all', t6: 'all', t7: 'weekday', t8: 'weekday', t9: 'weekday'
       };
       appState.tasks = (appState.tasks || []).map(t => ({
         ...t,
@@ -1628,19 +2403,20 @@ async function initApp() {
   await persistState();
   renderModeVisibility();
   renderAll();
+  initFirebaseCloud();
 
   if (tickInterval) clearInterval(tickInterval);
   tickInterval = setInterval(onTimerTick, 500);
 }
 
 function syncWeekendProportionalCredit(manualTrigger = false) {
-  if (!isWeekendDate()) return;
+  if (!isWeekendDate()) return false;
   const today = appState.currentDate;
   const wk = getWeeklyProportionalSummary(0);
   const currentEarnedMin = Math.floor(getTotalEarnedSecondsToday() / 60);
 
   if (!manualTrigger && appState.weekendAutoCreditedDate === today) {
-    return;
+    return false;
   }
 
   appState.weekendAutoCreditedDate = today;
@@ -1659,9 +2435,11 @@ function syncWeekendProportionalCredit(manualTrigger = false) {
       renderAll();
       showToast(`🏆 Abono de fin de semana actualizado: ${formatGrantSummary(grant.pcMin, grant.mobMin)}`);
     }
+    return grant.total > 0;
   } else if (manualTrigger) {
     showToast(`El fin de semana ya tiene cargados al menos los ${wk.unlockedPerWeekendDayMin} min proporcionales de la semana.`);
   }
+  return true;
 }
 
 function checkAndRolloverDay() {
@@ -1683,7 +2461,7 @@ function checkAndRolloverDay() {
     const completedCount = prevActiveTasks.filter(t => t.completed).length;
 
     if (earnedMin > 0 || completedCount > 0 || appState.nightReadingDone) {
-      appState.history.unshift({
+      const histRecord = {
         date: appState.currentDate,
         earnedMin,
         consumedMin,
@@ -1694,8 +2472,9 @@ function checkAndRolloverDay() {
         tasksCompleted: completedCount,
         totalTasks: prevActiveTasks.length,
         nightReadingDone: Boolean(appState.nightReadingDone)
-      });
-      appState.history = appState.history.slice(0, 90);
+      };
+      appState.history = [histRecord, ...appState.history.filter(h => h.date !== histRecord.date)].slice(0, 90);
+      saveHistoryRecordToCloud(histRecord);
     }
 
     appState.currentDate = today;
@@ -1709,11 +2488,15 @@ function checkAndRolloverDay() {
     appState.minuteUndoStack = [];
     recalculateTaskMinutes();
     syncWeekendProportionalCredit(false);
+    notifyServerTimerCancel();
+    return true;
   }
+  return false;
 }
 
 async function persistState() {
   await dataService.saveState(appState);
+  await savePlanToCloud();
 }
 
 /**
@@ -1863,6 +2646,15 @@ function addMinutesToWallet(walletKey, minutes) {
   appState.wallets.pc_ipad.earnedSeconds += pcMin * 60;
   appState.wallets.mobile.earnedSeconds += mobMin * 60;
 
+  if (
+    appState.runningTimer &&
+    ((appState.runningTimer.wallet === 'pc_ipad' && pcMin > 0) ||
+      (appState.runningTimer.wallet === 'mobile' && mobMin > 0))
+  ) {
+    lastSyncedTimerSig = '';
+    notifyServerTimerSync();
+  }
+
   return { total: pcMin + mobMin, pcMin, mobMin };
 }
 
@@ -1901,9 +2693,14 @@ function applyUndoEntry(entry) {
 
   if (appState.runningTimer) {
     const activeKey = appState.runningTimer.wallet;
-    if (getWalletRemainingSeconds(activeKey, now) <= 0) {
+    const remAfterUndo = getWalletRemainingSeconds(activeKey, now);
+    if (remAfterUndo <= 0) {
       appState.wallets[activeKey].consumedSeconds = appState.wallets[activeKey].earnedSeconds;
       appState.runningTimer = null;
+      notifyServerTimerCancel();
+    } else {
+      lastSyncedTimerSig = '';
+      notifyServerTimerSync();
     }
   }
 
@@ -1959,7 +2756,12 @@ function startConsumptionTimer(walletKey) {
 
   if (appState.runningTimer) {
     if (appState.runningTimer.wallet === walletKey) return;
-    pauseConsumptionTimer();
+    pauseConsumptionTimer(true);
+  }
+
+  if (isFridayFreeTimeToday()) {
+    showToast('🎉 Hoy viernes tienes tiempo libre de ocio (no se cuentan minutos).');
+    return;
   }
 
   const remaining = getWalletRemainingSeconds(walletKey);
@@ -1975,20 +2777,30 @@ function startConsumptionTimer(walletKey) {
   };
 
   persistState();
+  notifyServerTimerStart(walletKey, remaining);
   renderAll();
 }
 
-function pauseConsumptionTimer() {
+function pauseConsumptionTimer(silent = false) {
   if (!appState.runningTimer) return;
   const walletKey = appState.runningTimer.wallet;
+  const remaining = getWalletRemainingSeconds(walletKey);
   appState.wallets[walletKey].consumedSeconds = getWalletConsumedSeconds(walletKey);
   appState.runningTimer = null;
   persistState();
+  if (silent) {
+    notifyServerTimerCancel();
+  } else {
+    notifyServerTimerPause(walletKey, remaining);
+  }
   renderAll();
 }
 
 function onTimerTick() {
-  checkAndRolloverDay();
+  if (checkAndRolloverDay()) {
+    persistState();
+    renderAll();
+  }
   if (!currentMode) {
     document.getElementById('runningTimerNotice').classList.toggle('hidden', !appState.runningTimer);
     return;
@@ -2006,6 +2818,7 @@ function onTimerTick() {
       const name = walletKey === 'pc_ipad' ? 'Ordenador y iPad' : 'Móvil';
       w.consumedSeconds = w.earnedSeconds;
       appState.runningTimer = null;
+      lastSyncedTimerSig = '';
       persistState();
       showToast(`Tiempo completado en ${name}. ¡Buena sesión, Pablo!`);
       renderAll();
@@ -2068,8 +2881,8 @@ function setTaskListFilter(filter) {
 
 function toggleTask(taskId) {
   checkAndRolloverDay();
-  if (appState.settings.requirePinForTasks && !isSupervisor()) {
-    showToast('Solo Supervisión puede marcar tareas ahora mismo.');
+  if (!isSupervisor()) {
+    showToast('En Modo Piloto no se pueden marcar tareas. Solo Supervisión puede completarlas.');
     return;
   }
 
@@ -2081,7 +2894,7 @@ function toggleTask(taskId) {
     return;
   }
 
-  if (isWeekendDate()) {
+  if (isWeekendDate() || isFridayFreeTimeToday()) {
     task.completed = true;
     pushUndoEntry({
       type: 'task',
@@ -2090,7 +2903,9 @@ function toggleTask(taskId) {
       pcMin: 0,
       mobMin: 0
     });
-    showToast('✨ ¡Rutina de fin de semana completada!');
+    showToast(isFridayFreeTimeToday()
+      ? '🎉 ¡Rutina completada! Hoy viernes disfrutas de tiempo libre.'
+      : '✨ ¡Rutina de fin de semana completada!');
     persistState();
     renderAll();
     return;
@@ -2255,6 +3070,10 @@ function setTaskWallet(taskId, walletValue) {
 
 function grantBonusMinutes() {
   if (!isSupervisor()) return;
+  if (isFridayFreeTimeToday()) {
+    showToast('Hoy viernes es tiempo libre de ocio y no se cuentan minutos.');
+    return;
+  }
   const wallet = document.getElementById('bonusWallet').value;
   const mins = parseInt(document.getElementById('bonusMinutes').value, 10);
   if (!mins || mins <= 0) return;
@@ -2274,22 +3093,185 @@ function grantBonusMinutes() {
   }
 }
 
+function transferWalletMinutes() {
+  if (!isSupervisor()) return;
+  if (isFridayFreeTimeToday()) {
+    showToast('Hoy viernes es tiempo libre de ocio y no se cuentan minutos.');
+    return;
+  }
+  const dir = document.getElementById('transferDirection').value;
+  const requested = parseInt(document.getElementById('transferMinutes').value, 10);
+  if (!requested || requested <= 0) {
+    showToast('Indica una cantidad válida de minutos para traspasar.');
+    return;
+  }
+
+  const fromKey = dir === 'mobile_to_pc' ? 'mobile' : 'pc_ipad';
+  const toKey = dir === 'mobile_to_pc' ? 'pc_ipad' : 'mobile';
+
+  const now = Date.now();
+  const availableMin = Math.floor(getWalletRemainingSeconds(fromKey, now) / 60);
+  if (availableMin <= 0) {
+    showToast(`No quedan minutos disponibles en ${getWalletDisplayName(fromKey)} para traspasar.`);
+    return;
+  }
+
+  const actualMin = Math.min(requested, availableMin);
+  const deltaSec = actualMin * 60;
+  const fromConsumed = getWalletConsumedSeconds(fromKey, now);
+
+  appState.wallets[fromKey].earnedSeconds = Math.max(
+    fromConsumed,
+    appState.wallets[fromKey].earnedSeconds - deltaSec
+  );
+  appState.wallets[toKey].earnedSeconds += deltaSec;
+
+  if (appState.runningTimer) {
+    const activeKey = appState.runningTimer.wallet;
+    if (getWalletRemainingSeconds(activeKey, now) <= 0) {
+      appState.wallets[activeKey].consumedSeconds = appState.wallets[activeKey].earnedSeconds;
+      appState.runningTimer = null;
+      notifyServerTimerCancel();
+    } else if (activeKey === fromKey || activeKey === toKey) {
+      lastSyncedTimerSig = '';
+      notifyServerTimerSync();
+    }
+  }
+
+  persistState();
+  renderAll();
+  showToast(`🔄 Pasados ${actualMin} min de ${getWalletDisplayName(fromKey)} a ${getWalletDisplayName(toKey)}.`);
+}
+
+function toggleFridayNegativeNote() {
+  if (!isSupervisor() || !isFridayDate()) return;
+  if (isFridayNegativeNoteToday()) {
+    appState.weekendAutoCreditedDate = null;
+    if (appState.runningTimer) {
+      const wk = appState.runningTimer.wallet;
+      appState.wallets[wk].consumedSeconds = getWalletConsumedSeconds(wk);
+      appState.runningTimer = null;
+      notifyServerTimerCancel();
+    }
+    showToast('🎉 Viernes en modo tiempo libre de ocio (no se cuentan minutos).');
+  } else {
+    appState.weekendAutoCreditedDate = appState.currentDate;
+    showToast('⚠️ Anotación negativa registrada hoy viernes: se cuentan minutos como día escolar.');
+  }
+  persistState();
+  renderAll();
+}
+
 function saveSettings() {
   if (!isSupervisor()) return;
   const weekdayCap = parseInt(document.getElementById('cfgWeekdayCap').value, 10);
   const weekendCap = parseInt(document.getElementById('cfgWeekendCap').value, 10);
   const weekendPcCap = parseInt(document.getElementById('cfgWeekendPcCap').value, 10);
-  const requirePinForTasks = document.getElementById('cfgRequirePinForTasks').value === 'true';
 
-  if (weekdayCap > 0) appState.settings.weekdayCap = weekdayCap;
-  if (weekendCap > 0) appState.settings.weekendCap = weekendCap;
-  if (weekendPcCap > 0) appState.settings.weekendPcIpadCap = weekendPcCap;
-  appState.settings.requirePinForTasks = requirePinForTasks;
+  if (weekdayCap >= 15 && weekdayCap <= 300) appState.settings.weekdayCap = weekdayCap;
+  if (weekendCap >= 30 && weekendCap <= 360) appState.settings.weekendCap = weekendCap;
+  if (weekendPcCap >= 30 && weekendPcCap <= 240) appState.settings.weekendPcIpadCap = weekendPcCap;
+  appState.settings.requirePinForTasks = true;
 
   recalculateTaskMinutes();
   persistState();
   renderAll();
   showToast('💾 Reglas guardadas y tiempos recalculados.');
+}
+
+function generateNtfyTopic() {
+  if (!isSupervisor()) return;
+  const chars = 'abcdefghjkmnpqrstuvwxyz23456789';
+  let suffix = '';
+  const bytes = new Uint8Array(10);
+  if (window.crypto?.getRandomValues) {
+    window.crypto.getRandomValues(bytes);
+    for (let i = 0; i < bytes.length; i++) suffix += chars[bytes[i] % chars.length];
+  } else {
+    suffix = Math.random().toString(36).slice(2, 12);
+  }
+  const topic = `pablo-plan-${suffix}`;
+  document.getElementById('cfgNtfyTopic').value = topic;
+  document.getElementById('cfgNtfyEnabled').checked = true;
+  showToast('🎲 Tema privado generado. Pulsa "Guardar avisos" y suscríbete en la app ntfy de tu iPhone.');
+}
+
+async function copyNtfyTopic() {
+  const topic = document.getElementById('cfgNtfyTopic').value.trim();
+  if (!topic) {
+    showToast('Primero escribe o genera un tema privado de ntfy.');
+    return;
+  }
+  try {
+    await navigator.clipboard.writeText(topic);
+    showToast('📋 Tema copiado. Pégalo en la app ntfy de tu iPhone.');
+  } catch {
+    showToast(`Tu tema ntfy es: ${topic}`);
+  }
+}
+
+async function saveNtfySettings() {
+  if (!isSupervisor()) return;
+  const topic = document.getElementById('cfgNtfyTopic').value.trim();
+  const enabled = document.getElementById('cfgNtfyEnabled').checked;
+
+  if (topic && !isValidNtfyTopicStr(topic)) {
+    showToast('El tema ntfy debe tener entre 6 y 64 caracteres (solo letras, números, - o _).');
+    return;
+  }
+  if (enabled && !topic) {
+    showToast('Genera o escribe un tema privado de ntfy antes de activar los avisos.');
+    return;
+  }
+
+  appState.settings.ntfyTopic = topic;
+  appState.settings.ntfyEnabled = enabled;
+  appState.settings.ntfyOnStart = document.getElementById('cfgNtfyOnStart').checked;
+  appState.settings.ntfyOnPause = document.getElementById('cfgNtfyOnPause').checked;
+  appState.settings.ntfyFiveMin = document.getElementById('cfgNtfyFiveMin').checked;
+  appState.settings.ntfyOnEnd = document.getElementById('cfgNtfyOnEnd').checked;
+
+  await persistState();
+
+  if (appState.runningTimer) {
+    lastSyncedTimerSig = '';
+    if (enabled && topic) {
+      notifyServerTimerSync();
+    } else {
+      notifyServerTimerCancel();
+    }
+  }
+
+  renderAll();
+  showToast(enabled ? '📲 Avisos push ntfy guardados y activos.' : '📲 Configuración de avisos ntfy guardada.');
+}
+
+async function testNtfyNotification() {
+  if (!isSupervisor()) return;
+  if (!currentUser) {
+    showToast('Conecta primero tu cuenta de Google en la pantalla de inicio para enviar avisos.');
+    return;
+  }
+  const topic = document.getElementById('cfgNtfyTopic').value.trim();
+  if (!isValidNtfyTopicStr(topic)) {
+    showToast('Genera o escribe un tema ntfy válido (6-64 caracteres) antes de probar.');
+    return;
+  }
+
+  const btn = document.getElementById('testNtfyBtn');
+  btn.disabled = true;
+  btn.textContent = 'Enviando...';
+  try {
+    const res = await callNtfyApi('/api/ntfy/test', { topic });
+    if (res?.ok) {
+      showToast('✅ Notificación de prueba enviada. ¡Debería sonar en tu iPhone ahora!');
+    } else {
+      showToast(res?.error || 'No se pudo enviar el aviso de prueba.');
+    }
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '🧪 Probar en iPhone';
+  }
 }
 
 function changeAdultPin() {
@@ -2308,7 +3290,7 @@ function changeAdultPin() {
 
 function restoreDefaultTasks() {
   if (!isSupervisor()) return;
-  if (!confirm('¿Restaurar las 8 tareas configuradas de Pablo? Se recalcularán los tiempos automáticamente.')) return;
+  if (!confirm('¿Restaurar las 9 tareas configuradas de Pablo? Se recalcularán los tiempos automáticamente.')) return;
   appState.tasks = getDefaultTasks();
   recalculateTaskMinutes();
   persistState();
@@ -2330,6 +3312,7 @@ function resetTodayOnly() {
   appState.minuteUndoStack = [];
   recalculateTaskMinutes();
   syncWeekendProportionalCredit(false);
+  notifyServerTimerCancel();
   persistState();
   renderAll();
   showToast('🔄 Día reiniciado.');
@@ -2409,7 +3392,11 @@ function renderWeeklyModal() {
       record = appState.history.find(h => h.date === key) || null;
     }
 
-    if (record) {
+    const isFreeFridayRow = isToday && i === 4 && isFridayFreeTimeToday();
+    if (isFreeFridayRow) {
+      weekdaysDone++;
+      if (record?.nightReadingDone) readingCount++;
+    } else if (record) {
       sumEarned += record.earnedMin || 0;
       sumConsumed += record.consumedMin || 0;
       if (i < 5 && (record.tasksCompleted > 0 || record.earnedMin > 0)) {
@@ -2422,14 +3409,19 @@ function renderWeeklyModal() {
     const readingBadge = record?.nightReadingDone
       ? '<span class="badge badge-reading">🌙 Lectura</span>'
       : '';
-    const detailHtml = record
+    const detailHtml = isFreeFridayRow
       ? `<div style="display:flex; gap:6px; flex-wrap:wrap;">
-           <span class="badge badge-success">✅ ${record.tasksCompleted}/${record.totalTasks} tareas</span>
-           <span class="badge badge-pc">💻 ${record.pcConsumedMin ?? 0}/${record.pcEarnedMin ?? 0}m</span>
-           <span class="badge badge-mobile">📱 ${record.mobConsumedMin ?? 0}/${record.mobEarnedMin ?? 0}m</span>
+           <span class="badge badge-success">🎉 Viernes · Tiempo libre de ocio</span>
            ${readingBadge}
          </div>`
-      : `<span class="muted">${d > now ? 'Próximo día' : 'Sin registro'}</span>`;
+      : record
+        ? `<div style="display:flex; gap:6px; flex-wrap:wrap;">
+             <span class="badge badge-success">✅ ${record.tasksCompleted}/${record.totalTasks} tareas</span>
+             <span class="badge badge-pc">💻 ${record.pcConsumedMin ?? 0}/${record.pcEarnedMin ?? 0}m</span>
+             <span class="badge badge-mobile">📱 ${record.mobConsumedMin ?? 0}/${record.mobEarnedMin ?? 0}m</span>
+             ${readingBadge}
+           </div>`
+        : `<span class="muted">${d > now ? 'Próximo día' : 'Sin registro'}</span>`;
 
     rowsHtml += `
       <div class="weekly-day-row ${isToday ? 'is-today' : ''}">
@@ -2444,7 +3436,7 @@ function renderWeeklyModal() {
   document.getElementById('wkWeekendUnlocked').textContent = `${wkProp.unlockedPerWeekendDayMin} min`;
   document.getElementById('wkReadingCount').textContent = `${readingCount} / 7`;
   document.getElementById('wkF1Line').textContent =
-    `🏎️ Constancia Simulador F1: ${weekdaysDone}/5 días L-V · Acumulado L-V para finde: ${wkProp.earnedWeekMin}/${wkProp.maxWeekMin} min (${wkProp.pct}% → ${wkProp.unlockedPerWeekendDayMin} min/día Sáb y Dom).`;
+    `🏎️ Constancia Simulador F1: ${weekdaysDone}/5 días · Acumulado L-J para finde: ${wkProp.earnedWeekMin}/${wkProp.maxWeekMin} min (${wkProp.pct}% → ${wkProp.unlockedPerWeekendDayMin} min/día Sáb y Dom).`;
   document.getElementById('weeklyRowsContainer').innerHTML = rowsHtml;
 }
 
@@ -2474,8 +3466,8 @@ function importBackup(event) {
       appState = {
         ...createInitialState(),
         ...parsed,
-        schemaVersion: 5,
-        settings: { ...createInitialState().settings, ...(parsed.settings || {}) },
+        schemaVersion: 6,
+        settings: { ...createInitialState().settings, ...(parsed.settings || {}), requirePinForTasks: true },
         nightReadingDone: Boolean(parsed.nightReadingDone),
         weekendAutoCreditedDate: parsed.weekendAutoCreditedDate || null,
         minuteUndoStack: Array.isArray(parsed.minuteUndoStack) ? parsed.minuteUndoStack : []
@@ -2489,6 +3481,13 @@ function importBackup(event) {
       recalculateTaskMinutes();
       syncWeekendProportionalCredit(false);
       await persistState();
+      if (currentUser && remotePlanExists && Array.isArray(appState.history)) {
+        for (const rec of appState.history.slice(0, 60)) {
+          if (isValidDateKeyStr(rec?.date)) {
+            await saveHistoryRecordToCloud(rec);
+          }
+        }
+      }
       renderAll();
       showToast('Copia de seguridad importada correctamente.');
     } catch {
@@ -2579,16 +3578,22 @@ function renderWeeklyF1Tracker() {
     const isToday = key === appState.currentDate;
 
     let done = false;
-    if (isToday) {
+    let chipIcon = '○';
+    if (isToday && i === 4 && isFridayFreeTimeToday()) {
+      done = true;
+      chipIcon = '🎉';
+    } else if (isToday) {
       done = appState.tasks.some(t => t.completed);
+      chipIcon = done ? '✅' : '○';
     } else {
       const hist = appState.history.find(h => h.date === key);
       done = Boolean(hist && (hist.tasksCompleted > 0 || hist.earnedMin > 0));
+      chipIcon = done ? '✅' : '○';
     }
 
     if (done) completedWeekdays++;
     html += `<div class="day-chip ${done ? 'done' : ''} ${isToday ? 'today' : ''}">
-      ${names[i]}<br>${done ? '✅' : '○'}
+      ${names[i]}<br>${chipIcon}
     </div>`;
   }
 
@@ -2610,6 +3615,9 @@ function renderAll() {
   const sup = isSupervisor();
   const nowDate = new Date();
   const caps = getTodayCaps();
+  const fridayNow = isFridayDate(nowDate);
+  const fridayFree = isFridayFreeTimeToday();
+  const fridayNeg = isFridayNegativeNoteToday();
 
   document.getElementById('headerModeTitle').textContent = sup
     ? '🛠️ Modo Supervisión · Plan de Pablo'
@@ -2622,25 +3630,55 @@ function renderAll() {
   const wkProp = getWeeklyProportionalSummary(0);
 
   const dayBadge = document.getElementById('dayTypeBadge');
-  dayBadge.textContent = caps.isWeekend
-    ? `Fin de semana · Desbloqueado ${wkProp.unlockedPerWeekendDayMin}/${caps.dailyTotalCapMin} min`
-    : `Día escolar · Tope ${caps.dailyTotalCapMin} min`;
-  dayBadge.className = caps.isWeekend ? 'badge badge-success' : 'badge badge-info';
+  if (fridayFree) {
+    dayBadge.textContent = '🎉 Viernes · Tiempo libre de ocio';
+    dayBadge.className = 'badge badge-success';
+  } else if (fridayNeg) {
+    dayBadge.textContent = `⚠️ Viernes con anotación · Tope ${caps.dailyTotalCapMin} min`;
+    dayBadge.className = 'badge badge-warning';
+  } else if (caps.isWeekend) {
+    dayBadge.textContent = `Fin de semana · Desbloqueado ${wkProp.unlockedPerWeekendDayMin}/${caps.dailyTotalCapMin} min`;
+    dayBadge.className = 'badge badge-success';
+  } else {
+    dayBadge.textContent = `Día escolar · Tope ${caps.dailyTotalCapMin} min`;
+    dayBadge.className = 'badge badge-info';
+  }
 
   document.getElementById('adultBanner').classList.toggle('hidden', !sup);
   document.getElementById('adultPanel').classList.toggle('hidden', !sup);
+
+  // Friday notice in Step 1
+  const friNotice = document.getElementById('fridayFreeNotice');
+  if (fridayFree) {
+    friNotice.classList.remove('hidden');
+    friNotice.style.background = '#ecfdf5';
+    friNotice.style.borderColor = '#86efac';
+    friNotice.style.color = '#166534';
+    friNotice.innerHTML =
+      '🎉 <strong>¡Viernes de tiempo libre!</strong> Sin anotaciones negativas hoy: disfrutas de tiempo libre de ocio sin contar minutos.';
+  } else if (fridayNeg) {
+    friNotice.classList.remove('hidden');
+    friNotice.style.background = '#fffbeb';
+    friNotice.style.borderColor = '#fde68a';
+    friNotice.style.color = '#92400e';
+    friNotice.innerHTML =
+      `⚠️ <strong>Viernes con anotación negativa:</strong> Hoy se cuentan minutos como un día escolar normal (tope ${caps.dailyTotalCapMin} min).`;
+  } else {
+    friNotice.classList.add('hidden');
+  }
 
   // Weekend proportional notice in Step 1
   const wkNotice = document.getElementById('weekendPropNotice');
   if (caps.isWeekend) {
     wkNotice.classList.remove('hidden');
     wkNotice.innerHTML =
-      `🏆 <strong>Fin de semana proporcional:</strong> Con tus <strong>${wkProp.earnedWeekMin}/${wkProp.maxWeekMin} min</strong> de Lunes a Viernes (${wkProp.pct}%), has desbloqueado <strong>${wkProp.unlockedPerWeekendDayMin} min por día</strong> para sábado y domingo.`;
+      `🏆 <strong>Fin de semana proporcional:</strong> Con tus <strong>${wkProp.earnedWeekMin}/${wkProp.maxWeekMin} min</strong> acumulados entre semana (${wkProp.pct}%), has desbloqueado <strong>${wkProp.unlockedPerWeekendDayMin} min por día</strong> para sábado y domingo.`;
   } else {
     wkNotice.classList.add('hidden');
   }
 
   // Daily Cap Bar & Tranche Strip
+  document.getElementById('dailyCapBar').classList.toggle('hidden', fridayFree);
   const totalEarnedMin = Math.floor(getTotalEarnedSecondsToday() / 60);
   document.getElementById('dailyEarnedLabel').innerHTML = caps.isWeekend
     ? `Tiempo disponible hoy: <strong id="dailyEarnedSummary">${totalEarnedMin} / ${caps.dailyTotalCapMin} min</strong>`
@@ -2667,7 +3705,7 @@ function renderAll() {
     document.getElementById('pcIpadLimitHint').textContent = `Máx ${caps.pcIpadWeekendCapMin}m PC/iPad`;
   } else {
     pcWeekendInfo.classList.add('hidden');
-    document.getElementById('pcIpadLimitHint').textContent = 'iPad / PC';
+    document.getElementById('pcIpadLimitHint').textContent = fridayFree ? 'Libre hoy' : 'iPad / PC';
   }
 
   // Wallets
@@ -2675,25 +3713,46 @@ function renderAll() {
   const pcRem = getWalletRemainingSeconds('pc_ipad', now);
   const mobRem = getWalletRemainingSeconds('mobile', now);
 
-  document.getElementById('pcIpadRemaining').textContent = formatMMSS(pcRem);
-  document.getElementById('pcIpadEarned').textContent = `${Math.floor(appState.wallets.pc_ipad.earnedSeconds / 60)} min`;
-  document.getElementById('pcIpadConsumed').textContent = `${Math.floor(getWalletConsumedSeconds('pc_ipad', now) / 60)} min`;
+  if (fridayFree) {
+    document.getElementById('pcIpadRemaining').textContent = 'Libre 🎉';
+    document.getElementById('pcIpadSub').textContent = 'Tiempo libre de ocio (no se cuentan minutos)';
+    document.getElementById('pcIpadMeta').classList.add('hidden');
+    document.getElementById('startPcBtn').disabled = true;
+    document.getElementById('startPcBtn').textContent = '🎉 Tiempo libre hoy';
 
-  document.getElementById('mobileRemaining').textContent = formatMMSS(mobRem);
-  document.getElementById('mobileEarned').textContent = `${Math.floor(appState.wallets.mobile.earnedSeconds / 60)} min`;
-  document.getElementById('mobileConsumed').textContent = `${Math.floor(getWalletConsumedSeconds('mobile', now) / 60)} min`;
+    document.getElementById('mobileRemaining').textContent = 'Libre 🎉';
+    document.getElementById('mobileSub').textContent = 'Tiempo libre de ocio (no se cuentan minutos)';
+    document.getElementById('mobileMeta').classList.add('hidden');
+    document.getElementById('startMobileBtn').disabled = true;
+    document.getElementById('startMobileBtn').textContent = '🎉 Tiempo libre hoy';
 
-  const isPcRunning = appState.runningTimer?.wallet === 'pc_ipad';
-  const isMobRunning = appState.runningTimer?.wallet === 'mobile';
+    document.getElementById('cardPcIpad').classList.remove('active-pc');
+    document.getElementById('cardMobile').classList.remove('active-mobile');
+  } else {
+    document.getElementById('pcIpadRemaining').textContent = formatMMSS(pcRem);
+    document.getElementById('pcIpadSub').textContent = 'Minutos disponibles hoy';
+    document.getElementById('pcIpadMeta').classList.remove('hidden');
+    document.getElementById('pcIpadEarned').textContent = `${Math.floor(appState.wallets.pc_ipad.earnedSeconds / 60)} min`;
+    document.getElementById('pcIpadConsumed').textContent = `${Math.floor(getWalletConsumedSeconds('pc_ipad', now) / 60)} min`;
 
-  document.getElementById('cardPcIpad').classList.toggle('active-pc', isPcRunning);
-  document.getElementById('cardMobile').classList.toggle('active-mobile', isMobRunning);
+    document.getElementById('mobileRemaining').textContent = formatMMSS(mobRem);
+    document.getElementById('mobileSub').textContent = 'Minutos disponibles hoy';
+    document.getElementById('mobileMeta').classList.remove('hidden');
+    document.getElementById('mobileEarned').textContent = `${Math.floor(appState.wallets.mobile.earnedSeconds / 60)} min`;
+    document.getElementById('mobileConsumed').textContent = `${Math.floor(getWalletConsumedSeconds('mobile', now) / 60)} min`;
 
-  document.getElementById('startPcBtn').disabled = pcRem <= 0 || isPcRunning;
-  document.getElementById('startPcBtn').textContent = isPcRunning ? '⏱️ En marcha...' : '▶️ Usar tiempo';
+    const isPcRunning = appState.runningTimer?.wallet === 'pc_ipad';
+    const isMobRunning = appState.runningTimer?.wallet === 'mobile';
 
-  document.getElementById('startMobileBtn').disabled = mobRem <= 0 || isMobRunning;
-  document.getElementById('startMobileBtn').textContent = isMobRunning ? '⏱️ En marcha...' : '▶️ Usar tiempo';
+    document.getElementById('cardPcIpad').classList.toggle('active-pc', isPcRunning);
+    document.getElementById('cardMobile').classList.toggle('active-mobile', isMobRunning);
+
+    document.getElementById('startPcBtn').disabled = pcRem <= 0 || isPcRunning;
+    document.getElementById('startPcBtn').textContent = isPcRunning ? '⏱️ En marcha...' : '▶️ Usar tiempo';
+
+    document.getElementById('startMobileBtn').disabled = mobRem <= 0 || isMobRunning;
+    document.getElementById('startMobileBtn').textContent = isMobRunning ? '⏱️ En marcha...' : '▶️ Usar tiempo';
+  }
 
   renderTimerUIOnly(now);
 
@@ -2740,16 +3799,20 @@ function renderAll() {
   const visibleTasks = (sup && taskListFilter === 'all') ? appState.tasks : todayActiveTasks;
 
   const recalcEl = document.getElementById('recalcSummary');
-  if (caps.isWeekend) {
+  if (fridayFree) {
     recalcEl.innerHTML =
-      `🏆 <strong>Fin de semana proporcional:</strong> Tus minutos de hoy se desbloquean con lo acumulado de Lunes a Viernes (${wkProp.pct}% → <strong>${wkProp.unlockedPerWeekendDayMin} min/día</strong>). Las tareas de abajo son rutinas positivas de fin de semana.`;
+      '🎉 <strong>Viernes sin anotaciones negativas:</strong> Tiempo libre de ocio (no se cuentan minutos). Si hubiera una anotación negativa, puede activarse el modo con minutos desde Supervisión.';
+  } else if (caps.isWeekend) {
+    recalcEl.innerHTML =
+      `🏆 <strong>Fin de semana proporcional:</strong> Tus minutos de hoy se desbloquean con lo acumulado entre semana (${wkProp.pct}% → <strong>${wkProp.unlockedPerWeekendDayMin} min/día</strong>). Las tareas de abajo son rutinas positivas de fin de semana.`;
   } else {
     const regularTasks = todayActiveTasks.filter(t => !t.isBonus);
     const bonusTasks = todayActiveTasks.filter(t => t.isBonus);
     const regularSum = regularTasks.reduce((acc, t) => acc + t.minutes, 0);
     const bonusSum = bonusTasks.reduce((acc, t) => acc + t.minutes, 0);
+    const pilotNote = !sup ? ' · <em>Las tareas las valida el adulto desde Modo Supervisión.</em>' : '';
     recalcEl.innerHTML =
-      `⚖️ <strong>Reparto automático de hoy (L-V):</strong> ${regularTasks.length} tareas base (${regularSum} min) + ${bonusTasks.length} bonus (${bonusSum} min) = <strong>${regularSum + bonusSum} min</strong> tope.`;
+      `⚖️ <strong>Reparto automático de hoy:</strong> ${regularTasks.length} tareas base (${regularSum} min) + ${bonusTasks.length} bonus (${bonusSum} min) = <strong>${regularSum + bonusSum} min</strong> tope.${pilotNote}`;
   }
 
   // Tasks
@@ -2777,7 +3840,7 @@ function renderAll() {
           ? '<span class="badge badge-pc">💻 iPad/PC</span>'
           : '<span class="badge badge-mobile">📱 Móvil</span>';
 
-      const typeBadge = (caps.isWeekend && activeToday)
+      const typeBadge = ((caps.isWeekend || fridayFree) && activeToday)
         ? '<span class="badge badge-success">✨ Rutina positiva</span>'
         : t.isBonus
           ? `<span class="badge badge-bonus">⭐ Bonus +${t.minutes} min</span>`
@@ -2805,7 +3868,11 @@ function renderAll() {
         actionBtn = '<span class="badge badge-schedule">No toca hoy</span>';
       } else if (t.completed) {
         actionBtn = '<span class="badge badge-success">✅ Conseguido</span>';
-      } else if (caps.isWeekend) {
+      } else if (!sup) {
+        actionBtn = fridayFree
+          ? '<span class="badge badge-success">🎉 Tiempo libre</span>'
+          : '<span class="badge badge-schedule">⏳ Valida adulto</span>';
+      } else if (caps.isWeekend || fridayFree) {
         actionBtn = `<button class="btn-primary btn-sm" onclick="toggleTask('${t.id}')">Completar rutina</button>`;
       } else {
         actionBtn = `<button class="btn-primary btn-sm" onclick="toggleTask('${t.id}')">Completar (+${t.minutes}m)</button>`;
@@ -2818,7 +3885,7 @@ function renderAll() {
             ${t.note ? `<div class="task-sub">${escapeHtml(t.note)}</div>` : ''}
             <div class="task-tags">
               ${scheduleBadge}
-              ${!caps.isWeekend || !activeToday ? walletBadge : ''}
+              ${(!caps.isWeekend && !fridayFree) || !activeToday ? walletBadge : ''}
               ${typeBadge}
             </div>
           </div>
@@ -2833,7 +3900,9 @@ function renderAll() {
 
   // Celebration & Weekend Proportional Bank
   const celText = document.getElementById('celebrationMessage');
-  if (doneCount > 0 && doneCount === todayActiveTasks.length) {
+  if (fridayFree) {
+    celText.innerHTML = '🎉 <strong>¡Viernes de tiempo libre, Pablo!</strong> Sin anotaciones negativas: disfruta tu ocio con calma.';
+  } else if (doneCount > 0 && doneCount === todayActiveTasks.length) {
     celText.innerHTML = '🌟 <strong>¡Todas las metas de hoy completadas, Pablo!</strong> Gran constancia y esfuerzo.';
   } else if (doneCount > 0) {
     celText.innerHTML = `👏 ¡Llevas <strong>${doneCount}</strong> ${doneCount === 1 ? 'logro conseguido' : 'logros conseguidos'} hoy! Toca aquí para ver tu semana.`;
@@ -2845,16 +3914,55 @@ function renderAll() {
     `${wkProp.unlockedPerWeekendDayMin} / ${wkProp.weekendCap} min/día`;
   document.getElementById('weekendBankFill').style.width = `${wkProp.pct}%`;
   document.getElementById('weekendBankSub').textContent =
-    `Proporcional a tu semana L-V: ${wkProp.earnedWeekMin} / ${wkProp.maxWeekMin} min (${wkProp.pct}%) → ${wkProp.unlockedPerWeekendDayMin} min el sábado y ${wkProp.unlockedPerWeekendDayMin} min el domingo.`;
+    `Proporcional a tu semana (L-J): ${wkProp.earnedWeekMin} / ${wkProp.maxWeekMin} min (${wkProp.pct}%) → ${wkProp.unlockedPerWeekendDayMin} min el sábado y ${wkProp.unlockedPerWeekendDayMin} min el domingo.`;
 
   renderWeeklyF1Tracker();
 
   if (sup) {
-    document.getElementById('cfgWeekdayCap').value = appState.settings.weekdayCap;
-    document.getElementById('cfgWeekendCap').value = appState.settings.weekendCap;
-    document.getElementById('cfgWeekendPcCap').value = appState.settings.weekendPcIpadCap;
-    document.getElementById('cfgRequirePinForTasks').value = String(appState.settings.requirePinForTasks);
+    const activeEl = document.activeElement;
+    const setIfIdle = (id, val) => {
+      const el = document.getElementById(id);
+      if (el && activeEl !== el) el.value = val;
+    };
+    const setCheckedIfIdle = (id, val) => {
+      const el = document.getElementById(id);
+      if (el && activeEl !== el) el.checked = Boolean(val);
+    };
+
+    // Friday Supervision control card
+    const friBox = document.getElementById('fridayControlBox');
+    friBox.classList.toggle('hidden', !fridayNow);
+    if (fridayNow) {
+      const friStatus = document.getElementById('fridayStatusText');
+      const friBtn = document.getElementById('toggleFridayNegBtn');
+      if (fridayNeg) {
+        friBox.style.background = '#fffbeb';
+        friBox.style.borderColor = '#fde68a';
+        friStatus.textContent = 'Anotación negativa registrada hoy: se cuentan minutos y tareas como un día escolar.';
+        friBtn.className = 'btn-success btn-sm';
+        friBtn.textContent = '🎉 Quitar anotación (volver a tiempo libre)';
+      } else {
+        friBox.style.background = '#f0fdf4';
+        friBox.style.borderColor = '#86efac';
+        friStatus.textContent = 'Sin anotación negativa hoy: Pablo disfruta de tiempo libre de ocio sin contar minutos.';
+        friBtn.className = 'btn-warning btn-sm';
+        friBtn.textContent = '⚠️ Registrar anotación negativa hoy';
+      }
+    }
+
+    setIfIdle('cfgWeekdayCap', appState.settings.weekdayCap);
+    setIfIdle('cfgWeekendCap', appState.settings.weekendCap);
+    setIfIdle('cfgWeekendPcCap', appState.settings.weekendPcIpadCap);
+    setIfIdle('cfgRequirePinForTasks', 'true');
+    setIfIdle('cfgNtfyTopic', appState.settings.ntfyTopic || '');
+    setCheckedIfIdle('cfgNtfyEnabled', appState.settings.ntfyEnabled);
+    setCheckedIfIdle('cfgNtfyOnStart', appState.settings.ntfyOnStart !== false);
+    setCheckedIfIdle('cfgNtfyOnPause', appState.settings.ntfyOnPause !== false);
+    setCheckedIfIdle('cfgNtfyFiveMin', appState.settings.ntfyFiveMin !== false);
+    setCheckedIfIdle('cfgNtfyOnEnd', appState.settings.ntfyOnEnd !== false);
+
     document.getElementById('resyncWeekendBtn').classList.toggle('hidden', !caps.isWeekend);
+    renderCloudSyncUI();
 
     const stack = Array.isArray(appState.minuteUndoStack) ? appState.minuteUndoStack : [];
     const undoBtn = document.getElementById('undoMinutesBtn');
@@ -2870,6 +3978,52 @@ function renderAll() {
     }
   }
 }
+
+// Expose all inline HTML event handlers from ES module scope
+Object.assign(window, {
+  enterPilotMode,
+  openPinModal,
+  closePinModal,
+  verifyPin,
+  openWeeklyModal,
+  closeWeeklyModal,
+  changeSummaryWeek,
+  returnToModeSelector,
+  pauseConsumptionTimer,
+  toggleWakeLock,
+  startConsumptionTimer,
+  toggleActiveBreak,
+  toggleNightReading,
+  setTaskListFilter,
+  toggleNewBonusField,
+  addTask,
+  grantBonusMinutes,
+  transferWalletMinutes,
+  toggleFridayNegativeNote,
+  undoLastMinuteAction,
+  syncWeekendProportionalCredit,
+  saveSettings,
+  changeAdultPin,
+  exportBackup,
+  importBackup,
+  restoreDefaultTasks,
+  resetTodayOnly,
+  toggleEditBonusField,
+  closeEditTaskModal,
+  saveEditedTask,
+  undoTaskById,
+  moveTask,
+  openEditTaskModal,
+  setTaskWallet,
+  deleteTask,
+  toggleTask,
+  signInWithGoogle,
+  signOutGoogle,
+  generateNtfyTopic,
+  copyNtfyTopic,
+  saveNtfySettings,
+  testNtfyNotification
+});
 
 initApp();
 </script>
