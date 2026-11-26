@@ -44,11 +44,12 @@ service cloud.firestore {
           'ntfyOnPause', 'ntfyFiveMin', 'ntfyOnEnd'
         ])
         && s.keys().hasOnly([
-          'weekdayCap', 'weekendCap', 'weekendPcIpadCap', 'requirePinForTasks',
-          'adultPin', 'ntfyTopic', 'ntfyEnabled', 'ntfyOnStart',
-          'ntfyOnPause', 'ntfyFiveMin', 'ntfyOnEnd'
+          'weekdayCap', 'weekdayMobileCap', 'weekendCap', 'weekendPcIpadCap',
+          'requirePinForTasks', 'adultPin', 'ntfyTopic', 'ntfyEnabled',
+          'ntfyOnStart', 'ntfyOnPause', 'ntfyFiveMin', 'ntfyOnEnd'
         ])
         && s.weekdayCap is int && s.weekdayCap >= 15 && s.weekdayCap <= 300
+        && (!('weekdayMobileCap' in s) || (s.weekdayMobileCap is int && s.weekdayMobileCap >= 0 && s.weekdayMobileCap <= 300))
         && s.weekendCap is int && s.weekendCap >= 30 && s.weekendCap <= 360
         && s.weekendPcIpadCap is int && s.weekendPcIpadCap >= 30 && s.weekendPcIpadCap <= 240
         && s.requirePinForTasks is bool

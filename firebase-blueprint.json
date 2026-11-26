@@ -32,7 +32,7 @@
         },
         "settings": {
           "type": "object",
-          "description": "Reglas diarias, PIN de supervisión y configuración de notificaciones ntfy."
+          "description": "Reglas diarias (incluyendo tope L-V total y tope opcional de Móvil L-V), PIN de supervisión y configuración de notificaciones ntfy."
         },
         "wallets": {
           "type": "object",

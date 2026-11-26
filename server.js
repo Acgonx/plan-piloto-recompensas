@@ -320,6 +320,17 @@ app.post('/api/ntfy/timer/cancel', requireFirebaseAuth, (req, res) => {
   return res.json({ ok: true });
 });
 
+app.get('/manifest.webmanifest', (_req, res) => {
+  res.type('application/manifest+json; charset=utf-8');
+  res.sendFile(path.join(__dirname, 'manifest.webmanifest'));
+});
+
+app.get('/sw.js', (_req, res) => {
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+  res.type('application/javascript; charset=utf-8');
+  res.sendFile(path.join(__dirname, 'sw.js'));
+});
+
 app.use(express.static(__dirname, { index: 'index.html' }));
 
 app.get('*', (_req, res) => {

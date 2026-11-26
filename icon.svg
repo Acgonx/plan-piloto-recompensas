@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2563eb"/>
+      <stop offset="55%" stop-color="#1d4ed8"/>
+      <stop offset="100%" stop-color="#0284c7"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fde047"/>
+      <stop offset="100%" stop-color="#f59e0b"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <!-- Outer steering / pilot dial ring -->
+  <circle cx="256" cy="256" r="158" fill="none" stroke="#ffffff" stroke-width="26" opacity="0.96"/>
+  <!-- Inner subtle progress arc -->
+  <path d="M 142 322 A 132 132 0 1 1 370 322" fill="none" stroke="#93c5fd" stroke-width="10" stroke-linecap="round" opacity="0.7"/>
+  <!-- Steering wheel spokes -->
+  <line x1="126" y1="256" x2="210" y2="256" stroke="#ffffff" stroke-width="22" stroke-linecap="round"/>
+  <line x1="302" y1="256" x2="386" y2="256" stroke="#ffffff" stroke-width="22" stroke-linecap="round"/>
+  <line x1="256" y1="302" x2="256" y2="394" stroke="#ffffff" stroke-width="22" stroke-linecap="round"/>
+  <!-- Center hub -->
+  <circle cx="256" cy="256" r="56" fill="#ffffff"/>
+  <!-- Positive achievement star inside hub -->
+  <polygon points="256,216 267,241 294,244 274,262 280,289 256,275 232,289 238,262 218,244 245,241" fill="url(#gold)"/>
+  <!-- Top checkered / racing accent pill -->
+  <rect x="220" y="76" width="72" height="24" rx="12" fill="url(#gold)"/>
+</svg>

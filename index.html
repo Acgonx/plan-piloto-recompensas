@@ -2,11 +2,20 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="description" content="Plan positivo diario de tareas, rutinas y tiempo de pantalla para Pablo." />
+  <meta property="og:title" content="Plan de Acción · Modo Piloto" />
+  <meta property="og:description" content="Plan positivo diario de tareas, rutinas y tiempo de pantalla para Pablo." />
   <meta name="robots" content="noindex, nofollow" />
+  <meta name="theme-color" content="#2563eb" />
+  <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-title" content="Modo Piloto" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+  <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+  <link rel="icon" type="image/png" sizes="192x192" href="/pwa-192x192.png" />
   <title>Plan de Acción · Modo Piloto</title>
   <style>
     :root {
@@ -47,7 +56,8 @@
       background-color: var(--bg);
       color: var(--text);
       line-height: 1.45;
-      padding-bottom: 56px;
+      padding-top: env(safe-area-inset-top, 0px);
+      padding-bottom: calc(56px + env(safe-area-inset-bottom, 0px));
     }
 
     .container {
@@ -770,8 +780,233 @@
     .badge-cloud { background: #ecfdf5; color: #047857; }
     .badge-local { background: #f1f5f9; color: #475569; }
 
+    /* Wallet Choice Modal on Task Completion */
+    .wallet-choice-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin: 14px 0 12px;
+    }
+
+    .wallet-choice-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      text-align: left;
+      gap: 4px;
+      padding: 14px;
+      border-radius: 14px;
+      border: 2px solid var(--border);
+      background: var(--surface-soft);
+      color: var(--text);
+      min-height: 92px;
+      transition: transform 0.12s ease, border-color 0.15s ease, background-color 0.15s ease;
+    }
+
+    .wallet-choice-btn:hover { transform: translateY(-1px); }
+    .wallet-choice-btn.pc { border-color: #bae6fd; background: #f0f9ff; }
+    .wallet-choice-btn.pc:hover { border-color: var(--pc-color); }
+    .wallet-choice-btn.mobile { border-color: #ddd6fe; background: #faf5ff; }
+    .wallet-choice-btn.mobile:hover { border-color: var(--mobile-color); }
+    .wallet-choice-title { font-size: 0.96rem; font-weight: 800; }
+    .wallet-choice-meta { font-size: 0.78rem; color: var(--text-muted); font-weight: 600; line-height: 1.35; }
+
+    /* Positive Weekly Streak (L-J) */
+    .streak-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 10px;
+      padding: 8px 10px;
+      border-radius: 10px;
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      color: #166534;
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    .day-chip-min {
+      display: block;
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .day-chip.done .day-chip-min { color: #166534; }
+
+    .day-chip-bar {
+      width: 100%;
+      height: 5px;
+      border-radius: 999px;
+      background: #e2e8f0;
+      overflow: hidden;
+      margin-top: 5px;
+    }
+
+    .day-chip-bar-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #22c55e, #16a34a);
+      transition: width 0.3s ease;
+    }
+
+    .day-chip.free-friday {
+      background: #ecfdf5;
+      border-color: #6ee7b7;
+      color: #065f46;
+    }
+
+    /* PWA Install Steps & Offline Indicator */
+    .pwa-steps {
+      margin: 12px 0 16px;
+      padding-left: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 0.9rem;
+      color: var(--text);
+    }
+
+    .pwa-install-card {
+      margin-top: 12px;
+      background: var(--surface);
+      border: 1px solid #bfdbfe;
+      border-radius: 14px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      text-align: left;
+      box-shadow: var(--shadow);
+    }
+
+    .offline-pill {
+      position: fixed;
+      bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+      left: 16px;
+      z-index: 120;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #d97706;
+      color: #ffffff;
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      box-shadow: 0 8px 20px rgba(217, 119, 6, 0.32);
+    }
+
+    .offline-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #ffffff;
+    }
+
+    /* Printable Weekly Summary Sheet (visible only on print) */
+    #printableWeeklySheet {
+      display: none;
+    }
+
+    @media print {
+      @page {
+        size: A4 portrait;
+        margin: 14mm;
+      }
+
+      body {
+        background: #ffffff !important;
+        color: #0f172a !important;
+        padding: 0 !important;
+      }
+
+      body > *:not(#printableWeeklySheet) {
+        display: none !important;
+      }
+
+      #printableWeeklySheet {
+        display: block !important;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        color: #0f172a;
+      }
+
+      .print-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        border-bottom: 2px solid #2563eb;
+        padding-bottom: 10px;
+        margin-bottom: 16px;
+      }
+
+      .print-kpis {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+        margin-bottom: 16px;
+      }
+
+      .print-kpi {
+        border: 1px solid #cbd5e1;
+        border-radius: 10px;
+        padding: 10px;
+        text-align: center;
+        background: #f8fafc;
+      }
+
+      .print-kpi-val {
+        font-size: 1.2rem;
+        font-weight: 800;
+        color: #1e293b;
+      }
+
+      .print-kpi-lbl {
+        font-size: 0.74rem;
+        color: #475569;
+        margin-top: 2px;
+      }
+
+      .print-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+        font-size: 0.88rem;
+      }
+
+      .print-table th,
+      .print-table td {
+        border: 1px solid #cbd5e1;
+        padding: 8px 10px;
+        text-align: left;
+      }
+
+      .print-table th {
+        background: #eff6ff;
+        color: #1d4ed8;
+        font-weight: 700;
+      }
+
+      .print-footer {
+        margin-top: 18px;
+        padding: 10px 12px;
+        border-radius: 10px;
+        background: #f0fdf4;
+        border: 1px solid #bbf7d0;
+        color: #166534;
+        font-size: 0.86rem;
+        font-weight: 600;
+      }
+    }
+
     @media (max-width: 820px) {
-      .mode-grid, .wallets-grid, .main-grid, .summary-kpis { grid-template-columns: 1fr; }
+      .mode-grid, .wallets-grid, .main-grid, .summary-kpis, .wallet-choice-grid { grid-template-columns: 1fr; }
       .summary-kpis-4 { grid-template-columns: repeat(2, 1fr); }
       .task-item { flex-direction: column; align-items: stretch; }
       .task-actions { justify-content: flex-start; }
@@ -827,6 +1062,16 @@
         <button id="googleSignOutBtn" class="btn-outline btn-sm hidden" onclick="signOutGoogle()">Cerrar sesión</button>
       </div>
     </div>
+
+    <div id="modePwaInstallCard" class="pwa-install-card hidden">
+      <div style="flex:1; min-width:210px;">
+        <div style="font-weight:700; font-size:0.9rem;">📲 Abrir como app a pantalla completa</div>
+        <div class="muted" style="font-size:0.78rem; margin-top:2px;">
+          Instala el icono directo en la pantalla de inicio de tu iPhone o iPad para entrar en 1 toque.
+        </div>
+      </div>
+      <button type="button" class="btn-outline btn-sm" onclick="triggerPwaInstall()">📲 Instalar app</button>
+    </div>
   </div>
 </div>
 
@@ -845,6 +1090,7 @@
       </div>
     </div>
     <div class="topbar-actions">
+      <button id="headerPwaInstallBtn" class="btn-outline btn-sm hidden" onclick="triggerPwaInstall()">📲 Instalar app</button>
       <button class="btn-outline btn-sm" onclick="openWeeklyModal()">📊 Resumen semanal</button>
       <button class="btn-primary btn-sm" onclick="returnToModeSelector()">🔄 Cambiar modo</button>
     </div>
@@ -930,7 +1176,7 @@
       <div>
         <div class="card-header" style="margin-bottom:8px;">
           <div class="card-title">📱 Móvil (YouTube / Juegos)</div>
-          <span class="badge badge-mobile">Móvil</span>
+          <span class="badge badge-mobile" id="mobileLimitHint">Móvil</span>
         </div>
         <div class="wallet-time" id="mobileRemaining">00:00</div>
         <div class="muted" id="mobileSub">Minutos disponibles hoy</div>
@@ -1001,6 +1247,10 @@
         <p class="muted" id="celebrationMessage">
           Cada pequeño avance cuenta. Valoramos el esfuerzo por encima de la perfección.
         </p>
+        <div id="positiveStreakBar" class="streak-header">
+          <span>🔥 Racha positiva de la semana</span>
+          <span id="positiveStreakRight">0 días sumando</span>
+        </div>
         <div class="week-days" id="weekDaysGrid"></div>
         <div id="f1RewardBanner" class="badge badge-info" style="width:100%; justify-content:center; padding:10px; font-size:0.84rem; text-align:center;">
           🏎️ Completa al menos 3 días entre semana para el Simulador F1
@@ -1138,8 +1388,15 @@
           <strong style="font-size:0.92rem;">Límites y control</strong>
           <div class="form-grid" style="margin-top:8px;">
             <div class="field">
-              <label>Tope L-V (min/día)</label>
-              <input type="number" id="cfgWeekdayCap" min="15" max="300" />
+              <label>Tope total L-V (min/día)</label>
+              <input type="number" id="cfgWeekdayCap" min="15" max="300" oninput="updateWeekdayCapHint()" />
+            </div>
+            <div class="field">
+              <label>Máx. Móvil L-V (min/día)</label>
+              <input type="number" id="cfgWeekdayMobCap" min="0" max="300" oninput="updateWeekdayCapHint()" />
+              <div id="cfgWeekdayPcAutoHint" class="muted" style="font-size:0.74rem; margin-top:3px;">
+                Ordenador/iPad L-V: 60 min/día
+              </div>
             </div>
             <div class="field">
               <label>Tope máx. Fin de semana (min/día)</label>
@@ -1149,7 +1406,7 @@
               <label>Máx. Ordenador/iPad Fin de semana</label>
               <input type="number" id="cfgWeekendPcCap" min="30" max="240" />
             </div>
-            <div class="field">
+            <div class="field" style="grid-column: 1 / -1;">
               <label>Quién marca tareas</label>
               <select id="cfgRequirePinForTasks" disabled>
                 <option value="true" selected>Solo Supervisión (bloqueado en Modo Piloto)</option>
@@ -1346,10 +1603,63 @@
     <div id="wkF1Line" class="muted" style="font-size:0.84rem; margin-bottom:6px;"></div>
     <div id="weeklyRowsContainer" class="weekly-rows"></div>
 
-    <div style="display:flex; justify-content:flex-end; margin-top:16px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-top:16px;">
+      <button type="button" class="btn-outline" onclick="printWeeklySummary()">🖨️ Imprimir / PDF</button>
       <button class="btn-primary" onclick="closeWeeklyModal()">Cerrar</button>
     </div>
   </div>
+</div>
+
+<!-- WALLET CHOICE MODAL (on task completion) -->
+<div id="walletChoiceModal" class="modal-backdrop" onclick="if(event.target===this) closeWalletChoiceModal()">
+  <div class="modal">
+    <h2 style="font-size:1.16rem; margin-bottom:4px;">🎯 ¿A qué monedero van estos minutos?</h2>
+    <p class="muted" id="walletChoiceTaskLabel" style="font-size:0.86rem;"></p>
+
+    <div class="wallet-choice-grid">
+      <button type="button" class="wallet-choice-btn pc" id="choosePcBtn" onclick="confirmWalletChoice('pc_ipad')">
+        <span class="wallet-choice-title">💻 Ordenador y iPad</span>
+        <span class="wallet-choice-meta" id="choosePcMeta"></span>
+      </button>
+      <button type="button" class="wallet-choice-btn mobile" id="chooseMobBtn" onclick="confirmWalletChoice('mobile')">
+        <span class="wallet-choice-title">📱 Móvil</span>
+        <span class="wallet-choice-meta" id="chooseMobMeta"></span>
+      </button>
+    </div>
+
+    <div style="display:flex; gap:8px; justify-content:space-between; flex-wrap:wrap; margin-top:4px;">
+      <button type="button" class="btn-outline btn-sm" onclick="confirmWalletChoice('auto')">⚡ Orden automático</button>
+      <button type="button" class="btn-outline btn-sm" onclick="closeWalletChoiceModal()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- PWA INSTALL GUIDE MODAL (iPhone / iPad / Browser) -->
+<div id="pwaInstallModal" class="modal-backdrop" onclick="if(event.target===this) closePwaInstallModal()">
+  <div class="modal">
+    <h2 style="font-size:1.18rem; margin-bottom:4px;">📲 Instalar Modo Piloto en pantalla de inicio</h2>
+    <p class="muted" id="pwaInstallModalIntro" style="font-size:0.86rem;">
+      Así se abrirá a pantalla completa en 1 toque, sin barras del navegador y con su icono propio.
+    </p>
+    <ol class="pwa-steps" id="pwaInstallSteps">
+      <li>Abre esta página en <strong>Safari</strong> en tu iPhone o iPad.</li>
+      <li>Toca el botón <strong>Compartir</strong> (el cuadrado con la flecha hacia arriba ⬆️).</li>
+      <li>Desliza hacia abajo y elige <strong>Añadir a pantalla de inicio</strong>.</li>
+      <li>Toca <strong>Añadir</strong> arriba a la derecha. ¡Listo!</li>
+    </ol>
+    <div style="display:flex; justify-content:flex-end; gap:8px;">
+      <button type="button" class="btn-primary" onclick="closePwaInstallModal()">Entendido</button>
+    </div>
+  </div>
+</div>
+
+<!-- PRINTABLE WEEKLY REPORT SHEET -->
+<div id="printableWeeklySheet" aria-hidden="true"></div>
+
+<!-- OFFLINE CONNECTIVITY INDICATOR -->
+<div id="offlineIndicator" class="offline-pill hidden" role="status" aria-live="polite">
+  <span class="offline-dot"></span>
+  Sin conexión · Guardando en local
 </div>
 
 <!-- TOAST NOTIFICATION -->
@@ -1540,25 +1850,33 @@ function buildFirestorePlanPayload(state, uid, existingCreatedAt) {
     ? state.weekendAutoCreditedDate
     : '';
 
+  const weekdayCapSafe = clampInt(s.weekdayCap, 15, 300, 90);
+  const weekdayMobileCapSafe = clampInt(s.weekdayMobileCap, 0, weekdayCapSafe, Math.min(30, weekdayCapSafe));
+
+  const settingsPayload = {
+    weekdayCap: weekdayCapSafe,
+    weekendCap: clampInt(s.weekendCap, 30, 360, 180),
+    weekendPcIpadCap: clampInt(s.weekendPcIpadCap, 30, 240, 120),
+    requirePinForTasks: true,
+    adultPin: safePin,
+    ntfyTopic: safeTopic,
+    ntfyEnabled: Boolean(s.ntfyEnabled),
+    ntfyOnStart: s.ntfyOnStart !== false,
+    ntfyOnPause: s.ntfyOnPause !== false,
+    ntfyFiveMin: s.ntfyFiveMin !== false,
+    ntfyOnEnd: s.ntfyOnEnd !== false
+  };
+  if (cloudSupportsWeekdayMobileCap) {
+    settingsPayload.weekdayMobileCap = weekdayMobileCapSafe;
+  }
+
   return {
     ownerId: uid,
     schemaVersion: 6,
     currentDate: isValidDateKeyStr(state.currentDate) ? state.currentDate : getLocalDateKey(),
     nightReadingDone: Boolean(state.nightReadingDone),
     weekendAutoCreditedDate: weekendCredited,
-    settings: {
-      weekdayCap: clampInt(s.weekdayCap, 15, 300, 90),
-      weekendCap: clampInt(s.weekendCap, 30, 360, 180),
-      weekendPcIpadCap: clampInt(s.weekendPcIpadCap, 30, 240, 120),
-      requirePinForTasks: true,
-      adultPin: safePin,
-      ntfyTopic: safeTopic,
-      ntfyEnabled: Boolean(s.ntfyEnabled),
-      ntfyOnStart: s.ntfyOnStart !== false,
-      ntfyOnPause: s.ntfyOnPause !== false,
-      ntfyFiveMin: s.ntfyFiveMin !== false,
-      ntfyOnEnd: s.ntfyOnEnd !== false
-    },
+    settings: settingsPayload,
     wallets: {
       pc_ipad: { earnedSeconds: pcEarned, consumedSeconds: pcConsumed },
       mobile: { earnedSeconds: mobEarned, consumedSeconds: mobConsumed }
@@ -1594,13 +1912,23 @@ function applyRemotePlanToAppState(data) {
   const defaults = createInitialState();
   const remoteVer = Number(data.schemaVersion || 0);
   const needsMigration = remoteVer < 6;
+  const incomingSettings = data.settings || {};
+  const preservedWeekdayMobileCap = incomingSettings.weekdayMobileCap !== undefined
+    ? clampInt(incomingSettings.weekdayMobileCap, 0, 300, 30)
+    : (appState.settings?.weekdayMobileCap ?? defaults.settings.weekdayMobileCap);
+
   appState = {
     ...defaults,
     schemaVersion: 6,
     currentDate: isValidDateKeyStr(data.currentDate) ? data.currentDate : getLocalDateKey(),
     nightReadingDone: Boolean(data.nightReadingDone),
     weekendAutoCreditedDate: isValidDateKeyStr(data.weekendAutoCreditedDate) ? data.weekendAutoCreditedDate : null,
-    settings: { ...defaults.settings, ...(data.settings || {}), requirePinForTasks: true },
+    settings: {
+      ...defaults.settings,
+      ...incomingSettings,
+      weekdayMobileCap: preservedWeekdayMobileCap,
+      requirePinForTasks: true
+    },
     wallets: {
       pc_ipad: { earnedSeconds: 0, consumedSeconds: 0, ...(data.wallets?.pc_ipad || {}) },
       mobile: { earnedSeconds: 0, consumedSeconds: 0, ...(data.wallets?.mobile || {}) }
@@ -1638,6 +1966,8 @@ async function saveHistoryRecordToCloud(record) {
   }
 }
 
+let cloudSupportsWeekdayMobileCap = true;
+
 async function savePlanToCloud() {
   if (!firestoreDb || !currentUser || !cloudSyncReady) return;
   const uid = currentUser.uid;
@@ -1654,6 +1984,18 @@ async function savePlanToCloud() {
       }
     }
   } catch (err) {
+    // Fallback automático si las reglas de Firestore del proyecto aún no incluyen weekdayMobileCap
+    if (cloudSupportsWeekdayMobileCap && String(err?.code || err?.message || '').toLowerCase().includes('permission')) {
+      cloudSupportsWeekdayMobileCap = false;
+      try {
+        const legacyPayload = buildFirestorePlanPayload(appState, uid, remotePlanCreatedAt);
+        await setDoc(planRef, legacyPayload);
+        return;
+      } catch (retryErr) {
+        handleFirestoreError(retryErr, remotePlanExists ? OperationType.UPDATE : OperationType.CREATE, planPath);
+        return;
+      }
+    }
     handleFirestoreError(err, remotePlanExists ? OperationType.UPDATE : OperationType.CREATE, planPath);
   }
 }
@@ -2135,6 +2477,7 @@ function createInitialState() {
     currentDate: getLocalDateKey(),
     settings: {
       weekdayCap: 90,
+      weekdayMobileCap: 30,
       weekendCap: 180,
       weekendPcIpadCap: 120,
       requirePinForTasks: true,
@@ -2234,9 +2577,15 @@ function verifyPin() {
  */
 function getTodayCaps() {
   const weekend = isWeekendDate();
+  const weekdayCap = Math.max(15, Number(appState.settings.weekdayCap) || 90);
+  const rawMobCap = appState.settings.weekdayMobileCap === undefined
+    ? 30
+    : Number(appState.settings.weekdayMobileCap);
+  const mobWeekdayCapMin = Math.max(0, Math.min(weekdayCap, Number.isFinite(rawMobCap) ? Math.round(rawMobCap) : 30));
   return {
     isWeekend: weekend,
-    dailyTotalCapMin: weekend ? Number(appState.settings.weekendCap) : Number(appState.settings.weekdayCap),
+    dailyTotalCapMin: weekend ? Number(appState.settings.weekendCap) : weekdayCap,
+    mobWeekdayCapMin,
     pcIpadWeekendCapMin: Number(appState.settings.weekendPcIpadCap)
   };
 }
@@ -2528,35 +2877,56 @@ function getWalletConsumedSeconds(walletKey, now = Date.now()) {
 }
 
 function getDistributionTranches() {
-  const { isWeekend, dailyTotalCapMin, pcIpadWeekendCapMin } = getTodayCaps();
+  const { isWeekend, dailyTotalCapMin, mobWeekdayCapMin, pcIpadWeekendCapMin } = getTodayCaps();
   const tranches = [];
+  const pushTranche = (wallet, amount) => {
+    if (amount <= 0) return;
+    if (tranches.length > 0 && tranches[tranches.length - 1].wallet === wallet) {
+      tranches[tranches.length - 1].cap += amount;
+    } else {
+      tranches.push({ wallet, cap: amount });
+    }
+  };
+
   let total = 0;
   let pcAssigned = 0;
+  let mobAssigned = 0;
   let step = 0; // par: 10m móvil, impar: 30m ordenador/iPad
+  const pcCapLimit = isWeekend ? pcIpadWeekendCapMin : Math.max(0, dailyTotalCapMin - mobWeekdayCapMin);
+  const mobCapLimit = isWeekend ? Math.max(0, dailyTotalCapMin - pcIpadWeekendCapMin) : mobWeekdayCapMin;
 
   while (total < dailyTotalCapMin) {
     const remainingTotal = dailyTotalCapMin - total;
     if (step % 2 === 0) {
-      const size = Math.min(10, remainingTotal);
-      tranches.push({ wallet: 'mobile', cap: size });
-      total += size;
+      const desired = Math.min(10, remainingTotal);
+      const mobRoom = Math.max(0, mobCapLimit - mobAssigned);
+      const mobPart = Math.min(desired, mobRoom);
+      const overflow = desired - mobPart;
+
+      if (mobPart > 0) {
+        pushTranche('mobile', mobPart);
+        mobAssigned += mobPart;
+        total += mobPart;
+      }
+      if (overflow > 0) {
+        pushTranche('pc_ipad', overflow);
+        pcAssigned += overflow;
+        total += overflow;
+      }
     } else {
       const desired = Math.min(30, remainingTotal);
-      const pcRoom = isWeekend ? Math.max(0, pcIpadWeekendCapMin - pcAssigned) : desired;
+      const pcRoom = Math.max(0, pcCapLimit - pcAssigned);
       const pcPart = Math.min(desired, pcRoom);
       const overflow = desired - pcPart;
 
       if (pcPart > 0) {
-        tranches.push({ wallet: 'pc_ipad', cap: pcPart });
+        pushTranche('pc_ipad', pcPart);
         pcAssigned += pcPart;
         total += pcPart;
       }
       if (overflow > 0) {
-        if (tranches.length > 0 && tranches[tranches.length - 1].wallet === 'mobile') {
-          tranches[tranches.length - 1].cap += overflow;
-        } else {
-          tranches.push({ wallet: 'mobile', cap: overflow });
-        }
+        pushTranche('mobile', overflow);
+        mobAssigned += overflow;
         total += overflow;
       }
     }
@@ -2591,8 +2961,34 @@ function formatGrantSummary(pcMin, mobMin) {
   return parts.join(' y ');
 }
 
+function getTodayWalletCaps() {
+  const tranches = getDistributionTranches();
+  let pcCapMin = 0;
+  let mobCapMin = 0;
+  for (const tr of tranches) {
+    if (tr.wallet === 'pc_ipad') pcCapMin += tr.cap;
+    else mobCapMin += tr.cap;
+  }
+  return { pcCapMin, mobCapMin };
+}
+
+function getTodayWalletRoom() {
+  const { pcCapMin, mobCapMin } = getTodayWalletCaps();
+  const pcEarnedMin = Math.floor(appState.wallets.pc_ipad.earnedSeconds / 60);
+  const mobEarnedMin = Math.floor(appState.wallets.mobile.earnedSeconds / 60);
+  return {
+    pcCapMin,
+    mobCapMin,
+    pcEarnedMin,
+    mobEarnedMin,
+    pcRoom: Math.max(0, pcCapMin - pcEarnedMin),
+    mobRoom: Math.max(0, mobCapMin - mobEarnedMin)
+  };
+}
+
 function addMinutesToWallet(walletKey, minutes) {
-  const { isWeekend, dailyTotalCapMin, pcIpadWeekendCapMin } = getTodayCaps();
+  const { dailyTotalCapMin } = getTodayCaps();
+  const { pcRoom, mobRoom } = getTodayWalletRoom();
   const totalEarnedMin = Math.floor(getTotalEarnedSecondsToday() / 60);
   const remainingDailyRoom = Math.max(0, dailyTotalCapMin - totalEarnedMin);
   const toGrant = Math.min(minutes, remainingDailyRoom);
@@ -2608,7 +3004,8 @@ function addMinutesToWallet(walletKey, minutes) {
   if (walletKey === 'auto') {
     const snapshot = getTrancheProgressSnapshot();
     let left = toGrant;
-    let currentPcTotal = Math.floor(appState.wallets.pc_ipad.earnedSeconds / 60);
+    let remPc = pcRoom;
+    let remMob = mobRoom;
 
     for (const tr of snapshot) {
       if (left <= 0) break;
@@ -2616,31 +3013,38 @@ function addMinutesToWallet(walletKey, minutes) {
 
       const chunk = Math.min(left, tr.remaining);
       if (tr.wallet === 'pc_ipad') {
-        const pcRoom = isWeekend ? Math.max(0, pcIpadWeekendCapMin - currentPcTotal) : chunk;
-        const pcPart = Math.min(chunk, pcRoom);
+        const pcPart = Math.min(chunk, remPc);
         const overflow = chunk - pcPart;
         pcMin += pcPart;
-        currentPcTotal += pcPart;
-        mobMin += overflow;
+        remPc -= pcPart;
+        const mobPart = Math.min(overflow, remMob);
+        mobMin += mobPart;
+        remMob -= mobPart;
       } else {
-        mobMin += chunk;
+        const mobPart = Math.min(chunk, remMob);
+        const overflow = chunk - mobPart;
+        mobMin += mobPart;
+        remMob -= mobPart;
+        const pcPart = Math.min(overflow, remPc);
+        pcMin += pcPart;
+        remPc -= pcPart;
       }
       left -= chunk;
     }
 
-    // Si quedase algún minuto residual, lo añadimos a Móvil
     if (left > 0) {
-      mobMin += left;
+      const extraMob = Math.min(left, remMob);
+      mobMin += extraMob;
+      left -= extraMob;
+      const extraPc = Math.min(left, remPc);
+      pcMin += extraPc;
     }
-  } else if (isWeekend && walletKey === 'pc_ipad') {
-    const currentPcMin = Math.floor(appState.wallets.pc_ipad.earnedSeconds / 60);
-    const remainingPcRoom = Math.max(0, pcIpadWeekendCapMin - currentPcMin);
-    pcMin = Math.min(toGrant, remainingPcRoom);
-    mobMin = toGrant - pcMin;
   } else if (walletKey === 'pc_ipad') {
-    pcMin = toGrant;
+    pcMin = Math.min(toGrant, pcRoom);
+    mobMin = Math.min(toGrant - pcMin, mobRoom);
   } else {
-    mobMin = toGrant;
+    mobMin = Math.min(toGrant, mobRoom);
+    pcMin = Math.min(toGrant - mobMin, pcRoom);
   }
 
   appState.wallets.pc_ipad.earnedSeconds += pcMin * 60;
@@ -2879,6 +3283,66 @@ function setTaskListFilter(filter) {
   renderAll();
 }
 
+let pendingWalletTaskId = null;
+
+function openWalletChoiceModal(task, room) {
+  pendingWalletTaskId = task.id;
+  document.getElementById('walletChoiceTaskLabel').textContent =
+    `${task.title} (+${task.minutes} min)`;
+
+  const pcOverflow = Math.max(0, task.minutes - room.pcRoom);
+  const mobOverflow = Math.max(0, task.minutes - room.mobRoom);
+
+  document.getElementById('choosePcMeta').textContent = pcOverflow > 0
+    ? `${room.pcEarnedMin}/${room.pcCapMin}m · caben ${room.pcRoom}m (+${Math.min(pcOverflow, room.mobRoom)}m pasan a Móvil)`
+    : `${room.pcEarnedMin}/${room.pcCapMin}m · quedan ${room.pcRoom}m de tope`;
+
+  document.getElementById('chooseMobMeta').textContent = mobOverflow > 0
+    ? `${room.mobEarnedMin}/${room.mobCapMin}m · caben ${room.mobRoom}m (+${Math.min(mobOverflow, room.pcRoom)}m pasan a iPad/PC)`
+    : `${room.mobEarnedMin}/${room.mobCapMin}m · quedan ${room.mobRoom}m de tope`;
+
+  document.getElementById('walletChoiceModal').classList.add('open');
+}
+
+function closeWalletChoiceModal() {
+  pendingWalletTaskId = null;
+  document.getElementById('walletChoiceModal').classList.remove('open');
+}
+
+function completeTaskWithWallet(task, walletKey, autoReason = '') {
+  const grant = addMinutesToWallet(walletKey, task.minutes);
+  task.completed = true;
+
+  pushUndoEntry({
+    type: 'task',
+    taskId: task.id,
+    label: task.title,
+    pcMin: grant.pcMin,
+    mobMin: grant.mobMin
+  });
+
+  if (grant.total > 0) {
+    const summary = formatGrantSummary(grant.pcMin, grant.mobMin);
+    showToast(autoReason ? `✅ ${autoReason} → ${summary}` : `✅ ${summary}`);
+  } else {
+    showToast('✅ Tarea completada (tope diario ya alcanzado).');
+  }
+
+  persistState();
+  renderAll();
+}
+
+function confirmWalletChoice(walletKey) {
+  if (!isSupervisor() || !pendingWalletTaskId) {
+    closeWalletChoiceModal();
+    return;
+  }
+  const task = appState.tasks.find(t => t.id === pendingWalletTaskId);
+  closeWalletChoiceModal();
+  if (!task || task.completed) return;
+  completeTaskWithWallet(task, walletKey);
+}
+
 function toggleTask(taskId) {
   checkAndRolloverDay();
   if (!isSupervisor()) {
@@ -2911,23 +3375,24 @@ function toggleTask(taskId) {
     return;
   }
 
-  const grant = addMinutesToWallet(task.wallet || 'auto', task.minutes);
-  task.completed = true;
+  const room = getTodayWalletRoom();
 
-  pushUndoEntry({
-    type: 'task',
-    taskId: task.id,
-    label: task.title,
-    pcMin: grant.pcMin,
-    mobMin: grant.mobMin
-  });
-
-  if (grant.total > 0) {
-    showToast(`✅ ${formatGrantSummary(grant.pcMin, grant.mobMin)}`);
+  // Si un monedero ya alcanzó su límite, se lleva automáticamente al que falte sin preguntar
+  if (room.pcRoom <= 0 && room.mobRoom > 0) {
+    completeTaskWithWallet(task, 'mobile', `iPad/PC al tope (${room.pcCapMin}m)`);
+    return;
+  }
+  if (room.mobRoom <= 0 && room.pcRoom > 0) {
+    completeTaskWithWallet(task, 'pc_ipad', `Móvil al tope (${room.mobCapMin}m)`);
+    return;
+  }
+  if (room.pcRoom <= 0 && room.mobRoom <= 0) {
+    completeTaskWithWallet(task, 'auto');
+    return;
   }
 
-  persistState();
-  renderAll();
+  // Ambos monederos tienen hueco: preguntar a qué monedero va
+  openWalletChoiceModal(task, room);
 }
 
 function toggleNewBonusField() {
@@ -3162,13 +3627,28 @@ function toggleFridayNegativeNote() {
   renderAll();
 }
 
+function updateWeekdayCapHint() {
+  const hint = document.getElementById('cfgWeekdayPcAutoHint');
+  if (!hint) return;
+  const total = Math.max(15, parseInt(document.getElementById('cfgWeekdayCap')?.value, 10) || Number(appState.settings.weekdayCap) || 90);
+  const rawMob = parseInt(document.getElementById('cfgWeekdayMobCap')?.value, 10);
+  const mob = Math.max(0, Math.min(total, Number.isFinite(rawMob) ? rawMob : Number(appState.settings.weekdayMobileCap ?? 30)));
+  const pc = Math.max(0, total - mob);
+  hint.textContent = `Ordenador/iPad L-V: ${pc} min/día · Móvil L-V: ${mob} min/día`;
+}
+
 function saveSettings() {
   if (!isSupervisor()) return;
   const weekdayCap = parseInt(document.getElementById('cfgWeekdayCap').value, 10);
+  const weekdayMobCap = parseInt(document.getElementById('cfgWeekdayMobCap').value, 10);
   const weekendCap = parseInt(document.getElementById('cfgWeekendCap').value, 10);
   const weekendPcCap = parseInt(document.getElementById('cfgWeekendPcCap').value, 10);
 
   if (weekdayCap >= 15 && weekdayCap <= 300) appState.settings.weekdayCap = weekdayCap;
+  const effectiveWeekdayCap = Number(appState.settings.weekdayCap) || 90;
+  if (Number.isFinite(weekdayMobCap) && weekdayMobCap >= 0 && weekdayMobCap <= 300) {
+    appState.settings.weekdayMobileCap = Math.min(effectiveWeekdayCap, weekdayMobCap);
+  }
   if (weekendCap >= 30 && weekendCap <= 360) appState.settings.weekendCap = weekendCap;
   if (weekendPcCap >= 30 && weekendPcCap <= 240) appState.settings.weekendPcIpadCap = weekendPcCap;
   appState.settings.requirePinForTasks = true;
@@ -3440,6 +3920,151 @@ function renderWeeklyModal() {
   document.getElementById('weeklyRowsContainer').innerHTML = rowsHtml;
 }
 
+function buildPrintableWeeklySheetHtml() {
+  const now = new Date();
+  const currentDay = now.getDay();
+  const mondayOffset = (currentDay === 0 ? -6 : 1 - currentDay) + (weeklyModalOffset * 7);
+  const mondayDate = new Date(now);
+  mondayDate.setDate(now.getDate() + mondayOffset);
+  const sundayDate = new Date(mondayDate);
+  sundayDate.setDate(mondayDate.getDate() + 6);
+
+  const rangeText = `${mondayDate.toLocaleDateString('es-ES', { day: 'numeric', month: 'long' })} — ${sundayDate.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}`;
+  const dayNames = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+  const liveNow = Date.now();
+  const wkProp = getWeeklyProportionalSummary(weeklyModalOffset);
+
+  let sumEarned = 0;
+  let sumConsumed = 0;
+  let weekdaysDone = 0;
+  let readingCount = 0;
+  let tableRows = '';
+
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(mondayDate);
+    d.setDate(mondayDate.getDate() + i);
+    const key = getLocalDateKey(d);
+    const isToday = key === appState.currentDate;
+    let record = null;
+
+    if (isToday) {
+      const activeToday = appState.tasks.filter(t => isTaskActiveToday(t));
+      const pcEarnedMin = Math.round(appState.wallets.pc_ipad.earnedSeconds / 60);
+      const pcConsumedMin = Math.round(getWalletConsumedSeconds('pc_ipad', liveNow) / 60);
+      const mobEarnedMin = Math.round(appState.wallets.mobile.earnedSeconds / 60);
+      const mobConsumedMin = Math.round(getWalletConsumedSeconds('mobile', liveNow) / 60);
+      record = {
+        earnedMin: pcEarnedMin + mobEarnedMin,
+        consumedMin: pcConsumedMin + mobConsumedMin,
+        pcEarnedMin,
+        pcConsumedMin,
+        mobEarnedMin,
+        mobConsumedMin,
+        tasksCompleted: activeToday.filter(t => t.completed).length,
+        totalTasks: activeToday.length,
+        nightReadingDone: Boolean(appState.nightReadingDone)
+      };
+    } else {
+      record = appState.history.find(h => h.date === key) || null;
+    }
+
+    const isFreeFridayRow = isToday && i === 4 && isFridayFreeTimeToday();
+    if (isFreeFridayRow) {
+      weekdaysDone++;
+      if (record?.nightReadingDone) readingCount++;
+    } else if (record) {
+      sumEarned += record.earnedMin || 0;
+      sumConsumed += record.consumedMin || 0;
+      if (i < 5 && (record.tasksCompleted > 0 || record.earnedMin > 0)) weekdaysDone++;
+      if (record.nightReadingDone) readingCount++;
+    }
+
+    const dateStr = d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
+    const tasksCell = isFreeFridayRow
+      ? '🎉 Viernes libre'
+      : record ? `${record.tasksCompleted} / ${record.totalTasks}` : (d > now ? 'Próximo' : '—');
+    const pcCell = isFreeFridayRow
+      ? 'Libre'
+      : record ? `${record.pcConsumedMin ?? 0} / ${record.pcEarnedMin ?? 0} min` : '—';
+    const mobCell = isFreeFridayRow
+      ? 'Libre'
+      : record ? `${record.mobConsumedMin ?? 0} / ${record.mobEarnedMin ?? 0} min` : '—';
+    const readCell = record?.nightReadingDone ? '🌙 Sí' : '—';
+
+    tableRows += `
+      <tr>
+        <td><strong>${dayNames[i]}</strong> (${dateStr}${isToday ? ' · Hoy' : ''})</td>
+        <td>${tasksCell}</td>
+        <td>${pcCell}</td>
+        <td>${mobCell}</td>
+        <td>${readCell}</td>
+      </tr>
+    `;
+  }
+
+  return `
+    <div class="print-header">
+      <div>
+        <h1 style="font-size:1.35rem; margin:0;">🏎️ Plan de Acción de Pablo · Resumen Semanal</h1>
+        <div style="font-size:0.88rem; color:#475569; margin-top:4px;">${escapeHtml(rangeText)}</div>
+      </div>
+      <div style="font-size:0.82rem; color:#1d4ed8; font-weight:700;">
+        🏎️ Constancia F1: ${weekdaysDone} / 5 días
+      </div>
+    </div>
+
+    <div class="print-kpis">
+      <div class="print-kpi">
+        <div class="print-kpi-val">${sumEarned} min</div>
+        <div class="print-kpi-lbl">Ganado semana</div>
+      </div>
+      <div class="print-kpi">
+        <div class="print-kpi-val">${sumConsumed} min</div>
+        <div class="print-kpi-lbl">Disfrutado</div>
+      </div>
+      <div class="print-kpi">
+        <div class="print-kpi-val">${wkProp.unlockedPerWeekendDayMin} min</div>
+        <div class="print-kpi-lbl">Finde desbloqueado/día</div>
+      </div>
+      <div class="print-kpi">
+        <div class="print-kpi-val">${readingCount} / 7</div>
+        <div class="print-kpi-lbl">🌙 Lecturas nocturnas</div>
+      </div>
+    </div>
+
+    <div style="font-size:0.84rem; color:#334155; margin-bottom:8px;">
+      <strong>Progreso Lunes a Jueves para el fin de semana:</strong>
+      ${wkProp.earnedWeekMin} / ${wkProp.maxWeekMin} min (${wkProp.pct}%) → ${wkProp.unlockedPerWeekendDayMin} min el sábado y ${wkProp.unlockedPerWeekendDayMin} min el domingo.
+    </div>
+
+    <table class="print-table">
+      <thead>
+        <tr>
+          <th>Día</th>
+          <th>Metas completadas</th>
+          <th>💻 Ordenador / iPad (usado/ganado)</th>
+          <th>📱 Móvil (usado/ganado)</th>
+          <th>Lectura nocturna</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${tableRows}
+      </tbody>
+    </table>
+
+    <div class="print-footer">
+      🌟 Enfoque 100% positivo: cada logro suma y construye constancia. ¡Gran trabajo esta semana, Pablo!
+    </div>
+  `;
+}
+
+function printWeeklySummary() {
+  const sheet = document.getElementById('printableWeeklySheet');
+  if (!sheet) return;
+  sheet.innerHTML = buildPrintableWeeklySheetHtml();
+  window.print();
+}
+
 /**
  * ============================================================================
  * UTILIDADES Y COPIAS
@@ -3567,8 +4192,12 @@ function renderWeeklyF1Tracker() {
   const now = new Date();
   const currentDay = now.getDay();
   const mondayOffset = currentDay === 0 ? -6 : 1 - currentDay;
+  const weekdayCap = Math.max(15, Number(appState.settings.weekdayCap) || 90);
 
   let completedWeekdays = 0;
+  let currentStreak = 0;
+  let bestStreak = 0;
+  let ljEarnedTotal = 0;
   let html = '';
 
   for (let i = 0; i < 5; i++) {
@@ -3578,26 +4207,61 @@ function renderWeeklyF1Tracker() {
     const isToday = key === appState.currentDate;
 
     let done = false;
+    let earnedMin = 0;
+    let isFreeFri = false;
     let chipIcon = '○';
+    let subLabel = '—';
+
     if (isToday && i === 4 && isFridayFreeTimeToday()) {
       done = true;
+      isFreeFri = true;
       chipIcon = '🎉';
+      subLabel = 'Libre';
     } else if (isToday) {
-      done = appState.tasks.some(t => t.completed);
-      chipIcon = done ? '✅' : '○';
+      earnedMin = Math.floor(getTotalEarnedSecondsToday() / 60);
+      done = appState.tasks.some(t => t.completed) || earnedMin > 0;
+      chipIcon = earnedMin >= weekdayCap ? '⭐' : (done ? '✅' : '○');
+      subLabel = earnedMin > 0 ? `${earnedMin}m` : 'Hoy';
     } else {
       const hist = appState.history.find(h => h.date === key);
-      done = Boolean(hist && (hist.tasksCompleted > 0 || hist.earnedMin > 0));
-      chipIcon = done ? '✅' : '○';
+      earnedMin = hist ? Number(hist.earnedMin || 0) : 0;
+      done = Boolean(hist && (hist.tasksCompleted > 0 || earnedMin > 0));
+      chipIcon = earnedMin >= weekdayCap ? '⭐' : (done ? '✅' : '○');
+      subLabel = earnedMin > 0 ? `${earnedMin}m` : (d > now ? 'Próx.' : '—');
     }
 
-    if (done) completedWeekdays++;
-    html += `<div class="day-chip ${done ? 'done' : ''} ${isToday ? 'today' : ''}">
-      ${names[i]}<br>${chipIcon}
+    if (i < 4) ljEarnedTotal += Math.min(weekdayCap, earnedMin);
+
+    if (done) {
+      completedWeekdays++;
+      currentStreak++;
+      if (currentStreak > bestStreak) bestStreak = currentStreak;
+    } else if (d < now && !isToday) {
+      currentStreak = 0;
+    }
+
+    const fillPct = isFreeFri ? 100 : Math.min(100, Math.round((earnedMin / weekdayCap) * 100));
+    html += `<div class="day-chip ${done ? 'done' : ''} ${isFreeFri ? 'free-friday' : ''} ${isToday ? 'today' : ''}">
+      <div>${names[i]}</div>
+      <div style="font-size:1rem; line-height:1.2;">${chipIcon}</div>
+      <span class="day-chip-min">${subLabel}</span>
+      <div class="day-chip-bar"><div class="day-chip-bar-fill" style="width:${fillPct}%;"></div></div>
     </div>`;
   }
 
   grid.innerHTML = html;
+
+  const streakBar = document.getElementById('positiveStreakBar');
+  const streakRight = document.getElementById('positiveStreakRight');
+  if (streakBar && streakRight) {
+    const leftLabel = bestStreak >= 2
+      ? `🔥 Racha positiva: ${bestStreak} días sumando`
+      : completedWeekdays === 1
+        ? '🌱 ¡Primer día de la semana sumado!'
+        : '✨ Nueva semana lista para sumar';
+    streakBar.firstElementChild.textContent = leftLabel;
+    streakRight.textContent = `${ljEarnedTotal} min L-J`;
+  }
 
   const banner = document.getElementById('f1RewardBanner');
   if (completedWeekdays >= 3) {
@@ -3697,15 +4361,18 @@ function renderAll() {
     return `<span class="${cls}">${i + 1}º ${icon} ${tr.filled}/${tr.cap}m ${label}${isFilled ? ' ✓' : ''}</span>`;
   }).join('');
 
+  const walletCaps = getTodayWalletCaps();
   const pcWeekendInfo = document.getElementById('weekendPcCapInfo');
   if (caps.isWeekend) {
     pcWeekendInfo.classList.remove('hidden');
     const pcEarnedMin = Math.floor(appState.wallets.pc_ipad.earnedSeconds / 60);
     document.getElementById('pcWeekendEarned').textContent = `${pcEarnedMin} / ${caps.pcIpadWeekendCapMin} min`;
-    document.getElementById('pcIpadLimitHint').textContent = `Máx ${caps.pcIpadWeekendCapMin}m PC/iPad`;
+    document.getElementById('pcIpadLimitHint').textContent = `Máx ${walletCaps.pcCapMin}m iPad/PC`;
+    document.getElementById('mobileLimitHint').textContent = `Máx ${walletCaps.mobCapMin}m Móvil`;
   } else {
     pcWeekendInfo.classList.add('hidden');
-    document.getElementById('pcIpadLimitHint').textContent = fridayFree ? 'Libre hoy' : 'iPad / PC';
+    document.getElementById('pcIpadLimitHint').textContent = fridayFree ? 'Libre hoy' : `Máx ${walletCaps.pcCapMin}m iPad/PC`;
+    document.getElementById('mobileLimitHint').textContent = fridayFree ? 'Libre hoy' : `Máx ${walletCaps.mobCapMin}m Móvil`;
   }
 
   // Wallets
@@ -3951,9 +4618,11 @@ function renderAll() {
     }
 
     setIfIdle('cfgWeekdayCap', appState.settings.weekdayCap);
+    setIfIdle('cfgWeekdayMobCap', appState.settings.weekdayMobileCap ?? 30);
     setIfIdle('cfgWeekendCap', appState.settings.weekendCap);
     setIfIdle('cfgWeekendPcCap', appState.settings.weekendPcIpadCap);
     setIfIdle('cfgRequirePinForTasks', 'true');
+    updateWeekdayCapHint();
     setIfIdle('cfgNtfyTopic', appState.settings.ntfyTopic || '');
     setCheckedIfIdle('cfgNtfyEnabled', appState.settings.ntfyEnabled);
     setCheckedIfIdle('cfgNtfyOnStart', appState.settings.ntfyOnStart !== false);
@@ -3979,6 +4648,101 @@ function renderAll() {
   }
 }
 
+/**
+ * ============================================================================
+ * PWA: INSTALACIÓN EN PANTALLA DE INICIO (iPHONE / iPAD / ANDROID) Y MODO OFFLINE
+ * ============================================================================
+ */
+let deferredPwaPrompt = null;
+
+function isRunningStandalonePwa() {
+  return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+}
+
+function isAppleTouchDevice() {
+  const ua = (window.navigator.userAgent || '').toLowerCase();
+  return /iphone|ipad|ipod/.test(ua) || (window.navigator.platform === 'MacIntel' && window.navigator.maxTouchPoints > 1);
+}
+
+function updatePwaInstallVisibility() {
+  const standalone = isRunningStandalonePwa();
+  const showHeaderBtn = !standalone && (Boolean(deferredPwaPrompt) || isAppleTouchDevice());
+  const headerBtn = document.getElementById('headerPwaInstallBtn');
+  const modeCard = document.getElementById('modePwaInstallCard');
+  if (headerBtn) headerBtn.classList.toggle('hidden', !showHeaderBtn);
+  if (modeCard) modeCard.classList.toggle('hidden', standalone);
+}
+
+async function triggerPwaInstall() {
+  if (deferredPwaPrompt) {
+    try {
+      await deferredPwaPrompt.prompt();
+      const choice = await deferredPwaPrompt.userChoice;
+      if (choice?.outcome === 'accepted') {
+        deferredPwaPrompt = null;
+        updatePwaInstallVisibility();
+        showToast('📲 ¡App instalada! Ya puedes abrir Modo Piloto desde tu pantalla de inicio.');
+        return;
+      }
+    } catch {
+      // Fallback to guided modal below
+    }
+  }
+  openPwaInstallModal();
+}
+
+function openPwaInstallModal() {
+  const modal = document.getElementById('pwaInstallModal');
+  if (modal) modal.classList.add('open');
+}
+
+function closePwaInstallModal() {
+  const modal = document.getElementById('pwaInstallModal');
+  if (modal) modal.classList.remove('open');
+}
+
+function updateOnlineIndicator() {
+  const pill = document.getElementById('offlineIndicator');
+  if (!pill) return;
+  const offline = !navigator.onLine;
+  pill.classList.toggle('hidden', !offline);
+}
+
+function initPwaSupport() {
+  updatePwaInstallVisibility();
+  updateOnlineIndicator();
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPwaPrompt = e;
+    updatePwaInstallVisibility();
+  });
+
+  window.addEventListener('appinstalled', () => {
+    deferredPwaPrompt = null;
+    updatePwaInstallVisibility();
+    showToast('📲 ¡Modo Piloto instalado en pantalla de inicio!');
+  });
+
+  window.addEventListener('online', () => {
+    updateOnlineIndicator();
+    if (currentUser && cloudSyncReady) {
+      savePlanToCloud();
+    }
+    showToast('☁️ Conexión recuperada.');
+  });
+
+  window.addEventListener('offline', () => {
+    updateOnlineIndicator();
+  });
+
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(() => {});
+    });
+  }
+}
+
 // Expose all inline HTML event handlers from ES module scope
 Object.assign(window, {
   enterPilotMode,
@@ -3988,6 +4752,7 @@ Object.assign(window, {
   openWeeklyModal,
   closeWeeklyModal,
   changeSummaryWeek,
+  printWeeklySummary,
   returnToModeSelector,
   pauseConsumptionTimer,
   toggleWakeLock,
@@ -4002,6 +4767,7 @@ Object.assign(window, {
   toggleFridayNegativeNote,
   undoLastMinuteAction,
   syncWeekendProportionalCredit,
+  updateWeekdayCapHint,
   saveSettings,
   changeAdultPin,
   exportBackup,
@@ -4017,6 +4783,11 @@ Object.assign(window, {
   setTaskWallet,
   deleteTask,
   toggleTask,
+  confirmWalletChoice,
+  closeWalletChoiceModal,
+  triggerPwaInstall,
+  openPwaInstallModal,
+  closePwaInstallModal,
   signInWithGoogle,
   signOutGoogle,
   generateNtfyTopic,
@@ -4025,6 +4796,7 @@ Object.assign(window, {
   testNtfyNotification
 });
 
+initPwaSupport();
 initApp();
 </script>
 </body>
